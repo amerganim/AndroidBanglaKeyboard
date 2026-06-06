@@ -1,9 +1,19 @@
 package com.amerganim.banglakeyboard.ime
 
+import android.Manifest
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.inputmethodservice.InputMethodService
+import android.os.Bundle
+import android.speech.RecognitionListener
+import android.speech.RecognizerIntent
+import android.speech.SpeechRecognizer
 import android.text.InputType
 import android.view.View
 import android.view.inputmethod.EditorInfo
+import android.widget.Toast
+import androidx.core.content.ContextCompat
+import com.amerganim.banglakeyboard.SpeechPermissionActivity
 import androidx.compose.ui.platform.ComposeView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
@@ -63,8 +73,76 @@ class BanglaInputMethodService :
             connection = { currentInputConnection },
             repository = repository,
             scope = scope,
+            onMicRequest = ::onMicClicked,
         )
         scope.launch { repository.load() }
+    }
+
+    // ---- Voice typing ---------------------------------------------------
+
+    private var speechRecognizer: SpeechRecognizer? = null
+
+    private fun onMicClicked() {
+        if (viewModel.listening) {
+            stopVoiceInput()
+            return
+        }
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            startActivity(
+                Intent(this, SpeechPermissionActivity::class.java)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+            )
+            return
+        }
+        if (!SpeechRecognizer.isRecognitionAvailable(this)) {
+            Toast.makeText(this, "Speech recognition not available", Toast.LENGTH_SHORT).show()
+            return
+        }
+        startVoiceInput()
+    }
+
+    private fun startVoiceInput() {
+        val recognizer = SpeechRecognizer.createSpeechRecognizer(this)
+        speechRecognizer = recognizer
+        recognizer.setRecognitionListener(object : RecognitionListener {
+            override fun onReadyForSpeech(params: Bundle?) { viewModel.updateListening(true) }
+            override fun onBeginningOfSpeech() {}
+            override fun onRmsChanged(rmsdB: Float) {}
+            override fun onBufferReceived(buffer: ByteArray?) {}
+            override fun onEndOfSpeech() {}
+            override fun onPartialResults(partialResults: Bundle?) {}
+            override fun onEvent(eventType: Int, params: Bundle?) {}
+
+            override fun onResults(results: Bundle?) {
+                val text = results
+                    ?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+                    ?.firstOrNull()
+                    .orEmpty()
+                if (text.isNotBlank()) viewModel.commitVoiceText(text.trim())
+                finishVoiceInput()
+            }
+
+            override fun onError(error: Int) { finishVoiceInput() }
+        })
+        val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE, viewModel.voiceLanguageTag)
+            putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
+        }
+        runCatching { recognizer.startListening(intent) }
+            .onFailure { finishVoiceInput() }
+    }
+
+    private fun stopVoiceInput() {
+        runCatching { speechRecognizer?.stopListening() }
+    }
+
+    private fun finishVoiceInput() {
+        viewModel.updateListening(false)
+        runCatching { speechRecognizer?.destroy() }
+        speechRecognizer = null
     }
 
     override fun onCreateInputView(): View {
@@ -120,11 +198,13 @@ class BanglaInputMethodService :
     }
 
     override fun onFinishInputView(finishingInput: Boolean) {
+        finishVoiceInput()
         super.onFinishInputView(finishingInput)
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_PAUSE)
     }
 
     override fun onDestroy() {
+        finishVoiceInput()
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
         store.clear()
         scope.cancel()

@@ -42,13 +42,23 @@ In password fields and fields that opt out of personalized learning, the app doe
 
 - **Bind input method** (`BIND_INPUT_METHOD`): required for any keyboard; granted
   by the system when you enable the keyboard.
+- **Microphone** (`RECORD_AUDIO`): requested **only** when you tap the voice-input
+  (🎤) key, for voice typing. If you never use voice typing, it is never requested.
 - The app requests **no internet permission** and **no contacts/location/storage**
   permissions.
 
-> If a future version adds optional **voice typing (speech-to-text)**, it will
-> request microphone access only when you use that feature, this policy will be
-> updated to describe it, and any audio sent to a speech service (if not processed
-> on-device) will be clearly disclosed and opt-in.
+## Voice typing (speech-to-text)
+
+Voice typing is **optional**. When you tap the 🎤 key, the app uses **your device's
+system speech-recognition service** (for example, the Google speech service that
+ships with your phone) to convert speech to text. That recognized text is inserted
+into the field you are typing in.
+
+The app itself does not record, store, or transmit audio. However, the **system
+speech service** may process your audio according to **its own** privacy policy,
+and depending on your device it may send audio to its provider's servers to perform
+recognition. If you prefer your voice never to leave the device, simply don't use
+the 🎤 key — all other features work fully offline.
 
 ## Data sharing
 

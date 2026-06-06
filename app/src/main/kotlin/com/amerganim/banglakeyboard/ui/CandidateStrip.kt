@@ -2,8 +2,10 @@ package com.amerganim.banglakeyboard.ui
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -11,6 +13,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Mic
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -21,8 +26,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 /**
- * Horizontally scrollable suggestion / next-word chips. Tap commits; long-press
- * forgets the word from history.
+ * The bar above the keys: scrollable suggestion / next-word chips on the left and a
+ * voice-input (mic) button on the right. Tap a chip to commit; long-press to forget.
  */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -30,38 +35,66 @@ fun CandidateStrip(
     candidates: List<String>,
     onClick: (String) -> Unit,
     onLongPress: (String) -> Unit,
+    onMic: () -> Unit,
+    listening: Boolean,
     modifier: Modifier = Modifier,
 ) {
     val colors = MaterialTheme.colorScheme
-    LazyRow(
+    Row(
         modifier = modifier
             .fillMaxWidth()
             .height(46.dp)
             .background(colors.background),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        itemsIndexed(candidates) { index, word ->
-            if (index > 0) {
-                Box(
-                    Modifier
-                        .fillMaxHeight()
-                        .padding(vertical = 9.dp)
-                        .width(1.dp)
-                        .background(colors.outline),
+        Box(Modifier.weight(1f).fillMaxHeight(), contentAlignment = Alignment.CenterStart) {
+            if (listening) {
+                Text(
+                    text = "🎙 শুনছি… / Listening…",
+                    fontSize = 16.sp,
+                    color = colors.primary,
+                    fontWeight = FontWeight.Medium,
+                    modifier = Modifier.padding(horizontal = 16.dp),
                 )
+            } else {
+                LazyRow(Modifier.fillMaxHeight(), verticalAlignment = Alignment.CenterVertically) {
+                    itemsIndexed(candidates) { index, word ->
+                        if (index > 0) {
+                            Box(
+                                Modifier
+                                    .fillMaxHeight()
+                                    .padding(vertical = 9.dp)
+                                    .width(1.dp)
+                                    .background(colors.outline),
+                            )
+                        }
+                        Text(
+                            text = word,
+                            fontSize = 18.sp,
+                            fontWeight = if (index == 0) FontWeight.SemiBold else FontWeight.Normal,
+                            color = if (index == 0) colors.primary else colors.onSurface,
+                            modifier = Modifier
+                                .combinedClickable(
+                                    onClick = { onClick(word) },
+                                    onLongClick = { onLongPress(word) },
+                                )
+                                .padding(horizontal = 18.dp, vertical = 10.dp),
+                        )
+                    }
+                }
             }
-            Text(
-                text = word,
-                fontSize = 18.sp,
-                // The literal/as-typed text (index 0) is emphasized.
-                fontWeight = if (index == 0) FontWeight.SemiBold else FontWeight.Normal,
-                color = if (index == 0) colors.primary else colors.onSurface,
-                modifier = Modifier
-                    .combinedClickable(
-                        onClick = { onClick(word) },
-                        onLongClick = { onLongPress(word) },
-                    )
-                    .padding(horizontal = 18.dp, vertical = 10.dp),
+        }
+        Box(
+            Modifier
+                .fillMaxHeight()
+                .width(48.dp)
+                .clickable(onClick = onMic),
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Mic,
+                contentDescription = "Voice input",
+                tint = if (listening) colors.primary else colors.onSurfaceVariant,
             )
         }
     }

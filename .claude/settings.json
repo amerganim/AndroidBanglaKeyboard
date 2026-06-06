@@ -17,10 +17,12 @@
       "Bash(git push *)",
       "WebFetch(domain:www.prothomalo.com)",
       "Bash(cd \"/c/Ganim/My_Projects/AndroidBanglaKeyboard/AndroidBanglaKeyboard\" && find app/src -type f \\\\\\( -name '*.kt' -o -name '*.xml' \\\\\\) | sort && echo \"--- assets ---\" && ls -la app/src/main/assets/ && echo \"--- versions ---\" && grep -E \"versionCode|versionName|minSdk|targetSdk|compileSdk\" app/build.gradle.kts)",
-      "Read(//c/c/Ganim/My_Projects/AndroidBanglaKeyboard/AndroidBanglaKeyboard/app/**)"
+      "Read(//c/c/Ganim/My_Projects/AndroidBanglaKeyboard/AndroidBanglaKeyboard/app/**)",
+      "Bash(cd \"/c/Ganim/My_Projects/AndroidBanglaKeyboard/AndroidBanglaKeyboard\" && sed -i 's/viewModel\\\\.setListening/viewModel.updateListening/g' app/src/main/kotlin/com/amerganim/banglakeyboard/ime/BanglaInputMethodService.kt && grep -n \"updateListening\\\\|setListening\" app/src/main/kotlin/com/amerganim/banglakeyboard/ime/BanglaInputMethodService.kt)"
     ],
     "additionalDirectories": [
-      "c:\\Users\\USER\\.claude\\projects\\c--Ganim-My-Projects-AndroidBanglaKeyboard-AndroidBanglaKeyboard\\memory"
+      "c:\\Users\\USER\\.claude\\projects\\c--Ganim-My-Projects-AndroidBanglaKeyboard-AndroidBanglaKeyboard\\memory",
+      "c:\\c\\Ganim\\My_Projects\\AndroidBanglaKeyboard\\AndroidBanglaKeyboard\\app\\src\\main\\kotlin\\com\\amerganim\\banglakeyboard\\ime"
     ]
   }
 }

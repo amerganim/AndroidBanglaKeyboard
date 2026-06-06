@@ -29,6 +29,8 @@ fun KeyboardScreen(vm: KeyboardViewModel) {
                     candidates = vm.candidates,
                     onClick = vm::onCandidate,
                     onLongPress = vm::onForgetCandidate,
+                    onMic = vm::onMic,
+                    listening = vm.listening,
                 )
                 QwertyLayout(vm)
             }

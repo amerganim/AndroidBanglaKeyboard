@@ -23,9 +23,18 @@ class KeyboardViewModel(
     private val connection: () -> InputConnection?,
     private val repository: DictionaryRepository,
     private val scope: CoroutineScope,
+    private val onMicRequest: () -> Unit = {},
 ) {
     var mode by mutableStateOf(KeyboardMode.BANGLA_PHONETIC)
         private set
+
+    /** True while voice input is actively listening. */
+    var listening by mutableStateOf(false)
+        private set
+
+    /** The language tag for voice input, based on the current mode. */
+    val voiceLanguageTag: String
+        get() = if (mode == KeyboardMode.ENGLISH) "en-US" else "bn-BD"
 
     var shifted by mutableStateOf(false)
         private set
@@ -176,6 +185,22 @@ class KeyboardViewModel(
 
     fun switchSymbolsPage() {
         symbolsPageIndex = if (symbolsPageIndex == 0) 1 else 0
+    }
+
+    /** Mic key tapped — ask the service to start/stop voice input. */
+    fun onMic() = onMicRequest()
+
+    fun updateListening(value: Boolean) {
+        listening = value
+    }
+
+    /** Commit recognized voice text into the field. */
+    fun commitVoiceText(text: String) {
+        val ic = connection() ?: return
+        finalizeWord(ic)
+        ic.commitText("$text ", 1)
+        prevWord = ""
+        candidates = emptyList()
     }
 
     /** Show/hide the emoji panel. */
