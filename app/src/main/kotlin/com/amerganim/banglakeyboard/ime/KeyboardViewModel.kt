@@ -93,6 +93,18 @@ class KeyboardViewModel(
         if (shifted) shifted = false
     }
 
+    /**
+     * A fixed-layout key: appends a whole roman [token] (e.g. "k", "kh", "T") to the
+     * buffer and reuses the phonetic engine for kars/conjuncts. Bangla modes only.
+     */
+    fun onToken(token: String) {
+        val ic = connection() ?: return
+        buffer += token
+        ic.setComposingText(composed(), 1)
+        candidates = completions()
+        if (shifted) shifted = false
+    }
+
     fun onSpace() {
         val ic = connection() ?: return
         finalizeWord(ic)

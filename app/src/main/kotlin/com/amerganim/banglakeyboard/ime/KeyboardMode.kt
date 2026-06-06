@@ -4,9 +4,9 @@ package com.amerganim.banglakeyboard.ime
 enum class KeyboardMode(val label: String) {
     ENGLISH("EN"),
     BANGLA_PHONETIC("বাং"),
+    BANGLA_FIXED("ফিক্সড"),
     ;
 
-    // Bangla Fixed layout will be added here as a later phase.
     fun next(): KeyboardMode {
         val values = entries
         return values[(ordinal + 1) % values.size]
