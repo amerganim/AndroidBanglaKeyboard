@@ -50,6 +50,10 @@ class KeyboardViewModel(
     private var buffer: String = "" // romanized (Bangla) or plain (English) word
     private var prevWord: String = "" // last committed word, for next-word prediction
 
+    // In private mode (password / no-personalized-learning fields) we never show
+    // suggestions, save words, or learn predictions.
+    private var privateMode: Boolean = false
+
     private fun lang() = if (mode == KeyboardMode.ENGLISH) Lang.ENGLISH else Lang.BANGLA
 
     /** The text currently being composed (transliterated in Bangla mode). */
@@ -57,7 +61,8 @@ class KeyboardViewModel(
         if (mode == KeyboardMode.ENGLISH) buffer else Transliterator.transliterate(buffer)
 
     private fun completions(): List<String> =
-        if (mode == KeyboardMode.ENGLISH) repository.suggestEnglish(buffer) else repository.suggestBangla(buffer)
+        if (privateMode) emptyList()
+        else if (mode == KeyboardMode.ENGLISH) repository.suggestEnglish(buffer) else repository.suggestBangla(buffer)
 
     // ---- Key events -----------------------------------------------------
 
@@ -82,7 +87,7 @@ class KeyboardViewModel(
         val ic = connection() ?: return
         finalizeWord(ic)
         ic.commitText(" ", 1)
-        candidates = repository.predictNext(lang(), prevWord)
+        candidates = if (privateMode) emptyList() else repository.predictNext(lang(), prevWord)
     }
 
     fun onBackspace() {
@@ -148,9 +153,9 @@ class KeyboardViewModel(
         ic.commitText("$word ", 1) // replaces any composing region, adds a space
         val prev = prevWord
         buffer = ""
-        scope.launch { repository.commitWord(lang(), prev, word) }
+        if (!privateMode) scope.launch { repository.commitWord(lang(), prev, word) }
         prevWord = word
-        candidates = repository.predictNext(lang(), word)
+        candidates = if (privateMode) emptyList() else repository.predictNext(lang(), word)
         if (shifted) shifted = false
     }
 
@@ -203,7 +208,7 @@ class KeyboardViewModel(
         mode = mode.next()
     }
 
-    fun onInputStart() {
+    fun onInputStart(privateField: Boolean = false) {
         buffer = ""
         prevWord = ""
         candidates = emptyList()
@@ -211,6 +216,7 @@ class KeyboardViewModel(
         symbolsPageIndex = 0
         emojiPanel = false
         shifted = false
+        privateMode = privateField
     }
 
     // ---- Helpers --------------------------------------------------------
@@ -223,7 +229,7 @@ class KeyboardViewModel(
         val prev = prevWord
         buffer = ""
         candidates = emptyList()
-        scope.launch { repository.commitWord(lang(), prev, word) }
+        if (!privateMode) scope.launch { repository.commitWord(lang(), prev, word) }
         prevWord = word
     }
 

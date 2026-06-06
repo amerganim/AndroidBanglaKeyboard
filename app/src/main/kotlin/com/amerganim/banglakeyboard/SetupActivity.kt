@@ -2,6 +2,7 @@ package com.amerganim.banglakeyboard
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
 import android.view.inputmethod.InputMethodManager
@@ -44,6 +45,9 @@ import com.amerganim.banglakeyboard.data.KeySize
 import com.amerganim.banglakeyboard.data.KeyboardPrefs
 import com.amerganim.banglakeyboard.ui.GuideScreen
 import com.amerganim.banglakeyboard.ui.theme.BanglaKeyboardTheme
+
+private const val PRIVACY_POLICY_URL =
+    "https://github.com/amerganim/AndroidBanglaKeyboard/blob/main/PRIVACY_POLICY.md"
 
 /**
  * Launcher screen: walks the user through enabling/selecting the keyboard, lets
@@ -129,6 +133,16 @@ private fun SetupScreen(onOpenGuide: () -> Unit) {
         OutlinedButton(onClick = onOpenGuide, modifier = Modifier.fillMaxWidth()) {
             Text("Bangla typing guide")
         }
+
+        OutlinedButton(
+            onClick = {
+                context.startActivity(
+                    Intent(Intent.ACTION_VIEW, Uri.parse(PRIVACY_POLICY_URL))
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+                )
+            },
+            modifier = Modifier.fillMaxWidth(),
+        ) { Text("Privacy policy") }
 
         Text("Key size", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
         var keySize by remember { mutableStateOf(prefs.keySize) }

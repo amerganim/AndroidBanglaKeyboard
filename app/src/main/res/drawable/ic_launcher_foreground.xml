@@ -1,0 +1,11 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- A simple keyboard: three rows of keys + a space bar, white on the brand
+         background. Drawn within the adaptive-icon safe zone. -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M26,40h8v8h-8z M38,40h8v8h-8z M50,40h8v8h-8z M62,40h8v8h-8z M74,40h8v8h-8z M26,52h8v8h-8z M38,52h8v8h-8z M50,52h8v8h-8z M62,52h8v8h-8z M74,52h8v8h-8z M34,64h40v8h-40z" />
+</vector>

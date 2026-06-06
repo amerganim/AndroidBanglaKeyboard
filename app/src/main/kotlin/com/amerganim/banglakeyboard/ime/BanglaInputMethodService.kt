@@ -1,6 +1,7 @@
 package com.amerganim.banglakeyboard.ime
 
 import android.inputmethodservice.InputMethodService
+import android.text.InputType
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import androidx.compose.ui.platform.ComposeView
@@ -86,7 +87,29 @@ class BanglaInputMethodService :
 
     override fun onStartInput(info: EditorInfo?, restarting: Boolean) {
         super.onStartInput(info, restarting)
-        viewModel.onInputStart()
+        viewModel.onInputStart(privateField = isPrivateField(info))
+    }
+
+    /**
+     * Whether this field should be treated as private: password fields, fields that
+     * disable suggestions, or fields that opt out of personalized learning. In these
+     * we never show suggestions, save words, or learn predictions.
+     */
+    private fun isPrivateField(info: EditorInfo?): Boolean {
+        if (info == null) return false
+        val type = info.inputType
+        val cls = type and InputType.TYPE_MASK_CLASS
+        val variation = type and InputType.TYPE_MASK_VARIATION
+        val isPassword = when (cls) {
+            InputType.TYPE_CLASS_TEXT -> variation == InputType.TYPE_TEXT_VARIATION_PASSWORD ||
+                variation == InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD ||
+                variation == InputType.TYPE_TEXT_VARIATION_WEB_PASSWORD
+            InputType.TYPE_CLASS_NUMBER -> variation == InputType.TYPE_NUMBER_VARIATION_PASSWORD
+            else -> false
+        }
+        val noSuggestions = (type and InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS) != 0
+        val noLearning = (info.imeOptions and EditorInfo.IME_FLAG_NO_PERSONALIZED_LEARNING) != 0
+        return isPassword || noSuggestions || noLearning
     }
 
     override fun onStartInputView(info: EditorInfo?, restarting: Boolean) {
