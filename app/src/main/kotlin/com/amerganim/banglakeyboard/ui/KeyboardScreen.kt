@@ -23,7 +23,10 @@ fun KeyboardScreen(vm: KeyboardViewModel) {
                     .fillMaxWidth()
                     .navigationBarsPadding(),
             ) {
-                if (vm.mode == KeyboardMode.BANGLA_PHONETIC && vm.candidates.isNotEmpty()) {
+                // Always reserve the strip's space in Bangla mode so the keyboard
+                // doesn't shift down when suggestions first appear — a moving
+                // keyboard causes mis-taps when typing fast (e.g. "amar" -> "akar").
+                if (vm.mode == KeyboardMode.BANGLA_PHONETIC) {
                     CandidateStrip(
                         candidates = vm.candidates,
                         onClick = vm::onCandidate,

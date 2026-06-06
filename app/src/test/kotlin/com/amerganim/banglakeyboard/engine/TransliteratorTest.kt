@@ -89,4 +89,28 @@ class TransliteratorTest {
         check("Tumi", "টুমি") // T = ট (not ত)
         check("Dhaka", "ঢাকা")
     }
+
+    @Test fun everyLatinLetterMapsToBangla() {
+        // q / c / x previously leaked as English; now they have Bangla forms.
+        check("q", "ক")
+        check("c", "চ")
+        check("x", "ক্স")
+        check("box", "বক্স")
+        // ch / chh are longer keys and still win over a lone c.
+        check("chand", "চান্দ")
+        check("chhobi", "ছবি")
+    }
+
+    @Test fun commonWordsTransliterateCorrectly() {
+        // A broader regression set (scheme-strict spellings).
+        check("kemon", "কেমন")
+        check("rate", "রাতে")
+        check("desh", "দেশ")
+        check("bhat", "ভাত")
+        check("pani", "পানি")
+        check("manuSh", "মানুষ")
+        check("nodI", "নদী")
+        check("tOmar", "তোমার")
+        check("bhalObasa", "ভালোবাসা")
+    }
 }

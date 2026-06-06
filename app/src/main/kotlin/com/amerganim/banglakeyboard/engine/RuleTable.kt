@@ -81,6 +81,11 @@ internal object RuleTable {
         put("h", Unit(Kind.CONSONANT, "হ"))
         put("R", Unit(Kind.CONSONANT, "ড়"))
         put("Rh", Unit(Kind.CONSONANT, "ঢ়"))
+        // Remaining Latin letters get a Bangla form so nothing leaks as English.
+        // `ch`/`chh` are longer keys and still win over a lone `c`.
+        put("q", Unit(Kind.CONSONANT, "ক")) // q -> ক
+        put("c", Unit(Kind.CONSONANT, "চ")) // c (alone) -> চ
+        put("x", Unit(Kind.CONSONANT, "ক্স")) // x -> ক্স (e.g. box -> বক্স)
         put("y", Unit(Kind.CONSONANT, "য়")) // ya with nukta (য়)
         put("Y", Unit(Kind.CONSONANT, "য়")) // alias of `y` -> য়
 
