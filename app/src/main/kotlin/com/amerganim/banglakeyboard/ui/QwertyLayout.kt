@@ -31,9 +31,10 @@ fun QwertyLayout(vm: KeyboardViewModel, modifier: Modifier = Modifier) {
             EmojiPanel(vm) // brings its own bottom bar (ABC / space / backspace)
         } else {
             when {
-                !vm.symbolsPage -> LetterRows(vm)
-                vm.symbolsPageIndex == 0 -> SymbolPage1(vm)
-                else -> SymbolPage2(vm)
+                vm.symbolsPage && vm.symbolsPageIndex == 0 -> SymbolPage1(vm)
+                vm.symbolsPage -> SymbolPage2(vm)
+                vm.mode == KeyboardMode.BANGLA_FIXED -> FixedRows(vm)
+                else -> LetterRows(vm)
             }
             BottomRow(vm)
         }
@@ -118,7 +119,11 @@ private fun BottomRow(vm: KeyboardViewModel) {
         KeyButton(
             onClick = vm::onSpace,
             modifier = Modifier.weight(3f),
-            label = if (vm.mode == KeyboardMode.ENGLISH) "English" else "বাংলা",
+            label = when (vm.mode) {
+                KeyboardMode.ENGLISH -> "English"
+                KeyboardMode.BANGLA_PHONETIC -> "বাংলা"
+                KeyboardMode.BANGLA_FIXED -> "আমাদের"
+            },
             height = vm.keySize.rowHeight,
         )
         CharKey('.', vm)
