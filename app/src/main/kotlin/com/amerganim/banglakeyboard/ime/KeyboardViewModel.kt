@@ -107,6 +107,17 @@ class KeyboardViewModel(
         }
     }
 
+    /**
+     * Commit a literal character, bypassing the phonetic engine. Used for the
+     * long-press alternates of sign keys (e.g. literal `^` / `` ` `` in Bangla mode).
+     */
+    fun onLiteral(c: Char) {
+        val ic = connection() ?: return
+        finishComposing(ic) // commit any pending word first
+        ic.commitText(c.toString(), 1)
+        if (shifted) shifted = false
+    }
+
     /** The user tapped a suggestion chip. */
     fun onCandidate(word: String) {
         val ic = connection() ?: return

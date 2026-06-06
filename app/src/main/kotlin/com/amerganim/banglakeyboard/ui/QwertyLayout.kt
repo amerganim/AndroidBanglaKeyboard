@@ -148,11 +148,19 @@ private fun RowScope.PageSwitchKey(vm: KeyboardViewModel, label: String) {
 @Composable
 private fun RowScope.CharKey(c: Char, vm: KeyboardViewModel) {
     val shown = if (vm.shifted) c.uppercaseChar() else c
+    // In Bangla mode `^`/`` ` `` produce Bangla signs; long-press types the literal.
+    val hasLiteralAlternate = vm.mode == KeyboardMode.BANGLA_PHONETIC && (c == '^' || c == '`')
     KeyButton(
         onClick = { vm.onChar(shown) },
         modifier = Modifier.weight(1f),
         // In Bangla mode, show the actual sign glyph so it's discoverable.
         label = displayLabel(shown, vm.mode),
+        onLongPress = if (hasLiteralAlternate) {
+            { vm.onLiteral(c) }
+        } else {
+            null
+        },
+        hint = if (hasLiteralAlternate) c.toString() else null,
         height = vm.keySize.rowHeight,
     )
 }

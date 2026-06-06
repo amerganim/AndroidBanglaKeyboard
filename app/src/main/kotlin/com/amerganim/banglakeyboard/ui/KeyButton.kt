@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -53,6 +54,8 @@ fun KeyButton(
     style: KeyStyle = KeyStyle.NORMAL,
     active: Boolean = false,
     repeatOnHold: Boolean = false,
+    onLongPress: (() -> Unit)? = null,
+    hint: String? = null,
     height: Dp = 54.dp,
 ) {
     val colors = MaterialTheme.colorScheme
@@ -69,13 +72,17 @@ fun KeyButton(
     val background = if (pressed) baseColor.blendTowards(colors.primary, 0.35f) else baseColor
     val contentColor = if (active || style == KeyStyle.ACCENT) colors.onPrimary else colors.onSurface
 
-    val clickModifier = if (repeatOnHold) {
-        Modifier.repeatingClickable(
+    val clickModifier = when {
+        repeatOnHold -> Modifier.repeatingClickable(
             onClick = onClick,
             onPressedChange = { pressedByHold = it },
         )
-    } else {
-        Modifier.clickable(
+        onLongPress != null -> Modifier.tapOrLongPress(
+            onClick = onClick,
+            onLongPress = onLongPress,
+            onPressedChange = { pressedByHold = it },
+        )
+        else -> Modifier.clickable(
             interactionSource = interaction,
             indication = null,
             onClick = onClick,
@@ -92,6 +99,15 @@ fun KeyButton(
             .then(clickModifier),
         contentAlignment = Alignment.Center,
     ) {
+        // Small corner hint advertising the long-press alternate character.
+        if (hint != null) {
+            Text(
+                text = hint,
+                fontSize = 10.sp,
+                color = contentColor.copy(alpha = 0.5f),
+                modifier = Modifier.align(Alignment.TopEnd).padding(horizontal = 5.dp, vertical = 1.dp),
+            )
+        }
         when {
             icon != null -> Icon(
                 imageVector = icon,
@@ -105,6 +121,32 @@ fun KeyButton(
                 color = contentColor,
             )
         }
+    }
+}
+
+/**
+ * Tap fires [onClick]; a long hold fires [onLongPress] instead. Used for keys
+ * with an alternate character (e.g. tap `ঁ`, long-press literal `^`).
+ */
+@Composable
+private fun Modifier.tapOrLongPress(
+    onClick: () -> Unit,
+    onLongPress: () -> Unit,
+    onPressedChange: (Boolean) -> Unit,
+): Modifier {
+    val currentClick by rememberUpdatedState(onClick)
+    val currentLong by rememberUpdatedState(onLongPress)
+    val currentPressed by rememberUpdatedState(onPressedChange)
+    return this.pointerInput(Unit) {
+        detectTapGestures(
+            onPress = {
+                currentPressed(true)
+                tryAwaitRelease()
+                currentPressed(false)
+            },
+            onTap = { currentClick() },
+            onLongPress = { currentLong() },
+        )
     }
 }
 
