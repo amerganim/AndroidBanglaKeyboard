@@ -33,6 +33,10 @@ class KeyboardViewModel(
     var symbolsPage by mutableStateOf(false)
         private set
 
+    /** Which symbols page is showing (0 or 1) when [symbolsPage] is true. */
+    var symbolsPageIndex by mutableStateOf(0)
+        private set
+
     /** Key size (row height), driven by user settings. */
     var keySize by mutableStateOf(KeySize.MEDIUM)
         private set
@@ -117,6 +121,12 @@ class KeyboardViewModel(
 
     fun toggleSymbols() {
         symbolsPage = !symbolsPage
+        symbolsPageIndex = 0
+    }
+
+    /** Switch between the two symbol pages (more / fewer symbols). */
+    fun switchSymbolsPage() {
+        symbolsPageIndex = if (symbolsPageIndex == 0) 1 else 0
     }
 
     fun updateKeySize(size: KeySize) {
@@ -127,6 +137,7 @@ class KeyboardViewModel(
     fun onModeSwitch() {
         connection()?.let { finishComposing(it) }
         symbolsPage = false
+        symbolsPageIndex = 0
         shifted = false
         mode = mode.next()
     }
@@ -135,6 +146,7 @@ class KeyboardViewModel(
     fun onInputStart() {
         clearBuffer()
         symbolsPage = false
+        symbolsPageIndex = 0
         shifted = false
     }
 

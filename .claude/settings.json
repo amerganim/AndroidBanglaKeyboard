@@ -14,7 +14,8 @@
       "Read(//c/Users/USER/AppData/Local/Temp/**)",
       "Bash(git add *)",
       "Bash(git commit -q -m ' *)",
-      "Bash(git push *)"
+      "Bash(git push *)",
+      "WebFetch(domain:www.prothomalo.com)"
     ],
     "additionalDirectories": [
       "c:\\Users\\USER\\.claude\\projects\\c--Ganim-My-Projects-AndroidBanglaKeyboard-AndroidBanglaKeyboard\\memory"

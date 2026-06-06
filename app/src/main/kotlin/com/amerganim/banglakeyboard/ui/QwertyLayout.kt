@@ -18,14 +18,20 @@ import com.amerganim.banglakeyboard.ime.KeyboardMode
 import com.amerganim.banglakeyboard.ime.KeyboardViewModel
 
 /**
- * A QWERTY layout shared by English and Bangla Phonetic modes. Every character
- * key routes through [KeyboardViewModel.onChar]; the ViewModel decides whether to
- * commit directly (English) or transliterate into the composing buffer (Phonetic).
+ * A QWERTY layout shared by English and Bangla Phonetic modes, plus two symbol
+ * pages. Every character key routes through [KeyboardViewModel.onChar]; the
+ * ViewModel decides whether to commit directly (English) or transliterate into the
+ * composing buffer (Phonetic). In Bangla mode `^` -> ঁ (chandrabindu), `` ` `` -> ্
+ * (hasanta), `:` -> ঃ (visarga).
  */
 @Composable
 fun QwertyLayout(vm: KeyboardViewModel, modifier: Modifier = Modifier) {
     Column(modifier = modifier.fillMaxWidth().padding(horizontal = 2.dp, vertical = 4.dp)) {
-        if (vm.symbolsPage) SymbolRows(vm) else LetterRows(vm)
+        when {
+            !vm.symbolsPage -> LetterRows(vm)
+            vm.symbolsPageIndex == 0 -> SymbolPage1(vm)
+            else -> SymbolPage2(vm)
+        }
         BottomRow(vm)
     }
 }
@@ -50,36 +56,33 @@ private fun LetterRows(vm: KeyboardViewModel) {
             height = vm.keySize.rowHeight,
         )
         for (c in "zxcvbnm") CharKey(c, vm)
-        KeyButton(
-            onClick = vm::onBackspace,
-            modifier = Modifier.weight(1.5f),
-            icon = Icons.AutoMirrored.Filled.Backspace,
-            style = KeyStyle.SPECIAL,
-            repeatOnHold = true,
-            height = vm.keySize.rowHeight,
-        )
+        BackspaceKey(vm, weight = 1.5f)
     }
 }
 
 @Composable
-private fun SymbolRows(vm: KeyboardViewModel) {
+private fun SymbolPage1(vm: KeyboardViewModel) {
+    Row(Modifier.fillMaxWidth()) { for (c in "1234567890") CharKey(c, vm) }
+    Row(Modifier.fillMaxWidth()) { for (c in "@#৳_&-+()/") CharKey(c, vm) }
     Row(Modifier.fillMaxWidth()) {
-        for (c in "1234567890") CharKey(c, vm)
+        PageSwitchKey(vm, "1/2")
+        for (c in listOf('^', ':', '!', '?', '*', '"', '\'')) CharKey(c, vm)
+        BackspaceKey(vm, weight = 1.5f)
+    }
+}
+
+@Composable
+private fun SymbolPage2(vm: KeyboardViewModel) {
+    Row(Modifier.fillMaxWidth()) {
+        for (c in listOf('`', '~', '[', ']', '{', '}', '<', '>', '|', '\\')) CharKey(c, vm)
     }
     Row(Modifier.fillMaxWidth()) {
-        for (c in "@#\$_&-+()/") CharKey(c, vm)
+        for (c in listOf('=', '£', '¢', '€', '¥', '°', '%', '©', '®', '™')) CharKey(c, vm)
     }
     Row(Modifier.fillMaxWidth()) {
-        Spacer(Modifier.weight(1.5f))
-        for (c in "*\"':;!?") CharKey(c, vm)
-        KeyButton(
-            onClick = vm::onBackspace,
-            modifier = Modifier.weight(1.5f),
-            icon = Icons.AutoMirrored.Filled.Backspace,
-            style = KeyStyle.SPECIAL,
-            repeatOnHold = true,
-            height = vm.keySize.rowHeight,
-        )
+        PageSwitchKey(vm, "2/2")
+        for (c in listOf('√', 'π', '÷', '×', '±', '¶', '…')) CharKey(c, vm)
+        BackspaceKey(vm, weight = 1.5f)
     }
 }
 
@@ -118,6 +121,29 @@ private fun BottomRow(vm: KeyboardViewModel) {
     }
 }
 
+@Composable
+private fun RowScope.BackspaceKey(vm: KeyboardViewModel, weight: Float) {
+    KeyButton(
+        onClick = vm::onBackspace,
+        modifier = Modifier.weight(weight),
+        icon = Icons.AutoMirrored.Filled.Backspace,
+        style = KeyStyle.SPECIAL,
+        repeatOnHold = true,
+        height = vm.keySize.rowHeight,
+    )
+}
+
+@Composable
+private fun RowScope.PageSwitchKey(vm: KeyboardViewModel, label: String) {
+    KeyButton(
+        onClick = vm::switchSymbolsPage,
+        modifier = Modifier.weight(1.5f),
+        label = label,
+        style = KeyStyle.SPECIAL,
+        height = vm.keySize.rowHeight,
+    )
+}
+
 /** A character key that respects the shift state for casing. */
 @Composable
 private fun RowScope.CharKey(c: Char, vm: KeyboardViewModel) {
@@ -125,7 +151,21 @@ private fun RowScope.CharKey(c: Char, vm: KeyboardViewModel) {
     KeyButton(
         onClick = { vm.onChar(shown) },
         modifier = Modifier.weight(1f),
-        label = shown.toString(),
+        // In Bangla mode, show the actual sign glyph so it's discoverable.
+        label = displayLabel(shown, vm.mode),
         height = vm.keySize.rowHeight,
     )
+}
+
+/** The label shown on a key — Bangla sign glyphs replace their roman triggers. */
+private fun displayLabel(c: Char, mode: KeyboardMode): String {
+    if (mode == KeyboardMode.BANGLA_PHONETIC) {
+        when (c) {
+            '^' -> return "ঁ" // chandrabindu
+            ':' -> return "ঃ" // visarga
+            '`' -> return "্" // hasanta
+            '.' -> return "।" // dari
+        }
+    }
+    return c.toString()
 }
