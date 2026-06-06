@@ -27,12 +27,16 @@ import com.amerganim.banglakeyboard.ime.KeyboardViewModel
 @Composable
 fun QwertyLayout(vm: KeyboardViewModel, modifier: Modifier = Modifier) {
     Column(modifier = modifier.fillMaxWidth().padding(horizontal = 2.dp, vertical = 4.dp)) {
-        when {
-            !vm.symbolsPage -> LetterRows(vm)
-            vm.symbolsPageIndex == 0 -> SymbolPage1(vm)
-            else -> SymbolPage2(vm)
+        if (vm.emojiPanel) {
+            EmojiPanel(vm) // brings its own bottom bar (ABC / space / backspace)
+        } else {
+            when {
+                !vm.symbolsPage -> LetterRows(vm)
+                vm.symbolsPageIndex == 0 -> SymbolPage1(vm)
+                else -> SymbolPage2(vm)
+            }
+            BottomRow(vm)
         }
-        BottomRow(vm)
     }
 }
 
@@ -103,10 +107,17 @@ private fun BottomRow(vm: KeyboardViewModel) {
             style = KeyStyle.SPECIAL,
             height = vm.keySize.rowHeight,
         )
+        KeyButton(
+            onClick = vm::toggleEmoji,
+            modifier = Modifier.weight(1f),
+            label = "😊",
+            style = KeyStyle.SPECIAL,
+            height = vm.keySize.rowHeight,
+        )
         CharKey(',', vm)
         KeyButton(
             onClick = vm::onSpace,
-            modifier = Modifier.weight(4f),
+            modifier = Modifier.weight(3f),
             label = if (vm.mode == KeyboardMode.ENGLISH) "English" else "বাংলা",
             height = vm.keySize.rowHeight,
         )

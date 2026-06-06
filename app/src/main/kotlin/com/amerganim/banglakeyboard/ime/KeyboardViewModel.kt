@@ -10,6 +10,7 @@ import com.amerganim.banglakeyboard.data.Lang
 import com.amerganim.banglakeyboard.engine.Transliterator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import java.text.BreakIterator
 
 /**
  * State holder + input controller. Buffers the in-progress word and drives the
@@ -33,6 +34,10 @@ class KeyboardViewModel(
         private set
 
     var symbolsPageIndex by mutableStateOf(0)
+        private set
+
+    /** Whether the emoji panel is showing instead of the keys. */
+    var emojiPanel by mutableStateOf(false)
         private set
 
     var keySize by mutableStateOf(KeySize.MEDIUM)
@@ -93,10 +98,26 @@ class KeyboardViewModel(
                 candidates = completions()
             }
         } else {
-            ic.deleteSurroundingText(1, 0)
+            // Delete a whole grapheme cluster so an emoji (a surrogate pair /
+            // ZWJ / variation-selector sequence) is removed in one press.
+            deleteLastGrapheme(ic)
             prevWord = ""
             candidates = emptyList()
         }
+    }
+
+    private fun deleteLastGrapheme(ic: InputConnection) {
+        val before = ic.getTextBeforeCursor(MAX_GRAPHEME_LOOKBACK, 0)
+        if (before.isNullOrEmpty()) {
+            ic.deleteSurroundingText(1, 0)
+            return
+        }
+        val it = BreakIterator.getCharacterInstance()
+        it.setText(before.toString())
+        val end = it.last()
+        val start = it.previous()
+        val count = if (start == BreakIterator.DONE) before.length else end - start
+        ic.deleteSurroundingText(count.coerceAtLeast(1), 0)
     }
 
     fun onEnter() {
@@ -152,6 +173,21 @@ class KeyboardViewModel(
         symbolsPageIndex = if (symbolsPageIndex == 0) 1 else 0
     }
 
+    /** Show/hide the emoji panel. */
+    fun toggleEmoji() {
+        emojiPanel = !emojiPanel
+        candidates = emptyList()
+    }
+
+    /** Commit an emoji. */
+    fun onEmoji(emoji: String) {
+        val ic = connection() ?: return
+        finalizeWord(ic)
+        ic.commitText(emoji, 1)
+        prevWord = ""
+        candidates = emptyList()
+    }
+
     fun updateKeySize(size: KeySize) {
         keySize = size
     }
@@ -160,6 +196,7 @@ class KeyboardViewModel(
         connection()?.let { finalizeWord(it) }
         symbolsPage = false
         symbolsPageIndex = 0
+        emojiPanel = false
         shifted = false
         prevWord = ""
         candidates = emptyList()
@@ -172,6 +209,7 @@ class KeyboardViewModel(
         candidates = emptyList()
         symbolsPage = false
         symbolsPageIndex = 0
+        emojiPanel = false
         shifted = false
     }
 
@@ -187,5 +225,10 @@ class KeyboardViewModel(
         candidates = emptyList()
         scope.launch { repository.commitWord(lang(), prev, word) }
         prevWord = word
+    }
+
+    private companion object {
+        // Enough to cover the longest emoji ZWJ sequences (e.g. family emoji).
+        const val MAX_GRAPHEME_LOOKBACK = 16
     }
 }
