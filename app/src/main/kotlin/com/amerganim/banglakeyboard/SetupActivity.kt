@@ -8,12 +8,15 @@ import android.view.inputmethod.InputMethodManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
@@ -48,6 +51,7 @@ import com.amerganim.banglakeyboard.ui.theme.BanglaKeyboardTheme
  */
 class SetupActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         setContent {
             BanglaKeyboardTheme {
@@ -76,8 +80,10 @@ private fun SetupScreen(onOpenGuide: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
+            // Inset the scroll container by the system bars + keyboard so the
+            // focused field stays in the visible area above the keyboard.
+            .windowInsetsPadding(WindowInsets.safeDrawing)
             .verticalScroll(rememberScrollState())
-            .imePadding() // keep the focused field above the keyboard
             .padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp),
     ) {
