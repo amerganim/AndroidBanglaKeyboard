@@ -4,7 +4,7 @@ package com.amerganim.banglakeyboard.ime
 enum class KeyboardMode(val label: String) {
     ENGLISH("EN"),
     BANGLA_PHONETIC("বাং"),
-    BANGLA_FIXED("Amader"), // "Amader" — our own phonetic-mnemonic layout
+    BANGLA_FIXED("আমাদের"), // "Amader" — our own phonetic-mnemonic layout
     ;
 
     fun next(): KeyboardMode {

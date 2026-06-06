@@ -42,11 +42,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.amerganim.banglakeyboard.data.KeySize
 import com.amerganim.banglakeyboard.data.KeyboardPrefs
+import com.amerganim.banglakeyboard.ui.AmaderGuideScreen
 import com.amerganim.banglakeyboard.ui.GuideScreen
 import com.amerganim.banglakeyboard.ui.PolicyScreen
 import com.amerganim.banglakeyboard.ui.theme.BanglaKeyboardTheme
 
-private enum class Screen { SETUP, GUIDE, POLICY }
+private enum class Screen { SETUP, GUIDE, AMADER_GUIDE, POLICY }
 
 /**
  * Launcher screen: walks the user through enabling/selecting the keyboard, lets
@@ -68,12 +69,17 @@ class SetupActivity : ComponentActivity() {
                             BackHandler { screen = Screen.SETUP }
                             GuideScreen(onBack = { screen = Screen.SETUP })
                         }
+                        Screen.AMADER_GUIDE -> {
+                            BackHandler { screen = Screen.SETUP }
+                            AmaderGuideScreen(onBack = { screen = Screen.SETUP })
+                        }
                         Screen.POLICY -> {
                             BackHandler { screen = Screen.SETUP }
                             PolicyScreen(onBack = { screen = Screen.SETUP })
                         }
                         Screen.SETUP -> SetupScreen(
                             onOpenGuide = { screen = Screen.GUIDE },
+                            onOpenAmaderGuide = { screen = Screen.AMADER_GUIDE },
                             onOpenPolicy = { screen = Screen.POLICY },
                         )
                     }
@@ -84,7 +90,11 @@ class SetupActivity : ComponentActivity() {
 }
 
 @Composable
-private fun SetupScreen(onOpenGuide: () -> Unit, onOpenPolicy: () -> Unit) {
+private fun SetupScreen(
+    onOpenGuide: () -> Unit,
+    onOpenAmaderGuide: () -> Unit,
+    onOpenPolicy: () -> Unit,
+) {
     val context = LocalContext.current
     val prefs = remember { KeyboardPrefs(context) }
 
@@ -139,6 +149,10 @@ private fun SetupScreen(onOpenGuide: () -> Unit, onOpenPolicy: () -> Unit) {
 
         OutlinedButton(onClick = onOpenGuide, modifier = Modifier.fillMaxWidth()) {
             Text("Bangla typing guide")
+        }
+
+        OutlinedButton(onClick = onOpenAmaderGuide, modifier = Modifier.fillMaxWidth()) {
+            Text("Amader layout guide")
         }
 
         OutlinedButton(onClick = onOpenPolicy, modifier = Modifier.fillMaxWidth()) {
