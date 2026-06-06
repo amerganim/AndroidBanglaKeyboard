@@ -15,7 +15,9 @@
       "Bash(git add *)",
       "Bash(git commit -q -m ' *)",
       "Bash(git push *)",
-      "WebFetch(domain:www.prothomalo.com)"
+      "WebFetch(domain:www.prothomalo.com)",
+      "Bash(cd \"/c/Ganim/My_Projects/AndroidBanglaKeyboard/AndroidBanglaKeyboard\" && find app/src -type f \\\\\\( -name '*.kt' -o -name '*.xml' \\\\\\) | sort && echo \"--- assets ---\" && ls -la app/src/main/assets/ && echo \"--- versions ---\" && grep -E \"versionCode|versionName|minSdk|targetSdk|compileSdk\" app/build.gradle.kts)",
+      "Read(//c/c/Ganim/My_Projects/AndroidBanglaKeyboard/AndroidBanglaKeyboard/app/**)"
     ],
     "additionalDirectories": [
       "c:\\Users\\USER\\.claude\\projects\\c--Ganim-My-Projects-AndroidBanglaKeyboard-AndroidBanglaKeyboard\\memory"
