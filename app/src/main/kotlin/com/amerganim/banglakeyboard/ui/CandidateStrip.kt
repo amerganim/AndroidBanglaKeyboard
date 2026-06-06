@@ -1,7 +1,8 @@
 package com.amerganim.banglakeyboard.ui
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,11 +20,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-/** Horizontally scrollable suggestion chips shown above the keys (phonetic mode). */
+/**
+ * Horizontally scrollable suggestion / next-word chips. Tap commits; long-press
+ * forgets the word from history.
+ */
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CandidateStrip(
     candidates: List<String>,
     onClick: (String) -> Unit,
+    onLongPress: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val colors = MaterialTheme.colorScheme
@@ -47,11 +53,14 @@ fun CandidateStrip(
             Text(
                 text = word,
                 fontSize = 18.sp,
-                // The literal transliteration (index 0) is emphasized.
+                // The literal/as-typed text (index 0) is emphasized.
                 fontWeight = if (index == 0) FontWeight.SemiBold else FontWeight.Normal,
                 color = if (index == 0) colors.primary else colors.onSurface,
                 modifier = Modifier
-                    .clickable { onClick(word) }
+                    .combinedClickable(
+                        onClick = { onClick(word) },
+                        onLongClick = { onLongPress(word) },
+                    )
                     .padding(horizontal = 18.dp, vertical = 10.dp),
             )
         }

@@ -7,7 +7,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.amerganim.banglakeyboard.ime.KeyboardMode
 import com.amerganim.banglakeyboard.ime.KeyboardViewModel
 import com.amerganim.banglakeyboard.ui.theme.BanglaKeyboardTheme
 
@@ -23,15 +22,14 @@ fun KeyboardScreen(vm: KeyboardViewModel) {
                     .fillMaxWidth()
                     .navigationBarsPadding(),
             ) {
-                // Always reserve the strip's space in Bangla mode so the keyboard
-                // doesn't shift down when suggestions first appear — a moving
-                // keyboard causes mis-taps when typing fast (e.g. "amar" -> "akar").
-                if (vm.mode == KeyboardMode.BANGLA_PHONETIC) {
-                    CandidateStrip(
-                        candidates = vm.candidates,
-                        onClick = vm::onCandidate,
-                    )
-                }
+                // Always reserve the strip's space (both modes) so the keyboard
+                // doesn't shift down when suggestions appear — a moving keyboard
+                // causes mis-taps when typing fast (e.g. "amar" -> "akar").
+                CandidateStrip(
+                    candidates = vm.candidates,
+                    onClick = vm::onCandidate,
+                    onLongPress = vm::onForgetCandidate,
+                )
                 QwertyLayout(vm)
             }
         }

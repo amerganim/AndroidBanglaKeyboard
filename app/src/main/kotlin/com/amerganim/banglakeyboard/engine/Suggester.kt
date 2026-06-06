@@ -105,6 +105,20 @@ class Suggester {
         if (bangla.isNotEmpty()) learned.merge(bangla, 1, Int::plus)
     }
 
+    /** Add a user-typed word so it is suggested in future (deduplicated). */
+    fun addUserWord(bangla: String) {
+        if (bangla.isBlank() || words.any { it.bangla == bangla }) return
+        words = (words + Word(bangla, USER_WEIGHT)).sortedBy { it.bangla }
+    }
+
+    /** Forget [bangla] from learned counts and user-added words. */
+    fun forget(bangla: String) {
+        learned.remove(bangla)
+        if (words.any { it.bangla == bangla && it.freq == USER_WEIGHT }) {
+            words = words.filterNot { it.bangla == bangla && it.freq == USER_WEIGHT }
+        }
+    }
+
     /**
      * Suggestions for [prefix]: element 0 is always the literal transliteration
      * of [prefix]; the rest are dictionary/word-list entries whose romanization
@@ -165,6 +179,9 @@ class Suggester {
     private companion object {
         /** Each committed use is worth this much static-frequency weight. */
         const val LEARN_WEIGHT = 40
+
+        /** User-added words rank near the top of completions. */
+        const val USER_WEIGHT = 5000
 
         /** Whether [key] starts with [lowerPrefix], comparing case-insensitively. */
         fun keyHasPrefix(key: String, lowerPrefix: String): Boolean {

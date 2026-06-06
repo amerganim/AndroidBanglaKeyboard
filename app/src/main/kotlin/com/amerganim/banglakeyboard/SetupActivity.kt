@@ -6,12 +6,13 @@ import android.os.Bundle
 import android.provider.Settings
 import android.view.inputmethod.InputMethodManager
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -20,6 +21,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
@@ -37,11 +39,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.amerganim.banglakeyboard.data.KeySize
 import com.amerganim.banglakeyboard.data.KeyboardPrefs
+import com.amerganim.banglakeyboard.ui.GuideScreen
 import com.amerganim.banglakeyboard.ui.theme.BanglaKeyboardTheme
 
 /**
  * Launcher screen: walks the user through enabling/selecting the keyboard, lets
- * them pick a key size, and provides a field to try it out.
+ * them pick a key size, links to the typing guide, and provides a try-it field.
  */
 class SetupActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,7 +55,13 @@ class SetupActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background,
                 ) {
-                    SetupScreen()
+                    var showGuide by remember { mutableStateOf(false) }
+                    if (showGuide) {
+                        BackHandler { showGuide = false }
+                        GuideScreen(onBack = { showGuide = false })
+                    } else {
+                        SetupScreen(onOpenGuide = { showGuide = true })
+                    }
                 }
             }
         }
@@ -60,7 +69,7 @@ class SetupActivity : ComponentActivity() {
 }
 
 @Composable
-private fun SetupScreen() {
+private fun SetupScreen(onOpenGuide: () -> Unit) {
     val context = LocalContext.current
     val prefs = remember { KeyboardPrefs(context) }
 
@@ -68,6 +77,7 @@ private fun SetupScreen() {
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
+            .imePadding() // keep the focused field above the keyboard
             .padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp),
     ) {
@@ -109,6 +119,10 @@ private fun SetupScreen() {
             },
             modifier = Modifier.fillMaxWidth(),
         ) { Text("Choose keyboard") }
+
+        OutlinedButton(onClick = onOpenGuide, modifier = Modifier.fillMaxWidth()) {
+            Text("Bangla typing guide")
+        }
 
         Text("Key size", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
         var keySize by remember { mutableStateOf(prefs.keySize) }
