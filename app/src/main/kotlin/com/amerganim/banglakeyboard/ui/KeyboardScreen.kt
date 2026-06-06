@@ -2,6 +2,7 @@ package com.amerganim.banglakeyboard.ui
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -14,7 +15,13 @@ import com.amerganim.banglakeyboard.ime.KeyboardViewModel
 fun KeyboardScreen(vm: KeyboardViewModel) {
     MaterialTheme {
         Surface(color = MaterialTheme.colorScheme.surfaceContainerLowest) {
-            Column(Modifier.fillMaxWidth()) {
+            // Lift the keys above the system navigation bar so the bottom row
+            // isn't hidden behind / fighting touches with the phone's nav buttons.
+            Column(
+                Modifier
+                    .fillMaxWidth()
+                    .navigationBarsPadding(),
+            ) {
                 if (vm.mode == KeyboardMode.BANGLA_PHONETIC && vm.candidates.isNotEmpty()) {
                     CandidateStrip(
                         candidates = vm.candidates,
