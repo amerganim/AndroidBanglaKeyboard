@@ -23,7 +23,8 @@ class KeyboardViewModel(
     private val connection: () -> InputConnection?,
     private val repository: DictionaryRepository,
     private val scope: CoroutineScope,
-    private val onMicRequest: () -> Unit = {},
+    private val onMicStart: () -> Unit = {},
+    private val onMicStop: () -> Unit = {},
 ) {
     var mode by mutableStateOf(KeyboardMode.BANGLA_PHONETIC)
         private set
@@ -187,8 +188,11 @@ class KeyboardViewModel(
         symbolsPageIndex = if (symbolsPageIndex == 0) 1 else 0
     }
 
-    /** Mic key tapped — ask the service to start/stop voice input. */
-    fun onMic() = onMicRequest()
+    /** Mic key pressed — start listening (push-to-talk). */
+    fun micPressStart() = onMicStart()
+
+    /** Mic key released — stop listening and commit what was heard. */
+    fun micPressEnd() = onMicStop()
 
     fun updateListening(value: Boolean) {
         listening = value

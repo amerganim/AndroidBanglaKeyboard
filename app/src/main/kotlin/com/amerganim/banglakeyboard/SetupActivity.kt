@@ -2,7 +2,6 @@ package com.amerganim.banglakeyboard
 
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
 import android.view.inputmethod.InputMethodManager
@@ -44,10 +43,10 @@ import androidx.compose.ui.unit.dp
 import com.amerganim.banglakeyboard.data.KeySize
 import com.amerganim.banglakeyboard.data.KeyboardPrefs
 import com.amerganim.banglakeyboard.ui.GuideScreen
+import com.amerganim.banglakeyboard.ui.PolicyScreen
 import com.amerganim.banglakeyboard.ui.theme.BanglaKeyboardTheme
 
-private const val PRIVACY_POLICY_URL =
-    "https://github.com/amerganim/AndroidBanglaKeyboard/blob/main/PRIVACY_POLICY.md"
+private enum class Screen { SETUP, GUIDE, POLICY }
 
 /**
  * Launcher screen: walks the user through enabling/selecting the keyboard, lets
@@ -63,12 +62,20 @@ class SetupActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background,
                 ) {
-                    var showGuide by remember { mutableStateOf(false) }
-                    if (showGuide) {
-                        BackHandler { showGuide = false }
-                        GuideScreen(onBack = { showGuide = false })
-                    } else {
-                        SetupScreen(onOpenGuide = { showGuide = true })
+                    var screen by remember { mutableStateOf(Screen.SETUP) }
+                    when (screen) {
+                        Screen.GUIDE -> {
+                            BackHandler { screen = Screen.SETUP }
+                            GuideScreen(onBack = { screen = Screen.SETUP })
+                        }
+                        Screen.POLICY -> {
+                            BackHandler { screen = Screen.SETUP }
+                            PolicyScreen(onBack = { screen = Screen.SETUP })
+                        }
+                        Screen.SETUP -> SetupScreen(
+                            onOpenGuide = { screen = Screen.GUIDE },
+                            onOpenPolicy = { screen = Screen.POLICY },
+                        )
                     }
                 }
             }
@@ -77,7 +84,7 @@ class SetupActivity : ComponentActivity() {
 }
 
 @Composable
-private fun SetupScreen(onOpenGuide: () -> Unit) {
+private fun SetupScreen(onOpenGuide: () -> Unit, onOpenPolicy: () -> Unit) {
     val context = LocalContext.current
     val prefs = remember { KeyboardPrefs(context) }
 
@@ -134,15 +141,9 @@ private fun SetupScreen(onOpenGuide: () -> Unit) {
             Text("Bangla typing guide")
         }
 
-        OutlinedButton(
-            onClick = {
-                context.startActivity(
-                    Intent(Intent.ACTION_VIEW, Uri.parse(PRIVACY_POLICY_URL))
-                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
-                )
-            },
-            modifier = Modifier.fillMaxWidth(),
-        ) { Text("Privacy policy") }
+        OutlinedButton(onClick = onOpenPolicy, modifier = Modifier.fillMaxWidth()) {
+            Text("Privacy policy")
+        }
 
         Text("Key size", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
         var keySize by remember { mutableStateOf(prefs.keySize) }

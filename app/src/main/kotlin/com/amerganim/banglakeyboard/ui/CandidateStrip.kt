@@ -2,8 +2,8 @@ package com.amerganim.banglakeyboard.ui
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -21,6 +21,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -35,7 +36,8 @@ fun CandidateStrip(
     candidates: List<String>,
     onClick: (String) -> Unit,
     onLongPress: (String) -> Unit,
-    onMic: () -> Unit,
+    onMicStart: () -> Unit,
+    onMicStop: () -> Unit,
     listening: Boolean,
     modifier: Modifier = Modifier,
 ) {
@@ -84,16 +86,25 @@ fun CandidateStrip(
                 }
             }
         }
+        // Push-to-talk: hold to listen, release to insert.
         Box(
             Modifier
                 .fillMaxHeight()
                 .width(48.dp)
-                .clickable(onClick = onMic),
+                .pointerInput(Unit) {
+                    detectTapGestures(
+                        onPress = {
+                            onMicStart()
+                            tryAwaitRelease()
+                            onMicStop()
+                        },
+                    )
+                },
             contentAlignment = Alignment.Center,
         ) {
             Icon(
                 imageVector = Icons.Filled.Mic,
-                contentDescription = "Voice input",
+                contentDescription = "Hold to talk",
                 tint = if (listening) colors.primary else colors.onSurfaceVariant,
             )
         }

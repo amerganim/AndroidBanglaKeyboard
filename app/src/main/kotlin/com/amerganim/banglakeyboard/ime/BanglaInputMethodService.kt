@@ -73,7 +73,8 @@ class BanglaInputMethodService :
             connection = { currentInputConnection },
             repository = repository,
             scope = scope,
-            onMicRequest = ::onMicClicked,
+            onMicStart = ::onMicPressed,
+            onMicStop = ::stopVoiceInput,
         )
         scope.launch { repository.load() }
     }
@@ -82,11 +83,8 @@ class BanglaInputMethodService :
 
     private var speechRecognizer: SpeechRecognizer? = null
 
-    private fun onMicClicked() {
-        if (viewModel.listening) {
-            stopVoiceInput()
-            return
-        }
+    private fun onMicPressed() {
+        if (viewModel.listening) return
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
             != PackageManager.PERMISSION_GRANTED
         ) {
