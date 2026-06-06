@@ -1,23 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  English/Bangla are switched internally with the globe key. We declare a primary
-  subtype labelled with the keyboard name (so the picker's main line reads "Amader
-  Bangla Keyboard" instead of a bare language name) and an English subtype so the
-  system settings list shows that English is supported too.
+  No subtypes are declared on purpose. English/Bangla are switched internally with
+  the globe key, so the system shows the keyboard simply as "Amader Bangla Keyboard"
+  in the keyboard picker (no language line) — matching how Samsung/Ridmik appear.
+  (A third-party IME can't show per-language subtext in Settings without also adding
+  a language line to the picker, so we keep the picker clean.)
 -->
 <input-method xmlns:android="http://schemas.android.com/apk/res/android"
-    android:settingsActivity="com.amerganim.banglakeyboard.SetupActivity">
-
-    <subtype
-        android:label="@string/ime_label"
-        android:imeSubtypeMode="keyboard"
-        android:imeSubtypeLocale="bn_BD"
-        android:isAsciiCapable="true" />
-
-    <subtype
-        android:label="@string/subtype_english"
-        android:imeSubtypeMode="keyboard"
-        android:imeSubtypeLocale="en_US"
-        android:isAsciiCapable="true" />
-
-</input-method>
+    android:settingsActivity="com.amerganim.banglakeyboard.SetupActivity" />
