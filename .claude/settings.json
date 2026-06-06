@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:github.com)",
+      "Bash(gh api *)",
+      "Read(//tmp/wbk/engine/src/**)",
+      "Read(//tmp/wbk/docs/**)",
+      "Bash(cd /tmp/wbk && echo \"===== KEYMAP.md =====\" && cat docs/KEYMAP.md)",
+      "Read(//tmp/**)",
+      "PowerShell(Write-Output \"JAVA:\"; try { \\(Get-Command java -ErrorAction Stop\\).Source } catch { \"java not on PATH\" }; Write-Output \"JAVA_HOME=$env:JAVA_HOME\"; Write-Output \"ANDROID_HOME=$env:ANDROID_HOME\"; Write-Output \"ANDROID_SDK_ROOT=$env:ANDROID_SDK_ROOT\"; Write-Output \"--- Studio/SDK locations ---\"; foreach \\($p in @\\(\"$env:LOCALAPPDATA\\\\Android\\\\Sdk\", \"$env:ProgramFiles\\\\Android\\\\Android Studio\", \"${env:ProgramFiles\\(x86\\)}\\\\Android\"\\)\\) { if \\(Test-Path $p\\) { \"FOUND: $p\" } }; Write-Output \"--- gradle ---\"; try { \\(Get-Command gradle -ErrorAction Stop\\).Source } catch { \"gradle not on PATH\" })",
+      "PowerShell($jbr = \"C:\\\\Program Files\\\\Android\\\\Android Studio\\\\jbr\\\\bin\\\\java.exe\"; if \\(Test-Path $jbr\\) { \"JBR: $jbr\"; & $jbr -version } else { \"no jbr\" }; $sdk = \"$env:LOCALAPPDATA\\\\Android\\\\Sdk\"; Write-Output \"--- platforms ---\"; if \\(Test-Path \"$sdk\\\\platforms\"\\) { Get-ChildItem \"$sdk\\\\platforms\" | Select-Object -ExpandProperty Name }; Write-Output \"--- build-tools ---\"; if \\(Test-Path \"$sdk\\\\build-tools\"\\) { Get-ChildItem \"$sdk\\\\build-tools\" | Select-Object -ExpandProperty Name }; Write-Output \"--- cmdline-tools ---\"; if \\(Test-Path \"$sdk\\\\cmdline-tools\"\\) { Get-ChildItem \"$sdk\\\\cmdline-tools\" | Select-Object -ExpandProperty Name }; Write-Output \"--- emulator ---\"; if \\(Test-Path \"$sdk\\\\emulator\\\\emulator.exe\"\\) { \"emulator present\" })",
+      "Bash(cp /tmp/wbk/installer/dictionary.tsv /c/Ganim/My_Projects/AndroidBanglaKeyboard/AndroidBanglaKeyboard/app/src/main/assets/dictionary.tsv)",
+      "Bash(cp /tmp/wbk/installer/words.tsv /c/Ganim/My_Projects/AndroidBanglaKeyboard/AndroidBanglaKeyboard/app/src/main/assets/words.tsv)",
+      "Read(//c/Users/USER/AppData/Local/Temp/**)",
+      "Bash(git add *)"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\USER\\.claude\\projects\\c--Ganim-My-Projects-AndroidBanglaKeyboard-AndroidBanglaKeyboard\\memory"
+    ]
+  }
+}

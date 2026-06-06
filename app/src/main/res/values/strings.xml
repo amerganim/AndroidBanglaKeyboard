@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Amader Bangla Keyboard</string>
+    <string name="ime_label">Amader Bangla Keyboard</string>
+    <string name="subtype_english">English</string>
+    <string name="subtype_bangla_phonetic">Bangla (Phonetic)</string>
+</resources>

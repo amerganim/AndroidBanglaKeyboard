@@ -1,0 +1,66 @@
+package com.amerganim.banglakeyboard.engine
+
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
+import org.junit.Test
+
+/** Ported from the suggestion checks in `tests/test_transliterator.cpp`. */
+class SuggesterTest {
+
+    /** A suggester seeded with the built-in dictionary only (no assets). */
+    private fun default() = Suggester()
+
+    @Test fun firstSuggestionIsLiteralTransliteration() {
+        assertEquals("আমি", default().suggest("ami").first())
+    }
+
+    @Test fun dictionaryWordsSharingPrefixFollow() {
+        val v = default().suggest("ama")
+        assertTrue(v.contains("আমার"))
+        assertTrue(v.contains("আমাকে"))
+    }
+
+    @Test fun builtinPrefixMatches() {
+        val bhal = default().suggest("bhal")
+        assertTrue(bhal.contains("ভালো"))
+        assertTrue(bhal.contains("ভালোবাসা"))
+        assertTrue(default().suggest("dhonnobad").contains("ধন্যবাদ"))
+    }
+
+    @Test fun emptyPrefixYieldsNothing() {
+        assertTrue(default().suggest("").isEmpty())
+    }
+
+    @Test fun loadedDictionaryWordBecomesSuggestible() {
+        val s = Suggester()
+        s.loadDictionaryData("notunshobdo\tনতুনশব্দ\t99\n# comment line\n")
+        assertTrue(s.suggest("notunsh").contains("নতুনশব্দ"))
+    }
+
+    @Test fun wordListPrefixCompletion() {
+        val s = Suggester()
+        s.loadWordList("আকাশ\t50\nআকাশগঙ্গা\t10\n# comment\nঅন্য\t5\n")
+        val v = s.suggest("aka") // transliterate("aka") = আকা
+        assertTrue(v.contains("আকাশ"))
+        assertTrue(v.contains("আকাশগঙ্গা"))
+    }
+
+    @Test fun learnedUsagePromotesWord() {
+        val s = Suggester()
+        repeat(5) { s.recordUsage("আমাকে") }
+        val v = s.suggest("ama")
+        // v[0] is the literal; v[1] should now be the learned word.
+        assertTrue(v.size >= 2)
+        assertEquals("আমাকে", v[1])
+    }
+
+    @Test fun learnedDataRoundTrips() {
+        val s = Suggester()
+        repeat(5) { s.recordUsage("আমাকে") }
+        val s2 = Suggester()
+        s2.loadLearnedData(s.dumpLearnedData())
+        val v2 = s2.suggest("ama")
+        assertTrue(v2.size >= 2)
+        assertEquals("আমাকে", v2[1])
+    }
+}
