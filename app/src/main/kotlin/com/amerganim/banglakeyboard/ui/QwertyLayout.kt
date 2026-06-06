@@ -122,7 +122,7 @@ private fun BottomRow(vm: KeyboardViewModel) {
             label = when (vm.mode) {
                 KeyboardMode.ENGLISH -> "English"
                 KeyboardMode.BANGLA_PHONETIC -> "বাংলা"
-                KeyboardMode.BANGLA_FIXED -> "বাংলা (ফিক্সড)"
+                KeyboardMode.BANGLA_FIXED -> "Amader"
             },
             height = vm.keySize.rowHeight,
         )
