@@ -75,4 +75,18 @@ class TransliteratorTest {
     @Test fun unknownCharactersPassThrough() {
         check("ami tumi", "আমি তুমি")
     }
+
+    @Test fun capitalWithoutMappingFallsBackToBangla() {
+        // A capital that has no scheme-specific letter behaves like its lowercase
+        // form rather than leaking an English letter.
+        check("Amar", "আমার")
+        check("aMi", "আমি")
+        check("BHALO", "ভালো") // caps-lock style still transliterates
+    }
+
+    @Test fun capitalSpecificLettersStillWin() {
+        // Capitals that ARE distinct in the scheme keep their meaning.
+        check("Tumi", "টুমি") // T = ট (not ত)
+        check("Dhaka", "ঢাকা")
+    }
 }

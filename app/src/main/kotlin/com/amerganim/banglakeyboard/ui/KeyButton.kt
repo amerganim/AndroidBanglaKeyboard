@@ -2,45 +2,151 @@ package com.amerganim.banglakeyboard.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.waitForUpOrCancellation
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
-/** A single keyboard key. Width is controlled by the caller via [modifier] (weight). */
+/** Visual role of a key. */
+enum class KeyStyle { NORMAL, SPECIAL, ACCENT }
+
+/**
+ * A single keyboard key. Width is set by the caller via [modifier] (weight).
+ *
+ * @param repeatOnHold when true, holding the key fires [onClick] repeatedly
+ *   (used by Backspace for fast deletion).
+ */
 @Composable
 fun KeyButton(
-    label: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    emphasized: Boolean = false,
+    label: String? = null,
+    icon: ImageVector? = null,
+    style: KeyStyle = KeyStyle.NORMAL,
+    active: Boolean = false,
+    repeatOnHold: Boolean = false,
+    height: Dp = 54.dp,
 ) {
     val colors = MaterialTheme.colorScheme
-    val background = if (emphasized) colors.primaryContainer else colors.surfaceVariant
-    val content = if (emphasized) colors.onPrimaryContainer else colors.onSurface
+    val interaction = remember { MutableInteractionSource() }
+    val pressedByClick by interaction.collectIsPressedAsState()
+    var pressedByHold by remember { mutableStateOf(false) }
+    val pressed = pressedByClick || pressedByHold
+
+    val baseColor = when {
+        active || style == KeyStyle.ACCENT -> colors.primary
+        style == KeyStyle.SPECIAL -> colors.secondaryContainer
+        else -> colors.surfaceContainerLowest
+    }
+    val background = if (pressed) baseColor.blendTowards(colors.primary, 0.35f) else baseColor
+    val contentColor = if (active || style == KeyStyle.ACCENT) colors.onPrimary else colors.onSurface
+
+    val clickModifier = if (repeatOnHold) {
+        Modifier.repeatingClickable(
+            onClick = onClick,
+            onPressedChange = { pressedByHold = it },
+        )
+    } else {
+        Modifier.clickable(
+            interactionSource = interaction,
+            indication = null,
+            onClick = onClick,
+        )
+    }
+
     Box(
         modifier = modifier
-            .padding(2.dp)
-            .height(46.dp)
-            .clip(RoundedCornerShape(6.dp))
+            .padding(horizontal = 3.dp, vertical = 4.dp)
+            .height(height)
+            .shadow(if (pressed) 0.dp else 1.dp, RoundedCornerShape(9.dp), clip = false)
+            .clip(RoundedCornerShape(9.dp))
             .background(background)
-            .clickable(onClick = onClick),
+            .then(clickModifier),
         contentAlignment = Alignment.Center,
     ) {
-        Text(
-            text = label,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Medium,
-            color = content,
-        )
+        when {
+            icon != null -> Icon(
+                imageVector = icon,
+                contentDescription = label,
+                tint = contentColor,
+            )
+            label != null -> Text(
+                text = label,
+                fontSize = if (label.length > 2) 15.sp else 19.sp,
+                fontWeight = FontWeight.Medium,
+                color = contentColor,
+            )
+        }
+    }
+}
+
+/** Blend [this] toward [other] by [fraction] for a simple pressed highlight. */
+private fun Color.blendTowards(other: Color, fraction: Float): Color = Color(
+    red = red + (other.red - red) * fraction,
+    green = green + (other.green - green) * fraction,
+    blue = blue + (other.blue - blue) * fraction,
+    alpha = alpha,
+)
+
+/**
+ * Fires [onClick] once on press, then—if held past [initialDelayMs]—repeatedly
+ * every [repeatIntervalMs] until release. Used for hold-to-delete on Backspace.
+ */
+@Composable
+private fun Modifier.repeatingClickable(
+    onClick: () -> Unit,
+    onPressedChange: (Boolean) -> Unit,
+    initialDelayMs: Long = 380L,
+    repeatIntervalMs: Long = 45L,
+): Modifier {
+    val currentClick by rememberUpdatedState(onClick)
+    val currentPressed by rememberUpdatedState(onPressedChange)
+    return this.pointerInput(Unit) {
+        coroutineScope {
+            val scope = this
+            awaitEachGesture {
+                awaitFirstDown(requireUnconsumed = false)
+                currentPressed(true)
+                currentClick() // immediate first delete
+                val repeatJob = scope.launch {
+                    delay(initialDelayMs)
+                    while (true) {
+                        currentClick()
+                        delay(repeatIntervalMs)
+                    }
+                }
+                waitForUpOrCancellation()
+                repeatJob.cancel()
+                currentPressed(false)
+            }
+        }
     }
 }

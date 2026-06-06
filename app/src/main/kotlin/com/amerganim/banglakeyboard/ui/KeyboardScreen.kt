@@ -9,12 +9,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.amerganim.banglakeyboard.ime.KeyboardMode
 import com.amerganim.banglakeyboard.ime.KeyboardViewModel
+import com.amerganim.banglakeyboard.ui.theme.BanglaKeyboardTheme
 
 /** Root of the keyboard: optional candidate strip above the QWERTY layout. */
 @Composable
 fun KeyboardScreen(vm: KeyboardViewModel) {
-    MaterialTheme {
-        Surface(color = MaterialTheme.colorScheme.surfaceContainerLowest) {
+    BanglaKeyboardTheme {
+        Surface(color = MaterialTheme.colorScheme.background) {
             // Lift the keys above the system navigation bar so the bottom row
             // isn't hidden behind / fighting touches with the phone's nav buttons.
             Column(

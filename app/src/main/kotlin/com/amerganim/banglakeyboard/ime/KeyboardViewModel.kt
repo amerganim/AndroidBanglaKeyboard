@@ -5,6 +5,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.amerganim.banglakeyboard.data.DictionaryRepository
+import com.amerganim.banglakeyboard.data.KeySize
 import com.amerganim.banglakeyboard.engine.Transliterator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -30,6 +31,10 @@ class KeyboardViewModel(
         private set
 
     var symbolsPage by mutableStateOf(false)
+        private set
+
+    /** Key size (row height), driven by user settings. */
+    var keySize by mutableStateOf(KeySize.MEDIUM)
         private set
 
     /** Suggestions for the current buffer (phonetic mode only). */
@@ -58,6 +63,8 @@ class KeyboardViewModel(
                 }
             }
         }
+        // One-shot shift: releases after a single character.
+        if (shifted) shifted = false
     }
 
     fun onSpace() {
@@ -110,6 +117,10 @@ class KeyboardViewModel(
 
     fun toggleSymbols() {
         symbolsPage = !symbolsPage
+    }
+
+    fun updateKeySize(size: KeySize) {
+        keySize = size
     }
 
     /** Globe key: commit any pending word, then advance to the next mode. */

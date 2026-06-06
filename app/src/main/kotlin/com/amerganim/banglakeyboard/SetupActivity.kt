@@ -9,12 +9,21 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,18 +33,25 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.amerganim.banglakeyboard.data.KeySize
+import com.amerganim.banglakeyboard.data.KeyboardPrefs
+import com.amerganim.banglakeyboard.ui.theme.BanglaKeyboardTheme
 
 /**
- * A small launcher screen that walks the user through enabling the keyboard in
- * system settings and switching to it. Not part of the IME itself.
+ * Launcher screen: walks the user through enabling/selecting the keyboard, lets
+ * them pick a key size, and provides a field to try it out.
  */
 class SetupActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            MaterialTheme {
-                Surface(modifier = Modifier.fillMaxSize()) {
+            BanglaKeyboardTheme {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background,
+                ) {
                     SetupScreen()
                 }
             }
@@ -46,19 +62,36 @@ class SetupActivity : ComponentActivity() {
 @Composable
 private fun SetupScreen() {
     val context = LocalContext.current
+    val prefs = remember { KeyboardPrefs(context) }
+
     Column(
-        modifier = Modifier.fillMaxSize().padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(24.dp),
+        verticalArrangement = Arrangement.spacedBy(20.dp),
     ) {
-        Text("Amader Bangla Keyboard", style = MaterialTheme.typography.headlineSmall)
         Text(
-            "1. Enable the keyboard in system settings.\n" +
-                "2. Switch to it using the keyboard picker.\n" +
-                "3. Tap the 🌐 globe key to cycle English ⇄ Bangla Phonetic.\n\n" +
-                "In Bangla mode, type phonetically (e.g. \"amar\" → আমার) and press " +
-                "Space to commit.",
-            style = MaterialTheme.typography.bodyMedium,
+            "Amader Bangla Keyboard",
+            style = MaterialTheme.typography.headlineMedium,
+            fontWeight = FontWeight.Bold,
         )
+        Text(
+            "Phonetic Bangla typing — type \"amar\" to get আমার.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+
+        Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
+            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text("Getting started", fontWeight = FontWeight.SemiBold)
+                Text("1. Enable the keyboard in system settings.")
+                Text("2. Switch to it with the keyboard picker.")
+                Text("3. Tap the 🌐 globe key to switch English ⇄ Bangla.")
+                Text("4. Tap ⇧ once for one capital (T → ট); it releases after one key.")
+            }
+        }
+
         Button(
             onClick = {
                 context.startActivity(
@@ -69,13 +102,33 @@ private fun SetupScreen() {
             modifier = Modifier.fillMaxWidth(),
         ) { Text("Enable keyboard in Settings") }
 
-        Button(
+        FilledTonalButton(
             onClick = {
                 val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
                 imm.showInputMethodPicker()
             },
             modifier = Modifier.fillMaxWidth(),
         ) { Text("Choose keyboard") }
+
+        Text("Key size", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+        var keySize by remember { mutableStateOf(prefs.keySize) }
+        SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
+            KeySize.entries.forEachIndexed { index, size ->
+                SegmentedButton(
+                    selected = keySize == size,
+                    onClick = {
+                        keySize = size
+                        prefs.keySize = size
+                    },
+                    shape = SegmentedButtonDefaults.itemShape(index, KeySize.entries.size),
+                ) { Text(size.label) }
+            }
+        }
+        Text(
+            "The keyboard follows your system light/dark theme.",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
 
         var text by remember { mutableStateOf("") }
         OutlinedTextField(

@@ -16,6 +16,7 @@ import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import com.amerganim.banglakeyboard.data.DictionaryRepository
+import com.amerganim.banglakeyboard.data.KeyboardPrefs
 import com.amerganim.banglakeyboard.ui.KeyboardScreen
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -47,6 +48,7 @@ class BanglaInputMethodService :
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private lateinit var repository: DictionaryRepository
+    private lateinit var prefs: KeyboardPrefs
     private lateinit var viewModel: KeyboardViewModel
 
     override fun onCreate() {
@@ -55,6 +57,7 @@ class BanglaInputMethodService :
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
 
         repository = DictionaryRepository(applicationContext)
+        prefs = KeyboardPrefs(applicationContext)
         viewModel = KeyboardViewModel(
             connection = { currentInputConnection },
             repository = repository,
@@ -88,6 +91,8 @@ class BanglaInputMethodService :
 
     override fun onStartInputView(info: EditorInfo?, restarting: Boolean) {
         super.onStartInputView(info, restarting)
+        // Pick up any key-size change made in the setup screen.
+        viewModel.updateKeySize(prefs.keySize)
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
     }
 

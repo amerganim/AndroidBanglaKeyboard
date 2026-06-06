@@ -15,38 +15,34 @@ package com.amerganim.banglakeyboard.engine
 object Transliterator {
 
     fun transliterate(latin: String): String {
-        val table = RuleTable.table
         val out = StringBuilder()
         var prevConsonant = false
         val n = latin.length
 
         var i = 0
         while (i < n) {
-            var unit: Unit? = null
-            var matchedLen = 0
-
-            // Greedy: try the longest key first, down to a single character.
-            var len = RuleTable.MAX_KEY_LEN
-            while (len >= 1) {
-                if (i + len <= n) {
-                    val candidate = table[latin.substring(i, i + len)]
-                    if (candidate != null) {
-                        unit = candidate
-                        matchedLen = len
-                        break
-                    }
-                }
-                len--
+            // First try a case-sensitive match (so the scheme's capital-specific
+            // letters win: T=ট vs t=ত, Ng=ঙ vs ng=ং, etc.).
+            var match = matchAt(latin, i, lower = false)
+            // If a capital has no mapping, fall back to its lowercase Bangla form
+            // instead of emitting a stray English letter (e.g. `A` -> আ, `M` -> ম).
+            if (match == null && latin[i] in 'A'..'Z') {
+                match = matchAt(latin, i, lower = true)
             }
 
-            if (unit == null) {
+            if (match == null) {
                 // Unknown character (space, punctuation, untranslated letter):
-                // pass it through verbatim and reset the consonant context.
-                out.append(latin[i])
+                // pass it through and reset the consonant context. Lowercase a
+                // stray capital so no uppercase English leaks into Bangla text.
+                val c = latin[i]
+                out.append(if (c in 'A'..'Z') c.lowercaseChar() else c)
                 prevConsonant = false
                 i++
                 continue
             }
+
+            val unit = match.first
+            val matchedLen = match.second
 
             when (unit.kind) {
                 Kind.CONSONANT -> {
@@ -70,6 +66,25 @@ object Transliterator {
         }
 
         return out.toString()
+    }
+
+    /**
+     * Greedy longest-match lookup at [i]. When [lower] is true the candidate is
+     * lowercased before lookup (the uppercase-fallback pass).
+     */
+    private fun matchAt(s: String, i: Int, lower: Boolean): Pair<Unit, Int>? {
+        val n = s.length
+        var len = RuleTable.MAX_KEY_LEN
+        while (len >= 1) {
+            if (i + len <= n) {
+                var key = s.substring(i, i + len)
+                if (lower) key = key.lowercase()
+                val u = RuleTable.table[key]
+                if (u != null) return u to len
+            }
+            len--
+        }
+        return null
     }
 
     /** Whether [c] is a character the phonetic engine buffers/translates. */
