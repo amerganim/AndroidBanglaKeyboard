@@ -22,7 +22,13 @@ class KeyboardPrefs(context: Context) {
             .getOrDefault(KeySize.MEDIUM)
         set(value) = prefs.edit().putString(KEY_SIZE, value.name).apply()
 
+    /** Whether a click sound plays on each key press. */
+    var keySound: Boolean
+        get() = prefs.getBoolean(KEY_SOUND, false)
+        set(value) = prefs.edit().putBoolean(KEY_SOUND, value).apply()
+
     private companion object {
         const val KEY_SIZE = "key_size"
+        const val KEY_SOUND = "key_sound"
     }
 }

@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.inputmethodservice.InputMethodService
+import android.media.AudioManager
 import android.os.Bundle
 import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
@@ -75,8 +76,15 @@ class BanglaInputMethodService :
             scope = scope,
             onMicStart = ::onMicPressed,
             onMicStop = ::stopVoiceInput,
+            onKeyFeedback = ::playKeyClick,
         )
         scope.launch { repository.load() }
+    }
+
+    /** Standard key-press click (respects the system's touch-sound setting too). */
+    private fun playKeyClick() {
+        (getSystemService(AUDIO_SERVICE) as? AudioManager)
+            ?.playSoundEffect(AudioManager.FX_KEYPRESS_STANDARD)
     }
 
     // ---- Voice typing ---------------------------------------------------
@@ -163,7 +171,12 @@ class BanglaInputMethodService :
 
     override fun onStartInput(info: EditorInfo?, restarting: Boolean) {
         super.onStartInput(info, restarting)
-        viewModel.onInputStart(privateField = isPrivateField(info))
+        val password = isPasswordField(info)
+        val noLearning = password || optsOutOfLearning(info)
+        // Only fully hide suggestions for password fields. Other fields (e.g. a
+        // search box that sets NO_SUGGESTIONS) still get suggestions; we just
+        // don't learn from them.
+        viewModel.onInputStart(noLearning = noLearning, noSuggestions = password)
     }
 
     override fun onUpdateSelection(
@@ -180,32 +193,33 @@ class BanglaInputMethodService :
         viewModel.onSelectionChanged(newSelStart, newSelEnd, candidatesStart, candidatesEnd)
     }
 
-    /**
-     * Whether this field should be treated as private: password fields, fields that
-     * disable suggestions, or fields that opt out of personalized learning. In these
-     * we never show suggestions, save words, or learn predictions.
-     */
-    private fun isPrivateField(info: EditorInfo?): Boolean {
+    /** Password fields — hide suggestions and never learn. */
+    private fun isPasswordField(info: EditorInfo?): Boolean {
         if (info == null) return false
         val type = info.inputType
-        val cls = type and InputType.TYPE_MASK_CLASS
         val variation = type and InputType.TYPE_MASK_VARIATION
-        val isPassword = when (cls) {
+        return when (type and InputType.TYPE_MASK_CLASS) {
             InputType.TYPE_CLASS_TEXT -> variation == InputType.TYPE_TEXT_VARIATION_PASSWORD ||
                 variation == InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD ||
                 variation == InputType.TYPE_TEXT_VARIATION_WEB_PASSWORD
             InputType.TYPE_CLASS_NUMBER -> variation == InputType.TYPE_NUMBER_VARIATION_PASSWORD
             else -> false
         }
-        val noSuggestions = (type and InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS) != 0
+    }
+
+    /** Fields that don't want their content learned/saved (suggestions still OK). */
+    private fun optsOutOfLearning(info: EditorInfo?): Boolean {
+        if (info == null) return false
+        val noSuggestions = (info.inputType and InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS) != 0
         val noLearning = (info.imeOptions and EditorInfo.IME_FLAG_NO_PERSONALIZED_LEARNING) != 0
-        return isPassword || noSuggestions || noLearning
+        return noSuggestions || noLearning
     }
 
     override fun onStartInputView(info: EditorInfo?, restarting: Boolean) {
         super.onStartInputView(info, restarting)
-        // Pick up any key-size change made in the setup screen.
+        // Pick up any settings changes made in the setup screen.
         viewModel.updateKeySize(prefs.keySize)
+        viewModel.updateKeySound(prefs.keySound)
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
     }
 

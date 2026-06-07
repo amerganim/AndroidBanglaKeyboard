@@ -29,38 +29,40 @@ private class Fk(
     val longToken: String? = null,
 )
 
+// Full coverage of every Bangla letter & sign across tap / Shift / long-press.
+// tap → primary · Shift → variant · long-press → a third (hint shown on the key).
 private val ROW1 = listOf(
     Fk("ক", "k", "খ", "kh"),
     Fk("ও", "O", "ঔ", "OU"),
-    Fk("এ", "e", "ঐ", "OI"),
-    Fk("র", "r", "ড়", "R"),
+    Fk("এ", "e", "ঐ", "OI", "ঋ", "rri"),
+    Fk("র", "r", "ড়", "R", "ঢ়", "Rh"),
     Fk("ত", "t", "ট", "T", "থ", "th"),
-    Fk("য়", "y", "য", "z"),
+    Fk("য়", "y", "য", "z", "ঠ", "Th"),
     Fk("উ", "u", "ঊ", "U"),
     Fk("ই", "i", "ঈ", "I"),
-    Fk("অ", "o", "আ", "a"),
-    Fk("প", "p", "ফ", "ph"),
+    Fk("অ", "o", "আ", "a", "ং", "ng"),
+    Fk("প", "p", "ফ", "f"),
 )
 
 private val ROW2 = listOf(
-    Fk("আ", "a", null, null, "অ", "o"),
+    Fk("আ", "a", "অ", "o", "ঃ", ":"),
     Fk("স", "s", "ষ", "S", "শ", "sh"),
     Fk("দ", "d", "ড", "D", "ধ", "dh"),
-    Fk("ফ", "f", null, null, "ভ", "v"),
-    Fk("গ", "g", "ঘ", "gh"),
-    Fk("হ", "h", "ঃ", ":"),
-    Fk("জ", "j", "ঝ", "jh"),
+    Fk("ফ", "f", "ঢ", "Dh", "ভ", "v"),
+    Fk("গ", "g", "ঘ", "gh", "ঙ", "Ng"),
+    Fk("হ", "h", null, null, "ৎ", "t`"),
+    Fk("জ", "j", "ঝ", "jh", "ঞ", "NG"),
     Fk("ক", "k", "খ", "kh"),
-    Fk("ল", "l"),
+    Fk("ল", "l", null, null, "্", "`"),
 )
 
 private val ROW3 = listOf(
     Fk("য", "z"),
     Fk("ক্ষ", "kSh"),
     Fk("চ", "ch", "ছ", "chh"),
-    Fk("ভ", "v", null, null, "ব", "bh"),
+    Fk("ভ", "v", null, null, "ব", "b"),
     Fk("ব", "b", "ভ", "bh"),
-    Fk("ন", "n", "ণ", "N", "ঙ", "Ng"),
+    Fk("ন", "n", "ণ", "N"),
     Fk("ম", "m", "ং", "ng", "ঁ", "^"),
 )
 

@@ -25,6 +25,7 @@ class KeyboardViewModel(
     private val scope: CoroutineScope,
     private val onMicStart: () -> Unit = {},
     private val onMicStop: () -> Unit = {},
+    private val onKeyFeedback: () -> Unit = {},
 ) {
     var mode by mutableStateOf(KeyboardMode.BANGLA_PHONETIC)
         private set
@@ -59,10 +60,19 @@ class KeyboardViewModel(
 
     private var buffer: String = "" // romanized (Bangla) or plain (English) word
     private var prevWord: String = "" // last committed word, for next-word prediction
+    private var keySoundEnabled: Boolean = false
 
-    // In private mode (password / no-personalized-learning fields) we never show
-    // suggestions, save words, or learn predictions.
-    private var privateMode: Boolean = false
+    fun updateKeySound(enabled: Boolean) { keySoundEnabled = enabled }
+
+    /** Play a key-press sound if enabled. Called from key handlers. */
+    private fun feedback() { if (keySoundEnabled) onKeyFeedback() }
+
+    // Hide the suggestion bar entirely (password fields only).
+    private var noSuggest: Boolean = false
+
+    // Don't save/learn words or predictions (passwords + fields opting out of
+    // personalized learning / suggestions). Suggestions can still be shown.
+    private var noLearn: Boolean = false
 
     private fun lang() = if (mode == KeyboardMode.ENGLISH) Lang.ENGLISH else Lang.BANGLA
 
@@ -71,12 +81,16 @@ class KeyboardViewModel(
         if (mode == KeyboardMode.ENGLISH) buffer else Transliterator.transliterate(buffer)
 
     private fun completions(): List<String> =
-        if (privateMode) emptyList()
+        if (noSuggest) emptyList()
         else if (mode == KeyboardMode.ENGLISH) repository.suggestEnglish(buffer) else repository.suggestBangla(buffer)
+
+    private fun predictions(prev: String): List<String> =
+        if (noSuggest) emptyList() else repository.predictNext(lang(), prev)
 
     // ---- Key events -----------------------------------------------------
 
     fun onChar(c: Char) {
+        feedback()
         val ic = connection() ?: return
         val isWordChar =
             if (mode == KeyboardMode.ENGLISH) c.isLetter() else Transliterator.isPhoneticInput(c)
@@ -98,6 +112,7 @@ class KeyboardViewModel(
      * buffer and reuses the phonetic engine for kars/conjuncts. Bangla modes only.
      */
     fun onToken(token: String) {
+        feedback()
         val ic = connection() ?: return
         buffer += token
         ic.setComposingText(composed(), 1)
@@ -106,13 +121,15 @@ class KeyboardViewModel(
     }
 
     fun onSpace() {
+        feedback()
         val ic = connection() ?: return
         finalizeWord(ic)
         ic.commitText(" ", 1)
-        candidates = if (privateMode) emptyList() else repository.predictNext(lang(), prevWord)
+        candidates = predictions(prevWord)
     }
 
     fun onBackspace() {
+        feedback()
         val ic = connection() ?: return
         if (buffer.isNotEmpty()) {
             buffer = buffer.dropLast(1)
@@ -148,6 +165,7 @@ class KeyboardViewModel(
     }
 
     fun onEnter() {
+        feedback()
         val ic = connection() ?: return
         if (buffer.isNotEmpty()) {
             finalizeWord(ic)
@@ -161,6 +179,7 @@ class KeyboardViewModel(
 
     /** Commit a literal character (long-press alternate of a sign key). */
     fun onLiteral(c: Char) {
+        feedback()
         val ic = connection() ?: return
         finalizeWord(ic)
         ic.commitText(c.toString(), 1)
@@ -171,13 +190,14 @@ class KeyboardViewModel(
 
     /** The user tapped a suggestion/prediction chip. */
     fun onCandidate(word: String) {
+        feedback()
         val ic = connection() ?: return
         ic.commitText("$word ", 1) // replaces any composing region, adds a space
         val prev = prevWord
         buffer = ""
-        if (!privateMode) scope.launch { repository.commitWord(lang(), prev, word) }
+        if (!noLearn) scope.launch { repository.commitWord(lang(), prev, word) }
         prevWord = word
-        candidates = if (privateMode) emptyList() else repository.predictNext(lang(), word)
+        candidates = predictions(word)
         if (shifted) shifted = false
     }
 
@@ -188,15 +208,18 @@ class KeyboardViewModel(
     }
 
     fun onShift() {
+        feedback()
         shifted = !shifted
     }
 
     fun toggleSymbols() {
+        feedback()
         symbolsPage = !symbolsPage
         symbolsPageIndex = 0
     }
 
     fun switchSymbolsPage() {
+        feedback()
         symbolsPageIndex = if (symbolsPageIndex == 0) 1 else 0
     }
 
@@ -221,12 +244,14 @@ class KeyboardViewModel(
 
     /** Show/hide the emoji panel. */
     fun toggleEmoji() {
+        feedback()
         emojiPanel = !emojiPanel
         candidates = emptyList()
     }
 
     /** Commit an emoji. */
     fun onEmoji(emoji: String) {
+        feedback()
         val ic = connection() ?: return
         finalizeWord(ic)
         ic.commitText(emoji, 1)
@@ -239,6 +264,7 @@ class KeyboardViewModel(
     }
 
     fun onModeSwitch() {
+        feedback()
         connection()?.let { finalizeWord(it) }
         symbolsPage = false
         symbolsPageIndex = 0
@@ -266,7 +292,7 @@ class KeyboardViewModel(
         }
     }
 
-    fun onInputStart(privateField: Boolean = false) {
+    fun onInputStart(noLearning: Boolean = false, noSuggestions: Boolean = false) {
         buffer = ""
         prevWord = ""
         candidates = emptyList()
@@ -274,7 +300,8 @@ class KeyboardViewModel(
         symbolsPageIndex = 0
         emojiPanel = false
         shifted = false
-        privateMode = privateField
+        noLearn = noLearning
+        noSuggest = noSuggestions
     }
 
     // ---- Helpers --------------------------------------------------------
@@ -287,7 +314,7 @@ class KeyboardViewModel(
         val prev = prevWord
         buffer = ""
         candidates = emptyList()
-        if (!privateMode) scope.launch { repository.commitWord(lang(), prev, word) }
+        if (!noLearn) scope.launch { repository.commitWord(lang(), prev, word) }
         prevWord = word
     }
 
