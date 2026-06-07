@@ -237,6 +237,7 @@ class BanglaInputMethodService :
         // Pick up any settings changes made in the setup screen.
         viewModel.updateKeySize(prefs.keySize)
         viewModel.updateKeySound(prefs.keySound)
+        viewModel.updateSmartConjunct(prefs.smartConjunct)
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
     }
 

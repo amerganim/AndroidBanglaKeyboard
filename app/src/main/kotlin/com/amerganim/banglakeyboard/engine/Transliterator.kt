@@ -14,10 +14,25 @@ package com.amerganim.banglakeyboard.engine
  */
 object Transliterator {
 
-    fun transliterate(latin: String): String {
+    /**
+     * @param smart when true, two consonants are joined into a conjunct only if the
+     *   cluster is a real juktakkhor (see [Conjuncts]); otherwise each consonant
+     *   keeps its inherent vowel. So `zkhn` -> যখন but `kSh` -> ক্ষ. Falls back to
+     *   normal joining if the conjunct list hasn't been loaded yet.
+     */
+    fun transliterate(latin: String, smart: Boolean = false): String {
+        val useSmart = smart && Conjuncts.clusterPrefixes.isNotEmpty()
         val out = StringBuilder()
-        var prevConsonant = false
+        var prevConsonant = false // non-smart state
+        val pending = ArrayList<String>() // consonant glyphs of the current cluster (smart)
         val n = latin.length
+
+        fun flush() {
+            if (pending.isNotEmpty()) {
+                out.append(pending.joinToString(RuleTable.HASANTA))
+                pending.clear()
+            }
+        }
 
         var i = 0
         while (i < n) {
@@ -34,6 +49,7 @@ object Transliterator {
                 // Unknown character (space, punctuation, untranslated letter):
                 // pass it through and reset the consonant context. Lowercase a
                 // stray capital so no uppercase English leaks into Bangla text.
+                if (useSmart) flush()
                 val c = latin[i]
                 out.append(if (c in 'A'..'Z') c.lowercaseChar() else c)
                 prevConsonant = false
@@ -46,17 +62,38 @@ object Transliterator {
 
             when (unit.kind) {
                 Kind.CONSONANT -> {
-                    if (prevConsonant) out.append(RuleTable.HASANTA) // form a conjunct
-                    out.append(unit.main)
-                    prevConsonant = true
+                    if (useSmart) {
+                        if (pending.isNotEmpty()) {
+                            val candidate = pending.joinToString("") + unit.main
+                            // ref (র্ + consonant) always forms; otherwise only if
+                            // the cluster is the start of a real juktakkhor.
+                            val isRef = pending.size == 1 && pending[0] == RA
+                            if (!isRef && candidate !in Conjuncts.clusterPrefixes) flush()
+                        }
+                        pending.add(unit.main)
+                    } else {
+                        if (prevConsonant) out.append(RuleTable.HASANTA) // conjunct
+                        out.append(unit.main)
+                        prevConsonant = true
+                    }
                 }
                 Kind.VOWEL -> {
-                    // After a consonant a vowel becomes a dependent sign (empty
-                    // for the inherent vowel); otherwise it is an independent vowel.
-                    out.append(if (prevConsonant) unit.kar else unit.main)
-                    prevConsonant = false
+                    if (useSmart) {
+                        if (pending.isNotEmpty()) {
+                            flush()
+                            out.append(unit.kar) // kar attaches to the cluster
+                        } else {
+                            out.append(unit.main) // independent vowel
+                        }
+                    } else {
+                        // After a consonant a vowel becomes a dependent sign (empty
+                        // for the inherent vowel); otherwise an independent vowel.
+                        out.append(if (prevConsonant) unit.kar else unit.main)
+                        prevConsonant = false
+                    }
                 }
                 Kind.DIRECT -> {
+                    if (useSmart) flush()
                     out.append(unit.main)
                     prevConsonant = false
                 }
@@ -65,8 +102,12 @@ object Transliterator {
             i += matchedLen
         }
 
+        if (useSmart) flush()
         return out.toString()
     }
+
+    /** The ref consonant (র); ref always forms before another consonant. */
+    private const val RA = "র"
 
     /**
      * Greedy longest-match lookup at [i]. When [lower] is true the candidate is

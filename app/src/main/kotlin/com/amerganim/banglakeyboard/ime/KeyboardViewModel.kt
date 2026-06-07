@@ -61,8 +61,10 @@ class KeyboardViewModel(
     private var buffer: String = "" // romanized (Bangla) or plain (English) word
     private var prevWord: String = "" // last committed word, for next-word prediction
     private var keySoundEnabled: Boolean = false
+    private var smartConjunct: Boolean = false
 
     fun updateKeySound(enabled: Boolean) { keySoundEnabled = enabled }
+    fun updateSmartConjunct(enabled: Boolean) { smartConjunct = enabled }
 
     /** Play a key-press sound if enabled. Called from key handlers. */
     private fun feedback() { if (keySoundEnabled) onKeyFeedback() }
@@ -78,11 +80,12 @@ class KeyboardViewModel(
 
     /** The text currently being composed (transliterated in Bangla mode). */
     private fun composed(): String =
-        if (mode == KeyboardMode.ENGLISH) buffer else Transliterator.transliterate(buffer)
+        if (mode == KeyboardMode.ENGLISH) buffer else Transliterator.transliterate(buffer, smartConjunct)
 
     private fun completions(): List<String> =
         if (noSuggest) emptyList()
-        else if (mode == KeyboardMode.ENGLISH) repository.suggestEnglish(buffer) else repository.suggestBangla(buffer)
+        else if (mode == KeyboardMode.ENGLISH) repository.suggestEnglish(buffer)
+        else repository.suggestBangla(buffer, smartConjunct)
 
     private fun predictions(prev: String): List<String> =
         if (noSuggest) emptyList() else repository.predictNext(lang(), prev)
