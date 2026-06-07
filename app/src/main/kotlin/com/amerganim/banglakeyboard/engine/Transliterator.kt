@@ -34,10 +34,10 @@ object Transliterator {
      */
     fun transliterateTokens(tokens: List<String>, smart: Boolean = false): String {
         val useSmart = smart && Conjuncts.clusterPrefixes.isNotEmpty()
-        val segs = tokens.map { tok ->
-            val u = RuleTable.table[tok] ?: RuleTable.table[tok.lowercase()]
-            Seg(u, if (tok.length == 1 && tok[0] in 'A'..'Z') tok.lowercase() else tok)
-        }
+        // Tokenize *within* each key (so a multi-unit key like "kSh" → ক্ষ works),
+        // but never across keys (so the ক key then the হ key stays কহ, not খ).
+        val segs = ArrayList<Seg>()
+        for (tok in tokens) segs.addAll(tokenize(tok))
         return assemble(segs, useSmart)
     }
 

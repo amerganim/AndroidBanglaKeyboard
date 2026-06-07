@@ -62,16 +62,12 @@ private enum class Screen { SETUP, GUIDE, AMADER_GUIDE, POLICY }
  */
 class SetupActivity : ComponentActivity() {
 
-    /** Apply the user's chosen UI language to this activity's resources. */
+    /** Apply the UI language (Bangla by default) to this activity's resources. */
     override fun attachBaseContext(newBase: Context) {
-        val lang = KeyboardPrefs(newBase).appLang
-        if (lang.isEmpty()) {
-            super.attachBaseContext(newBase)
-        } else {
-            val config = Configuration(newBase.resources.configuration)
-            config.setLocale(Locale(lang))
-            super.attachBaseContext(newBase.createConfigurationContext(config))
-        }
+        val lang = KeyboardPrefs(newBase).appLang.ifEmpty { "bn" } // Bangla default
+        val config = Configuration(newBase.resources.configuration)
+        config.setLocale(Locale(lang))
+        super.attachBaseContext(newBase.createConfigurationContext(config))
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -146,9 +142,7 @@ private fun SetupScreen(
 
         // Language (EN / বাংলা)
         Text(stringResource(R.string.language), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-        val effectiveLang = prefs.appLang.ifEmpty {
-            if (Locale.getDefault().language == "bn") "bn" else "en"
-        }
+        val effectiveLang = prefs.appLang.ifEmpty { "bn" } // Bangla default
         SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
             val langs = listOf("en" to "English", "bn" to "বাংলা")
             langs.forEachIndexed { index, (code, label) ->

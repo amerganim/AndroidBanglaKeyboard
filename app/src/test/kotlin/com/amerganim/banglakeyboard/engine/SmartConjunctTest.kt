@@ -67,6 +67,8 @@ class SmartConjunctTest {
         // The ক key then the হ key must NOT become the "kh" digraph খ.
         assertEquals("কহ", Transliterator.transliterateTokens(listOf("k", "h"), smart = true))
         assertEquals("নগ", Transliterator.transliterateTokens(listOf("n", "g"), smart = true))
+        // A multi-unit key (the Amader ক্ষ key sends one token "kSh") works.
+        assertEquals("ক্ষ", Transliterator.transliterateTokens(listOf("kSh"), smart = true))
         // Real conjuncts and kars still work from discrete tokens.
         assertEquals("ক্ষ", Transliterator.transliterateTokens(listOf("k", "Sh"), smart = true))
         assertEquals("কু", Transliterator.transliterateTokens(listOf("k", "u"), smart = true))

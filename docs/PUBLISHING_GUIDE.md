@@ -5,6 +5,27 @@ first-time setup, plus Google's review time (hours to a few days).
 
 ---
 
+## Release readiness ✅
+
+The **code is release-ready**. Verified:
+- Signed `bundleRelease` / `assembleRelease` build cleanly (R8 + resource shrinking);
+  AAB ≈ 3 MB. `versionCode 1`, `versionName 1.0.0`.
+- All unit tests pass (transliterator, suggester, 300+ juktakkhor, smart conjunct).
+- Features complete: English + Phonetic + Amader layouts, suggestions, next-word
+  prediction, personal dictionary, emoji, symbols, voice typing, dark/light theme,
+  key size + sound, smart conjunct, **Bangla/English UI localization**.
+- Privacy: no internet permission; no data collected/shared.
+- Store assets present in [`store-assets/`](store-assets/).
+
+**Before you can submit, only these external/account steps remain (you must do them):**
+1. Host the privacy policy URL (step 1) — enable GitHub Pages on the public repo.
+2. Create a Play Developer account (US$25) and the app listing (steps 2–5).
+3. Back up `release.jks` securely.
+
+The **action flow** below takes you from here to live.
+
+---
+
 ## 0. Prerequisites
 
 - A **Google Play Developer account** — one-time **US$25** registration at
@@ -48,15 +69,23 @@ a public Gist, Netlify/Vercel/Cloudflare Pages.
 
 ---
 
-## 3. Build the release bundle
+## 3. Build the release artifact
 
-From the project root (with `keystore.properties` present):
+From the project root (with `keystore.properties` present). On Windows set the JDK
+first: `$env:JAVA_HOME="C:\Program Files\Android\Android Studio\jbr"`.
 
 ```bash
+# For Google Play (upload this):
 ./gradlew :app:bundleRelease
+# -> app/build/outputs/bundle/release/app-release.aab
+
+# A signed APK, only for direct install / sideload testing:
+./gradlew :app:assembleRelease
+# -> app/build/outputs/apk/release/app-release.apk
 ```
 
-Output: `app/build/outputs/bundle/release/app-release.aab` (this is what you upload).
+Play needs the **`.aab`**. The `.apk` is just for installing on a device yourself
+(`adb install -r app-release.apk`).
 
 > **Play App Signing (recommended):** when you first upload, opt in to **Play App
 > Signing**. Google holds the *app signing key*; your `release.jks` becomes the
@@ -83,14 +112,14 @@ In Play Console → **App content**, fill in:
 
 ## 5. Store listing (Main store listing)
 
-Use the copy in [`STORE_LISTING.md`](STORE_LISTING.md):
+Use the copy in [`STORE_LISTING.md`](STORE_LISTING.md). The graphics are ready in
+[`docs/store-assets/`](store-assets/):
 
 - **App name**, **short description** (≤80 chars), **full description**.
-- **App icon** 512×512 PNG (export a higher-res version of the in-app icon, or
-  commission one).
-- **Feature graphic** 1024×500 PNG.
-- **Phone screenshots** (min 2; capture: Bangla typing + suggestions, predictions,
-  emoji, dark theme, the typing guide).
+- **App icon** — [`store-assets/icon-512.png`](store-assets/icon-512.png).
+- **Feature graphic** — [`store-assets/feature-1024x500.png`](store-assets/feature-1024x500.png).
+- **Phone screenshots** — [`store-assets/screenshots/`](store-assets/screenshots/)
+  (phonetic typing, Amader layout, emoji, the localized Bangla setup screen).
 - **Category:** Tools. **Contact email** and (optional) website.
 
 ---

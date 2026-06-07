@@ -58,15 +58,23 @@ fun GuideScreen(onBack: () -> Unit) {
             verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
             Text(
-                "Type a romanized word, then Space to commit. The scheme is " +
-                    "case-sensitive — capitals mean different letters (t = ত but T = ট).",
+                tr(
+                    "রোমান অক্ষরে শব্দ লিখুন, তারপর স্পেস চেপে নিশ্চিত করুন। স্কিমটি বড়/ছোট-হাতের " +
+                        "সংবেদনশীল — বড় হাতের অক্ষর ভিন্ন বর্ণ বোঝায় (t = ত কিন্তু T = ট)।",
+                    "Type a romanized word, then Space to commit. The scheme is " +
+                        "case-sensitive — capitals mean different letters (t = ত but T = ট).",
+                ),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-            for (section in SECTIONS) SectionCard(section)
+            for (section in guideSections()) SectionCard(section)
             Text(
-                "Tip: long-press a suggestion to remove it from your history. " +
-                    "The keyboard learns the words you pick.",
+                tr(
+                    "টিপ: কোনো সাজেশন ইতিহাস থেকে সরাতে সেটির উপর দীর্ঘক্ষণ চাপুন। কিবোর্ড আপনার " +
+                        "বেছে নেওয়া শব্দ শেখে।",
+                    "Tip: long-press a suggestion to remove it from your history. " +
+                        "The keyboard learns the words you pick.",
+                ),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -97,11 +105,12 @@ private fun SectionCard(section: Section) {
     }
 }
 
-private val SECTIONS = listOf(
+@Composable
+private fun guideSections(): List<Section> = listOf(
     Section(
-        "Vowels (independent / kar)",
+        tr("স্বরবর্ণ (স্বাধীন / কার)", "Vowels (independent / kar)"),
         listOf(
-            Entry("o", "অ — inherent, no sign after a consonant"),
+            Entry("o", tr("অ — অন্তর্নিহিত, ব্যঞ্জনের পরে কোনো চিহ্ন নয়", "অ — inherent, no sign after a consonant")),
             Entry("a", "আ / া  (kaj → কাজ)"),
             Entry("i", "ই / ি  (din → দিন)"),
             Entry("I", "ঈ / ী  (nodI → নদী)"),
@@ -113,10 +122,13 @@ private val SECTIONS = listOf(
             Entry("OU", "ঔ / ৌ  (nOUka → নৌকা)"),
             Entry("rri", "ঋ / ৃ  (rriSi → ঋষি)"),
         ),
-        note = "A vowel after a consonant becomes its kar sign; at a word start it is the full vowel.",
+        note = tr(
+            "ব্যঞ্জনের পরে স্বর কার-চিহ্ন হয়ে যায়; শব্দের শুরুতে তা পূর্ণ স্বর।",
+            "A vowel after a consonant becomes its kar sign; at a word start it is the full vowel.",
+        ),
     ),
     Section(
-        "Consonants",
+        tr("ব্যঞ্জনবর্ণ", "Consonants"),
         listOf(
             Entry("k kh g gh Ng", "ক খ গ ঘ ঙ"),
             Entry("ch chh j jh NG", "চ ছ জ ঝ ঞ"),
@@ -129,40 +141,46 @@ private val SECTIONS = listOf(
         ),
     ),
     Section(
-        "Special consonants",
+        tr("বিশেষ ব্যঞ্জন", "Special consonants"),
         listOf(
             Entry("R", "ড়  (rho)"),
             Entry("Rh", "ঢ়"),
             Entry("y / Y", "য়  (noy → নয়)"),
-            Entry("t`", "ৎ  (khanda-ta)"),
-            Entry("w", "ব — for bo-phola (swopno → স্বপ্ন)"),
+            Entry("t`", tr("ৎ  (খণ্ড-ত)", "ৎ  (khanda-ta)")),
+            Entry("w", tr("ব — ব-ফলার জন্য (swopno → স্বপ্ন)", "ব — for bo-phola (swopno → স্বপ্ন)")),
         ),
     ),
     Section(
-        "Signs",
+        tr("চিহ্ন", "Signs"),
         listOf(
-            Entry("ng", "ং anusvara  (bangla → বাংলা)"),
-            Entry("^", "ঁ chandrabindu  (cha^d → চাঁদ)"),
-            Entry(":", "ঃ visarga  (du:kh → দুঃখ)"),
-            Entry(".", "। dari (full stop)"),
-            Entry("`", "্ hasanta (force half-form)"),
+            Entry("ng", tr("ং অনুস্বার  (bangla → বাংলা)", "ং anusvara  (bangla → বাংলা)")),
+            Entry("^", tr("ঁ চন্দ্রবিন্দু  (cha^d → চাঁদ)", "ঁ chandrabindu  (cha^d → চাঁদ)")),
+            Entry(":", tr("ঃ বিসর্গ  (du:kh → দুঃখ)", "ঃ visarga  (du:kh → দুঃখ)")),
+            Entry(".", tr("। দাঁড়ি (পূর্ণচ্ছেদ)", "। dari (full stop)")),
+            Entry("`", tr("্ হসন্ত (জোর করে অর্ধরূপ)", "্ hasanta (force half-form)")),
         ),
-        note = "On the symbols page (?123): tap ঁ / ্ for the sign; long-press for the literal ^ / ` character.",
+        note = tr(
+            "সিম্বল পেজে (?123): চিহ্নের জন্য ঁ / ্ চাপুন; আক্ষরিক ^ / ` -এর জন্য দীর্ঘক্ষণ চাপুন।",
+            "On the symbols page (?123): tap ঁ / ্ for the sign; long-press for the literal ^ / ` character.",
+        ),
     ),
     Section(
-        "Conjuncts (juktakkhor)",
+        tr("যুক্তাক্ষর", "Conjuncts (juktakkhor)"),
         listOf(
             Entry("kk", "ক্ক"),
             Entry("kSh", "ক্ষ  (kShoma → ক্ষমা)"),
             Entry("nt nd", "ন্ত ন্দ"),
             Entry("st", "স্ত  (bistarito → বিস্তারিত)"),
-            Entry("r`k", "র্ক (ref)"),
-            Entry("k`z", "ক্য (ya-phala)"),
+            Entry("r`k", tr("র্ক (রেফ)", "র্ক (ref)")),
+            Entry("k`z", tr("ক্য (য-ফলা)", "ক্য (ya-phala)")),
         ),
-        note = "Type consonants with no vowel between them and they join automatically.",
+        note = tr(
+            "মাঝে স্বর ছাড়া ব্যঞ্জন টাইপ করলে সেগুলো স্বয়ংক্রিয়ভাবে যুক্ত হয়।",
+            "Type consonants with no vowel between them and they join automatically.",
+        ),
     ),
     Section(
-        "Digits",
+        tr("সংখ্যা", "Digits"),
         listOf(Entry("0 1 2 3 4 5 6 7 8 9", "০ ১ ২ ৩ ৪ ৫ ৬ ৭ ৮ ৯")),
     ),
 )
