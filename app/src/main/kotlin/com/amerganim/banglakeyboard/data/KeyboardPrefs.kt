@@ -27,8 +27,14 @@ class KeyboardPrefs(context: Context) {
         get() = prefs.getBoolean(KEY_SOUND, false)
         set(value) = prefs.edit().putBoolean(KEY_SOUND, value).apply()
 
+    /** Smart conjunct: only join consonants that form a real juktakkhor. */
+    var smartConjunct: Boolean
+        get() = prefs.getBoolean(SMART_CONJUNCT, false)
+        set(value) = prefs.edit().putBoolean(SMART_CONJUNCT, value).apply()
+
     private companion object {
         const val KEY_SIZE = "key_size"
         const val KEY_SOUND = "key_sound"
+        const val SMART_CONJUNCT = "smart_conjunct"
     }
 }

@@ -2,6 +2,7 @@ package com.amerganim.banglakeyboard.data
 
 import android.content.Context
 import com.amerganim.banglakeyboard.engine.Bigrams
+import com.amerganim.banglakeyboard.engine.Conjuncts
 import com.amerganim.banglakeyboard.engine.EnglishSuggester
 import com.amerganim.banglakeyboard.engine.Suggester
 import kotlinx.coroutines.Dispatchers
@@ -42,6 +43,9 @@ class DictionaryRepository(private val appContext: Context) {
         runCatching { appContext.assets.open(BN_DICT).bufferedReader().use { bangla.loadDictionaryData(it.readText()) } }
         runCatching { appContext.assets.open(BN_WORDS).bufferedReader().use { bangla.loadWordList(it.readText()) } }
         runCatching { appContext.assets.open(EN_WORDS).bufferedReader().use { english.loadWordList(it.readText()) } }
+        runCatching {
+            appContext.assets.open(JUKTAKKHOR).bufferedReader().use { Conjuncts.setFromList(it.readText()) }
+        }
 
         runCatching { file(BN_LEARNED).takeIf { it.exists() }?.let { bangla.loadLearnedData(it.readText()) } }
         runCatching { file(EN_LEARNED).takeIf { it.exists() }?.let { english.loadLearnedData(it.readText()) } }
@@ -62,7 +66,7 @@ class DictionaryRepository(private val appContext: Context) {
 
     // ---- Reads (main thread, lock-free) -------------------------------------
 
-    fun suggestBangla(prefix: String): List<String> = bangla.suggest(prefix)
+    fun suggestBangla(prefix: String, smart: Boolean = false): List<String> = bangla.suggest(prefix, smart)
     fun suggestEnglish(prefix: String): List<String> = english.suggest(prefix)
 
     fun predictNext(lang: Lang, prevWord: String): List<String> {
@@ -127,6 +131,7 @@ class DictionaryRepository(private val appContext: Context) {
         const val BN_DICT = "dictionary.tsv"
         const val BN_WORDS = "words.tsv"
         const val EN_WORDS = "english_words.txt"
+        const val JUKTAKKHOR = "juktakkhor.txt"
         const val BN_LEARNED = "bn_learned.tsv"
         const val EN_LEARNED = "en_learned.tsv"
         const val BN_BIGRAMS = "bn_bigrams.tsv"

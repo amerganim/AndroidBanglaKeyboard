@@ -125,11 +125,11 @@ class Suggester {
      * (or Bangla transliteration) starts with [prefix], best-ranked first,
      * de-duplicated.
      */
-    fun suggest(prefix: String, maxResults: Int = 9): List<String> {
+    fun suggest(prefix: String, smart: Boolean = false, maxResults: Int = 9): List<String> {
         val out = ArrayList<String>()
         if (prefix.isEmpty() || maxResults == 0) return out
 
-        val literal = Transliterator.transliterate(prefix) // element 0: as typed
+        val literal = Transliterator.transliterate(prefix, smart) // element 0: as typed
         out.add(literal)
 
         val lowerPrefix = prefix.lowercase()

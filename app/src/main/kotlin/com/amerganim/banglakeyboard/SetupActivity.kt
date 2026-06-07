@@ -198,6 +198,30 @@ private fun SetupScreen(
             )
         }
 
+        var smart by remember { mutableStateOf(prefs.smartConjunct) }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(Modifier.weight(1f)) {
+                Text("Smart conjunct", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                Text(
+                    "Join consonants only when they form a real juktakkhor " +
+                        "(so \"zkhn\" → যখন, but \"kSh\" → ক্ষ).",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            Switch(
+                checked = smart,
+                onCheckedChange = {
+                    smart = it
+                    prefs.smartConjunct = it
+                },
+            )
+        }
+
         var text by remember { mutableStateOf("") }
         OutlinedTextField(
             value = text,
