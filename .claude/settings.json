@@ -21,11 +21,13 @@
       "Bash(cd \"/c/Ganim/My_Projects/AndroidBanglaKeyboard/AndroidBanglaKeyboard\" && sed -i 's/viewModel\\\\.setListening/viewModel.updateListening/g' app/src/main/kotlin/com/amerganim/banglakeyboard/ime/BanglaInputMethodService.kt && grep -n \"updateListening\\\\|setListening\" app/src/main/kotlin/com/amerganim/banglakeyboard/ime/BanglaInputMethodService.kt)",
       "Bash(sed -i 's/ganimtruthfinder@gmail.com/ganim09@gmail.com/g' PRIVACY_POLICY.md app/src/main/kotlin/com/amerganim/banglakeyboard/ui/PolicyScreen.kt)",
       "Read(//c/c/Ganim/My_Projects/AndroidBanglaKeyboard/AndroidBanglaKeyboard/**)",
-      "WebFetch(domain:bn.wikibooks.org)"
+      "WebFetch(domain:bn.wikibooks.org)",
+      "Bash(cp \"/c/Users/USER/AppData/Local/Temp/loc_check.png\" \"/c/Ganim/My_Projects/AndroidBanglaKeyboard/AndroidBanglaKeyboard/docs/store-assets/screenshots/04-setup.png\" && echo \"updated setup screenshot \\(Bangla\\)\")"
     ],
     "additionalDirectories": [
       "c:\\Users\\USER\\.claude\\projects\\c--Ganim-My-Projects-AndroidBanglaKeyboard-AndroidBanglaKeyboard\\memory",
-      "c:\\c\\Ganim\\My_Projects\\AndroidBanglaKeyboard\\AndroidBanglaKeyboard\\app\\src\\main\\kotlin\\com\\amerganim\\banglakeyboard\\ime"
+      "c:\\c\\Ganim\\My_Projects\\AndroidBanglaKeyboard\\AndroidBanglaKeyboard\\app\\src\\main\\kotlin\\com\\amerganim\\banglakeyboard\\ime",
+      "C:\\Users\\USER\\AppData\\Local\\Temp"
     ]
   }
 }

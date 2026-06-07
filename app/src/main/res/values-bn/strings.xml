@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ime_label">আমাদের বাংলা কিবোর্ড</string>
+
+    <!-- Setup screen -->
+    <string name="setup_title">আমাদের বাংলা কিবোর্ড</string>
+    <string name="setup_subtitle">ফোনেটিক বাংলা টাইপিং — \"amar\" লিখলে হয় আমার।</string>
+    <string name="language">ভাষা</string>
+    <string name="getting_started">শুরু করুন</string>
+    <string name="gs_1">১. সিস্টেম সেটিংসে কিবোর্ডটি চালু করুন।</string>
+    <string name="gs_2">২. কিবোর্ড পিকার থেকে এটি নির্বাচন করুন।</string>
+    <string name="gs_3">৩. English ⇄ বাংলা বদলাতে 🌐 গ্লোব কী চাপুন।</string>
+    <string name="gs_4">৪. একটি বড় হাতের অক্ষরের জন্য ⇧ একবার চাপুন (T → ট); একটি কী-র পরেই তা ছেড়ে যায়।</string>
+    <string name="enable_keyboard">সেটিংসে কিবোর্ড চালু করুন</string>
+    <string name="choose_keyboard">কিবোর্ড নির্বাচন করুন</string>
+    <string name="bangla_typing_guide">বাংলা টাইপিং গাইড</string>
+    <string name="amader_layout_guide">আমাদের লেআউট গাইড</string>
+    <string name="privacy_policy">গোপনীয়তা নীতি</string>
+    <string name="key_size">কী-এর আকার</string>
+    <string name="size_small">ছোট</string>
+    <string name="size_medium">মাঝারি</string>
+    <string name="size_large">বড়</string>
+    <string name="theme_note">কিবোর্ডটি আপনার সিস্টেমের লাইট/ডার্ক থিম অনুসরণ করে।</string>
+    <string name="key_sound">কী চাপার শব্দ</string>
+    <string name="smart_conjunct">স্মার্ট যুক্তাক্ষর</string>
+    <string name="smart_conjunct_desc">শুধু প্রকৃত যুক্তাক্ষর তৈরি হলেই ব্যঞ্জন যুক্ত করে (যেমন \"zkhn\" → যখন, কিন্তু \"kSh\" → ক্ষ)।</string>
+    <string name="try_keyboard_here">এখানে কিবোর্ড পরীক্ষা করুন</string>
+
+    <!-- Screen titles -->
+    <string name="back">ফিরে যান</string>
+    <string name="guide_title">বাংলা টাইপিং গাইড</string>
+    <string name="amader_guide_title">আমাদের লেআউট — গাইড</string>
+    <string name="policy_title">গোপনীয়তা নীতি</string>
+</resources>

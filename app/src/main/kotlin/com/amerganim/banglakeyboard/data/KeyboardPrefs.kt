@@ -32,9 +32,15 @@ class KeyboardPrefs(context: Context) {
         get() = prefs.getBoolean(SMART_CONJUNCT, true)
         set(value) = prefs.edit().putBoolean(SMART_CONJUNCT, value).apply()
 
+    /** App UI language: "en" or "bn". Empty = follow the system locale. */
+    var appLang: String
+        get() = prefs.getString(APP_LANG, "") ?: ""
+        set(value) = prefs.edit().putString(APP_LANG, value).apply()
+
     private companion object {
         const val KEY_SIZE = "key_size"
         const val KEY_SOUND = "key_sound"
         const val SMART_CONJUNCT = "smart_conjunct"
+        const val APP_LANG = "app_lang"
     }
 }

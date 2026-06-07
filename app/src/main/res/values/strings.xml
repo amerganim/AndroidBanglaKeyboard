@@ -2,4 +2,34 @@
 <resources>
     <string name="app_name">Amader Bangla Keyboard</string>
     <string name="ime_label">Amader Bangla Keyboard</string>
+
+    <!-- Setup screen -->
+    <string name="setup_title">Amader Bangla Keyboard</string>
+    <string name="setup_subtitle">Phonetic Bangla typing — type \"amar\" to get আমার.</string>
+    <string name="language">Language</string>
+    <string name="getting_started">Getting started</string>
+    <string name="gs_1">1. Enable the keyboard in system settings.</string>
+    <string name="gs_2">2. Switch to it with the keyboard picker.</string>
+    <string name="gs_3">3. Tap the 🌐 globe key to switch English ⇄ Bangla.</string>
+    <string name="gs_4">4. Tap ⇧ once for one capital (T → ট); it releases after one key.</string>
+    <string name="enable_keyboard">Enable keyboard in Settings</string>
+    <string name="choose_keyboard">Choose keyboard</string>
+    <string name="bangla_typing_guide">Bangla typing guide</string>
+    <string name="amader_layout_guide">Amader layout guide</string>
+    <string name="privacy_policy">Privacy policy</string>
+    <string name="key_size">Key size</string>
+    <string name="size_small">Small</string>
+    <string name="size_medium">Medium</string>
+    <string name="size_large">Large</string>
+    <string name="theme_note">The keyboard follows your system light/dark theme.</string>
+    <string name="key_sound">Key press sound</string>
+    <string name="smart_conjunct">Smart conjunct</string>
+    <string name="smart_conjunct_desc">Join consonants only when they form a real juktakkhor (so \"zkhn\" → যখন, but \"kSh\" → ক্ষ).</string>
+    <string name="try_keyboard_here">Try the keyboard here</string>
+
+    <!-- Screen titles -->
+    <string name="back">Back</string>
+    <string name="guide_title">Bangla Typing Guide</string>
+    <string name="amader_guide_title">Amader Layout — Guide</string>
+    <string name="policy_title">Privacy Policy</string>
 </resources>
