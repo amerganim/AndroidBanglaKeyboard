@@ -58,10 +58,16 @@ class KeyboardViewModel(
     var candidates by mutableStateOf<List<String>>(emptyList())
         private set
 
-    private var buffer: String = "" // romanized (Bangla) or plain (English) word
+    // The in-progress word as a list of key-press tokens. For phonetic/English each
+    // token is one character; for the Amader (fixed) layout each token is a whole
+    // roman key (e.g. "kh", "T") so adjacent keys are NOT greedily re-tokenized.
+    private val tokens = ArrayList<String>()
     private var prevWord: String = "" // last committed word, for next-word prediction
     private var keySoundEnabled: Boolean = false
     private var smartConjunct: Boolean = false
+
+    private fun bufferEmpty() = tokens.isEmpty()
+    private fun romanString() = tokens.joinToString("")
 
     fun updateKeySound(enabled: Boolean) { keySoundEnabled = enabled }
     fun updateSmartConjunct(enabled: Boolean) { smartConjunct = enabled }
@@ -78,14 +84,21 @@ class KeyboardViewModel(
 
     private fun lang() = if (mode == KeyboardMode.ENGLISH) Lang.ENGLISH else Lang.BANGLA
 
-    /** The text currently being composed (transliterated in Bangla mode). */
-    private fun composed(): String =
-        if (mode == KeyboardMode.ENGLISH) buffer else Transliterator.transliterate(buffer, smartConjunct)
+    /** The text currently being composed (transliterated in Bangla modes). */
+    private fun composed(): String = when (mode) {
+        KeyboardMode.ENGLISH -> romanString()
+        // Amader: assemble the discrete key tokens (no greedy re-tokenization).
+        KeyboardMode.BANGLA_FIXED -> Transliterator.transliterateTokens(tokens, smartConjunct)
+        else -> Transliterator.transliterate(romanString(), smartConjunct)
+    }
 
-    private fun completions(): List<String> =
-        if (noSuggest) emptyList()
-        else if (mode == KeyboardMode.ENGLISH) repository.suggestEnglish(buffer)
-        else repository.suggestBangla(buffer, smartConjunct)
+    private fun completions(): List<String> = when {
+        noSuggest -> emptyList()
+        mode == KeyboardMode.ENGLISH -> repository.suggestEnglish(romanString())
+        // Amader: the composed Bangla can't be re-derived from roman, so match by it.
+        mode == KeyboardMode.BANGLA_FIXED -> repository.suggestBanglaByText(composed())
+        else -> repository.suggestBangla(romanString(), smartConjunct)
+    }
 
     private fun predictions(prev: String): List<String> =
         if (noSuggest) emptyList() else repository.predictNext(lang(), prev)
@@ -98,7 +111,7 @@ class KeyboardViewModel(
         val isWordChar =
             if (mode == KeyboardMode.ENGLISH) c.isLetter() else Transliterator.isPhoneticInput(c)
         if (isWordChar) {
-            buffer += c
+            tokens.add(c.toString())
             ic.setComposingText(composed(), 1)
             candidates = completions()
         } else {
@@ -111,13 +124,13 @@ class KeyboardViewModel(
     }
 
     /**
-     * A fixed-layout key: appends a whole roman [token] (e.g. "k", "kh", "T") to the
-     * buffer and reuses the phonetic engine for kars/conjuncts. Bangla modes only.
+     * A fixed-layout (Amader) key: appends a whole roman [token] (e.g. "k", "kh",
+     * "T") as one discrete unit, then assembles via the engine for kars/conjuncts.
      */
     fun onToken(token: String) {
         feedback()
         val ic = connection() ?: return
-        buffer += token
+        tokens.add(token)
         ic.setComposingText(composed(), 1)
         candidates = completions()
         if (shifted) shifted = false
@@ -134,9 +147,9 @@ class KeyboardViewModel(
     fun onBackspace() {
         feedback()
         val ic = connection() ?: return
-        if (buffer.isNotEmpty()) {
-            buffer = buffer.dropLast(1)
-            if (buffer.isEmpty()) {
+        if (tokens.isNotEmpty()) {
+            tokens.removeAt(tokens.size - 1) // remove one key-press
+            if (tokens.isEmpty()) {
                 ic.setComposingText("", 1)
                 ic.finishComposingText()
                 candidates = emptyList()
@@ -170,7 +183,7 @@ class KeyboardViewModel(
     fun onEnter() {
         feedback()
         val ic = connection() ?: return
-        if (buffer.isNotEmpty()) {
+        if (!bufferEmpty()) {
             finalizeWord(ic)
             candidates = emptyList()
         } else {
@@ -197,7 +210,7 @@ class KeyboardViewModel(
         val ic = connection() ?: return
         ic.commitText("$word ", 1) // replaces any composing region, adds a space
         val prev = prevWord
-        buffer = ""
+        tokens.clear()
         if (!noLearn) scope.launch { repository.commitWord(lang(), prev, word) }
         prevWord = word
         candidates = predictions(word)
@@ -284,19 +297,19 @@ class KeyboardViewModel(
      * fresh at the new position (instead of jumping back to the old word).
      */
     fun onSelectionChanged(newSelStart: Int, newSelEnd: Int, candStart: Int, candEnd: Int) {
-        if (buffer.isEmpty()) return
+        if (bufferEmpty()) return
         val cursorInComposing =
             candStart >= 0 && newSelStart == newSelEnd && newSelStart in candStart..candEnd
         if (!cursorInComposing) {
             connection()?.finishComposingText() // keep the already-composed text in place
-            buffer = ""
+            tokens.clear()
             prevWord = ""
             candidates = emptyList()
         }
     }
 
     fun onInputStart(noLearning: Boolean = false, noSuggestions: Boolean = false) {
-        buffer = ""
+        tokens.clear()
         prevWord = ""
         candidates = emptyList()
         symbolsPage = false
@@ -311,11 +324,11 @@ class KeyboardViewModel(
 
     /** Commit the in-progress word (if any), learn it, and remember it as prevWord. */
     private fun finalizeWord(ic: InputConnection) {
-        if (buffer.isEmpty()) return
+        if (bufferEmpty()) return
         val word = composed()
         ic.finishComposingText() // commits the composing text, which equals `word`
         val prev = prevWord
-        buffer = ""
+        tokens.clear()
         candidates = emptyList()
         if (!noLearn) scope.launch { repository.commitWord(lang(), prev, word) }
         prevWord = word

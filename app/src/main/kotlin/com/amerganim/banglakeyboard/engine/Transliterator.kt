@@ -2,30 +2,69 @@ package com.amerganim.banglakeyboard.engine
 
 /**
  * Greedy longest-match tokenizer + stateful assembler that converts a romanized
- * Bangla string into Bengali script (UTF-8 in, UTF-8 out).
+ * Bangla string into Bengali script.
  *
- * Direct Kotlin port of `bnphonetic::Transliterate` from the Windows keyboard.
- * The assembler tracks whether the previous emitted unit was a consonant:
- *  - a vowel after a consonant becomes a dependent sign (kar); otherwise it is
- *    an independent vowel; the inherent vowel `o` emits nothing after a consonant;
- *  - a consonant after a consonant inserts a hasanta (্) to form a conjunct.
- *
- * Input keys are all ASCII, so character indexing matches the C++ byte indexing.
+ * The assembler tracks the previous emitted unit:
+ *  - a vowel after a consonant becomes a dependent sign (kar); otherwise it is an
+ *    independent vowel; the inherent vowel `o` emits nothing after a consonant;
+ *  - a consonant after a consonant inserts a hasanta (্) to form a conjunct
+ *    (in smart mode, only when the cluster is a real juktakkhor).
  */
 object Transliterator {
 
+    /** One assembler input: a known [unit], or raw passthrough [text] (unit == null). */
+    private class Seg(val unit: Unit?, val text: String)
+
     /**
-     * @param smart when true, two consonants are joined into a conjunct only if the
-     *   cluster is a real juktakkhor (see [Conjuncts]); otherwise each consonant
-     *   keeps its inherent vowel. So `zkhn` -> যখন but `kSh` -> ক্ষ. Falls back to
-     *   normal joining if the conjunct list hasn't been loaded yet.
+     * @param smart when true, two consonants are joined only if the cluster is a real
+     *   juktakkhor (see [Conjuncts]); also applies pronunciation-based conjunct
+     *   spellings (gg→জ্ঞ, n before চ/জ → ঞ). Falls back to plain joining if the
+     *   conjunct list hasn't been loaded.
      */
     fun transliterate(latin: String, smart: Boolean = false): String {
         val useSmart = smart && Conjuncts.clusterPrefixes.isNotEmpty()
+        val source = if (useSmart) applyPhoneticSpellings(latin) else latin
+        return assemble(tokenize(source), useSmart)
+    }
+
+    /**
+     * Assemble a list of already-segmented roman tokens. Used by the fixed "Amader"
+     * layout so adjacent keys are NOT greedily re-tokenized — e.g. the ক key then the
+     * হ key stays ক+হ rather than merging into the "kh" digraph খ.
+     */
+    fun transliterateTokens(tokens: List<String>, smart: Boolean = false): String {
+        val useSmart = smart && Conjuncts.clusterPrefixes.isNotEmpty()
+        val segs = tokens.map { tok ->
+            val u = RuleTable.table[tok] ?: RuleTable.table[tok.lowercase()]
+            Seg(u, if (tok.length == 1 && tok[0] in 'A'..'Z') tok.lowercase() else tok)
+        }
+        return assemble(segs, useSmart)
+    }
+
+    /** Greedy tokenization of a roman string into assembler segments. */
+    private fun tokenize(latin: String): List<Seg> {
+        val segs = ArrayList<Seg>()
+        val n = latin.length
+        var i = 0
+        while (i < n) {
+            var match = matchAt(latin, i, lower = false)
+            if (match == null && latin[i] in 'A'..'Z') match = matchAt(latin, i, lower = true)
+            if (match == null) {
+                val c = latin[i]
+                segs.add(Seg(null, if (c in 'A'..'Z') c.lowercaseChar().toString() else c.toString()))
+                i++
+            } else {
+                segs.add(Seg(match.first, ""))
+                i += match.second
+            }
+        }
+        return segs
+    }
+
+    private fun assemble(segs: List<Seg>, useSmart: Boolean): String {
         val out = StringBuilder()
         var prevConsonant = false // non-smart state
         val pending = ArrayList<String>() // consonant glyphs of the current cluster (smart)
-        val n = latin.length
 
         fun flush() {
             if (pending.isNotEmpty()) {
@@ -34,38 +73,20 @@ object Transliterator {
             }
         }
 
-        var i = 0
-        while (i < n) {
-            // First try a case-sensitive match (so the scheme's capital-specific
-            // letters win: T=ট vs t=ত, Ng=ঙ vs ng=ং, etc.).
-            var match = matchAt(latin, i, lower = false)
-            // If a capital has no mapping, fall back to its lowercase Bangla form
-            // instead of emitting a stray English letter (e.g. `A` -> আ, `M` -> ম).
-            if (match == null && latin[i] in 'A'..'Z') {
-                match = matchAt(latin, i, lower = true)
-            }
-
-            if (match == null) {
-                // Unknown character (space, punctuation, untranslated letter):
-                // pass it through and reset the consonant context. Lowercase a
-                // stray capital so no uppercase English leaks into Bangla text.
+        for (seg in segs) {
+            val unit = seg.unit
+            if (unit == null) {
                 if (useSmart) flush()
-                val c = latin[i]
-                out.append(if (c in 'A'..'Z') c.lowercaseChar() else c)
+                out.append(seg.text)
                 prevConsonant = false
-                i++
                 continue
             }
-
-            val unit = match.first
-            val matchedLen = match.second
-
             when (unit.kind) {
                 Kind.CONSONANT -> {
                     if (useSmart) {
                         if (pending.isNotEmpty()) {
                             val candidate = pending.joinToString("") + unit.main
-                            // ref (র্ + consonant) always forms; otherwise only if
+                            // ref (র্ + consonant) always forms; otherwise only when
                             // the cluster is the start of a real juktakkhor.
                             val isRef = pending.size == 1 && pending[0] == RA
                             if (!isRef && candidate !in Conjuncts.clusterPrefixes) flush()
@@ -86,8 +107,6 @@ object Transliterator {
                             out.append(unit.main) // independent vowel
                         }
                     } else {
-                        // After a consonant a vowel becomes a dependent sign (empty
-                        // for the inherent vowel); otherwise an independent vowel.
                         out.append(if (prevConsonant) unit.kar else unit.main)
                         prevConsonant = false
                     }
@@ -98,16 +117,26 @@ object Transliterator {
                     prevConsonant = false
                 }
             }
-
-            i += matchedLen
         }
-
         if (useSmart) flush()
         return out.toString()
     }
 
-    /** The ref consonant (র); ref always forms before another consonant. */
+    /** ref consonant (র); ref always forms before another consonant. */
     private const val RA = "র"
+
+    // n before চ/ছ/জ/ঝ is pronounced (and written) as ঞ.
+    private val N_NASAL = Regex("n(chh|ch|jh|j)")
+
+    /**
+     * Pronunciation-based conjunct spellings (smart mode): so বিজ্ঞান can be typed
+     * "biggan" and অঞ্চল as "onchol".
+     */
+    private fun applyPhoneticSpellings(s: String): String {
+        var r = s.replace("gg", "jNG") // জ্ঞ
+        r = N_NASAL.replace(r) { "NG" + it.groupValues[1] }
+        return r
+    }
 
     /**
      * Greedy longest-match lookup at [i]. When [lower] is true the candidate is

@@ -69,6 +69,9 @@ class DictionaryRepository(private val appContext: Context) {
     fun suggestBangla(prefix: String, smart: Boolean = false): List<String> = bangla.suggest(prefix, smart)
     fun suggestEnglish(prefix: String): List<String> = english.suggest(prefix)
 
+    /** Completions for an already-formed Bangla string (Amader layout). */
+    fun suggestBanglaByText(banglaPrefix: String): List<String> = bangla.suggestByBangla(banglaPrefix)
+
     fun predictNext(lang: Lang, prevWord: String): List<String> {
         if (prevWord.isBlank()) return emptyList()
         return when (lang) {

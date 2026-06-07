@@ -52,6 +52,29 @@ class SmartConjunctTest {
         assertEquals("য্খ্ন", plain("zkhn"))
     }
 
+    @Test fun pronunciationConjunctSpellings() {
+        // gg -> জ্ঞ, and n before চ/জ -> ঞ (smart mode).
+        assertEquals("জ্ঞান", smart("ggan"))
+        assertEquals("বিজ্ঞান", smart("biggan"))
+        assertEquals("অঞ্চল", smart("onchol"))
+        assertEquals("সঞ্চয়", smart("sonchoy"))
+        assertEquals("পাঞ্জাবি", smart("panjabi"))
+        // Plain mode keeps the literal spelling.
+        assertEquals("বিগ্গান", plain("biggan"))
+    }
+
+    @Test fun fixedLayoutTokensDoNotMerge() {
+        // The ক key then the হ key must NOT become the "kh" digraph খ.
+        assertEquals("কহ", Transliterator.transliterateTokens(listOf("k", "h"), smart = true))
+        assertEquals("নগ", Transliterator.transliterateTokens(listOf("n", "g"), smart = true))
+        // Real conjuncts and kars still work from discrete tokens.
+        assertEquals("ক্ষ", Transliterator.transliterateTokens(listOf("k", "Sh"), smart = true))
+        assertEquals("কু", Transliterator.transliterateTokens(listOf("k", "u"), smart = true))
+        assertEquals("ক", Transliterator.transliterateTokens(listOf("k"), smart = true))
+        // Without smart, discrete consonants still join into a conjunct.
+        assertEquals("ক্হ", Transliterator.transliterateTokens(listOf("k", "h"), smart = false))
+    }
+
     @Test fun fallsBackToPlainWhenListEmpty() {
         Conjuncts.setFromList("") // no prefixes loaded
         assertEquals("য্খ্ন", smart("zkhn")) // smart no-ops -> normal joining

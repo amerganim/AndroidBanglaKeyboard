@@ -176,6 +176,39 @@ class Suggester {
         return out
     }
 
+    /**
+     * Suggestions for an already-formed Bangla [prefix] (used by the Amader layout,
+     * whose composed text can't be re-derived from roman): element 0 is the prefix
+     * itself, followed by word-list/user words that start with it.
+     */
+    fun suggestByBangla(prefix: String, maxResults: Int = 9): List<String> {
+        val out = ArrayList<String>()
+        if (prefix.isEmpty() || maxResults == 0) return out
+        out.add(prefix)
+
+        val wordsSnapshot = words
+        val cand = HashMap<String, Int>()
+        var i = lowerBound(wordsSnapshot, prefix)
+        while (i < wordsSnapshot.size) {
+            val w = wordsSnapshot[i]
+            if (!w.bangla.startsWith(prefix)) break
+            val cur = cand[w.bangla]
+            if (cur == null || w.freq > cur) cand[w.bangla] = w.freq
+            i++
+        }
+        val scored = ArrayList<Pair<String, Int>>(cand.size)
+        for ((bangla, base) in cand) {
+            if (bangla == prefix) continue
+            scored.add(bangla to base + (learned[bangla] ?: 0) * LEARN_WEIGHT)
+        }
+        scored.sortWith(compareByDescending<Pair<String, Int>> { it.second }.thenBy { it.first })
+        for ((bangla, _) in scored) {
+            if (out.size >= maxResults) break
+            out.add(bangla)
+        }
+        return out
+    }
+
     private companion object {
         /** Each committed use is worth this much static-frequency weight. */
         const val LEARN_WEIGHT = 40
