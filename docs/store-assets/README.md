@@ -11,13 +11,19 @@ These are clean, brand-matched placeholders generated from the app's colors
 (indigo `#5B5BD6`) and the keyboard mark. Replace with a professionally designed
 version any time — the requirements (sizes) stay the same.
 
-## Still needed before submission
+## Screenshots
 
-- **Screenshots** (min 2 phone): capture on a device — Bangla typing with the
-  suggestion bar, next-word prediction, the emoji panel, dark theme, and the
-  typing/Amader guide. See [`../STORE_LISTING.md`](../STORE_LISTING.md) and
-  [`../PUBLISHING_GUIDE.md`](../PUBLISHING_GUIDE.md).
-- Optionally a tablet screenshot set.
+Captured on a phone (Galaxy A15, dark theme) in [`screenshots/`](screenshots):
+
+| File | Shows |
+|---|---|
+| `01-phonetic.png` | Phonetic typing — "amar" → আমার with the suggestion bar |
+| `02-amader.png` | The Amader layout (Bangla letters on QWERTY positions) |
+| `03-emoji.png` | The emoji panel |
+| `04-setup.png` | App intro / getting-started screen |
+
+Upload these (min 2 required). Optional extras you can add later: a light-theme
+shot, next-word prediction, and a tablet set.
 
 > The in-app **adaptive launcher icon** (what users see on the home screen) lives
 > in `app/src/main/res/mipmap-anydpi-v26/` + `drawable/ic_launcher_foreground.xml`
