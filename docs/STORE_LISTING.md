@@ -40,7 +40,7 @@ bangla typing, offline keyboard, privacy keyboard
 Everyone (no objectionable content; no data collection).
 
 ## Privacy policy URL
-https://github.com/amerganim/AndroidBanglaKeyboard/blob/main/PRIVACY_POLICY.md
+https://amerganim.github.io/amader-bangla-keyboard-privacy-policy/
 
 ## Data safety form
 - Data collected: None

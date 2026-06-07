@@ -22,19 +22,21 @@ first-time setup, plus Google's review time (hours to a few days).
 
 ## 1. Host the privacy policy (required)
 
-Google requires a **publicly accessible** privacy-policy **URL** for keyboards.
-Your GitHub repo is private, so don't link to it. The policy text lives in
-[`PRIVACY_POLICY.md`](../PRIVACY_POLICY.md) and is also shown **inside the app**.
-Host the text publicly using any of these free options:
+Google requires a **publicly accessible** privacy-policy **URL** for keyboards
+(the in-app copy doesn't satisfy this). A public repo already exists for this:
+<https://github.com/amerganim/amader-bangla-keyboard-privacy-policy>.
 
-- **GitHub Pages (public repo):** create a *separate, public* repo (e.g.
-  `amaderbangla-privacy`), add `PRIVACY_POLICY.md` (or an `index.html`), enable
-  **Settings → Pages**. You get a URL like
-  `https://amerganim.github.io/amaderbangla-privacy/`.
-- **Google Sites:** create a one-page site, paste the policy, publish — free, no code.
-- **A public GitHub Gist** set to "public", or Netlify/Vercel/Cloudflare Pages.
+To publish it with GitHub Pages:
+1. Copy [`docs/privacy-policy.html`](privacy-policy.html) into that repo as
+   **`index.html`** (the repo root).
+2. In that repo: **Settings → Pages → Build and deployment → Source: Deploy from a
+   branch → Branch: `main` / `/ (root)` → Save**.
+3. After a minute the policy is live at:
+   **<https://amerganim.github.io/amader-bangla-keyboard-privacy-policy/>**
 
-Save the resulting URL — you'll paste it into the Play listing.
+Paste that URL into the Play listing (it's already used in
+[`STORE_LISTING.md`](STORE_LISTING.md)). Alternatives if you prefer: Google Sites,
+a public Gist, Netlify/Vercel/Cloudflare Pages.
 
 ---
 

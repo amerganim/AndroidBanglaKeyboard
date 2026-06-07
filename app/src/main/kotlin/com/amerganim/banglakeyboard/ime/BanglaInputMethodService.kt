@@ -4,7 +4,8 @@ import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.inputmethodservice.InputMethodService
-import android.media.AudioManager
+import android.media.AudioAttributes
+import android.media.SoundPool
 import android.os.Bundle
 import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
@@ -27,6 +28,7 @@ import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
+import com.amerganim.banglakeyboard.R
 import com.amerganim.banglakeyboard.data.DictionaryRepository
 import com.amerganim.banglakeyboard.data.KeyboardPrefs
 import com.amerganim.banglakeyboard.ui.KeyboardScreen
@@ -78,13 +80,28 @@ class BanglaInputMethodService :
             onMicStop = ::stopVoiceInput,
             onKeyFeedback = ::playKeyClick,
         )
+        clickSoundId = soundPool.load(this, R.raw.key_click, 1)
         scope.launch { repository.load() }
     }
 
-    /** Standard key-press click (respects the system's touch-sound setting too). */
+    // A bundled click played via SoundPool so it works regardless of the system's
+    // "touch sounds" setting (which AudioManager.playSoundEffect depends on).
+    private val soundPool: SoundPool by lazy {
+        SoundPool.Builder()
+            .setMaxStreams(3)
+            .setAudioAttributes(
+                AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                    .build(),
+            )
+            .build()
+    }
+    private var clickSoundId = 0
+
     private fun playKeyClick() {
-        (getSystemService(AUDIO_SERVICE) as? AudioManager)
-            ?.playSoundEffect(AudioManager.FX_KEYPRESS_STANDARD)
+        if (clickSoundId == 0) clickSoundId = soundPool.load(this, R.raw.key_click, 1)
+        soundPool.play(clickSoundId, 0.5f, 0.5f, 1, 0, 1f)
     }
 
     // ---- Voice typing ---------------------------------------------------
@@ -231,6 +248,7 @@ class BanglaInputMethodService :
 
     override fun onDestroy() {
         finishVoiceInput()
+        soundPool.release()
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
         store.clear()
         scope.cancel()
