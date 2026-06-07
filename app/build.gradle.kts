@@ -6,11 +6,18 @@ plugins {
     id("org.jetbrains.kotlin.plugin.compose")
 }
 
-// Release signing is read from keystore.properties (kept out of version control).
+// Release signing comes from keystore.properties locally, or from environment
+// variables in CI (GitHub Actions secrets) — neither is committed to git.
 val keystorePropertiesFile = rootProject.file("keystore.properties")
 val keystoreProperties = Properties().apply {
     if (keystorePropertiesFile.exists()) keystorePropertiesFile.inputStream().use { load(it) }
 }
+
+fun signingValue(propKey: String, envKey: String): String? =
+    (keystoreProperties[propKey] as String?) ?: System.getenv(envKey)
+
+val storeFilePath = signingValue("storeFile", "KEYSTORE_FILE")
+val hasSigning = storeFilePath != null && rootProject.file(storeFilePath).exists()
 
 android {
     namespace = "com.amerganim.banglakeyboard"
@@ -27,11 +34,11 @@ android {
 
     signingConfigs {
         create("release") {
-            if (keystorePropertiesFile.exists()) {
-                storeFile = rootProject.file(keystoreProperties["storeFile"] as String)
-                storePassword = keystoreProperties["storePassword"] as String
-                keyAlias = keystoreProperties["keyAlias"] as String
-                keyPassword = keystoreProperties["keyPassword"] as String
+            if (hasSigning) {
+                storeFile = rootProject.file(storeFilePath!!)
+                storePassword = signingValue("storePassword", "KEYSTORE_PASSWORD")
+                keyAlias = signingValue("keyAlias", "KEY_ALIAS")
+                keyPassword = signingValue("keyPassword", "KEY_PASSWORD")
             }
         }
     }
@@ -44,11 +51,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            signingConfig = if (keystorePropertiesFile.exists()) {
-                signingConfigs.getByName("release")
-            } else {
-                null
-            }
+            signingConfig = if (hasSigning) signingConfigs.getByName("release") else null
         }
     }
 
