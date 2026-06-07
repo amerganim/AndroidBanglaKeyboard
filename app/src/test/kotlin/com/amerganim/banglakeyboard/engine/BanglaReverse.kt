@@ -61,7 +61,12 @@ object BanglaReverse {
                     val karRoman = next?.let { kar[it] }
                     when {
                         karRoman != null -> { sb.append(karRoman); i += 2 }
-                        next == HASANTA -> i += 2 // conjunct: no vowel emitted
+                        next == HASANTA -> {
+                            // Conjunct: no vowel. Khanda-ta (ৎ) doesn't auto-join, so
+                            // the user must type an explicit hasanta (`) before it.
+                            if (i + 2 < bangla.length && bangla[i + 2] == KHANDA_TA) sb.append("`")
+                            i += 2
+                        }
                         else -> { sb.append("o"); i += 1 } // inherent vowel
                     }
                 }
