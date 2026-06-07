@@ -87,7 +87,7 @@ fun PolicyScreen(onBack: () -> Unit) {
                 Text("None. No analytics, no ads, no third-party data-collecting SDKs.")
             }
             Section("Contact") {
-                Text("ganimtruthfinder@gmail.com")
+                Text("ganim09@gmail.com")
             }
         }
     }

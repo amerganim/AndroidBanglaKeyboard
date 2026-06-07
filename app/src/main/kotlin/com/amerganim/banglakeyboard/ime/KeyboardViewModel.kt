@@ -249,6 +249,23 @@ class KeyboardViewModel(
         mode = mode.next()
     }
 
+    /**
+     * Called when the text selection/cursor changes. If the user moved the cursor
+     * away from the word we're composing, abandon the buffer so new typing starts
+     * fresh at the new position (instead of jumping back to the old word).
+     */
+    fun onSelectionChanged(newSelStart: Int, newSelEnd: Int, candStart: Int, candEnd: Int) {
+        if (buffer.isEmpty()) return
+        val cursorInComposing =
+            candStart >= 0 && newSelStart == newSelEnd && newSelStart in candStart..candEnd
+        if (!cursorInComposing) {
+            connection()?.finishComposingText() // keep the already-composed text in place
+            buffer = ""
+            prevWord = ""
+            candidates = emptyList()
+        }
+    }
+
     fun onInputStart(privateField: Boolean = false) {
         buffer = ""
         prevWord = ""

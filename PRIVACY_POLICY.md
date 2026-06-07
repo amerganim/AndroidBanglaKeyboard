@@ -74,4 +74,4 @@ If this policy changes, the updated version will be published here with a new da
 
 ## Contact
 
-For questions about this policy, contact: ganimtruthfinder@gmail.com
+For questions about this policy, contact: ganim09@gmail.com

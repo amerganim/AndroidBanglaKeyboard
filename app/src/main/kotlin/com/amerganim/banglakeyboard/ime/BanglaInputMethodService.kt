@@ -166,6 +166,20 @@ class BanglaInputMethodService :
         viewModel.onInputStart(privateField = isPrivateField(info))
     }
 
+    override fun onUpdateSelection(
+        oldSelStart: Int,
+        oldSelEnd: Int,
+        newSelStart: Int,
+        newSelEnd: Int,
+        candidatesStart: Int,
+        candidatesEnd: Int,
+    ) {
+        super.onUpdateSelection(
+            oldSelStart, oldSelEnd, newSelStart, newSelEnd, candidatesStart, candidatesEnd,
+        )
+        viewModel.onSelectionChanged(newSelStart, newSelEnd, candidatesStart, candidatesEnd)
+    }
+
     /**
      * Whether this field should be treated as private: password fields, fields that
      * disable suggestions, or fields that opt out of personalized learning. In these
