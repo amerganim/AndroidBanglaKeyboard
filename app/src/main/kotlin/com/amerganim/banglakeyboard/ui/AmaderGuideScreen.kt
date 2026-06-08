@@ -170,6 +170,6 @@ private val KEY_ROWS = listOf(
     KeyRow("y u i o p", "য় উ ই অ প", "য ঊ ঈ আ ফ", "ঠ — — ং —"),
     KeyRow("a s d f g", "আ স দ ফ গ", "অ ষ ড ঢ ঘ", "ঃ শ ধ ভ ঙ"),
     KeyRow("h j k l", "হ জ ক ল", "— ঝ খ —", "ৎ ঞ — ্"),
-    KeyRow("z x c v", "য ক্ষ চ ভ", "— — ছ —", "— — — ব"),
+    KeyRow("z x c v", "য ক্ষ চ ভ", "— — ছ —", "— — — —"),
     KeyRow("b n m", "ব ন ম", "ভ ণ ং", "— — ঁ"),
 )

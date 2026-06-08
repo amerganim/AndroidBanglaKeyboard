@@ -60,7 +60,7 @@ private val ROW3 = listOf(
     Fk("য", "z"),
     Fk("ক্ষ", "kSh"),
     Fk("চ", "ch", "ছ", "chh"),
-    Fk("ভ", "v", null, null, "ব", "b"),
+    Fk("ভ", "v"), // clean ভ key (ব is on the adjacent b key)
     Fk("ব", "b", "ভ", "bh"),
     Fk("ন", "n", "ণ", "N"),
     Fk("ম", "m", "ং", "ng", "ঁ", "^"),
