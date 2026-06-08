@@ -123,7 +123,7 @@ fun PolicyScreen(onBack: () -> Unit) {
                 ))
             }
             Section(tr("যোগাযোগ", "Contact")) {
-                Text("ganim09@gmail.com")
+                Text("ganimtruthfinder@gmail.com")
             }
         }
     }

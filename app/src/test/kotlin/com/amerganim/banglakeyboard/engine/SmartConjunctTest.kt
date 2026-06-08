@@ -64,17 +64,22 @@ class SmartConjunctTest {
     }
 
     @Test fun fixedLayoutTokensDoNotMerge() {
-        // The ক key then the হ key must NOT become the "kh" digraph খ.
-        assertEquals("কহ", Transliterator.transliterateTokens(listOf("k", "h"), smart = true))
-        assertEquals("নগ", Transliterator.transliterateTokens(listOf("n", "g"), smart = true))
-        // A multi-unit key (the Amader ক্ষ key sends one token "kSh") works.
-        assertEquals("ক্ষ", Transliterator.transliterateTokens(listOf("kSh"), smart = true))
-        // Real conjuncts and kars still work from discrete tokens.
-        assertEquals("ক্ষ", Transliterator.transliterateTokens(listOf("k", "Sh"), smart = true))
-        assertEquals("কু", Transliterator.transliterateTokens(listOf("k", "u"), smart = true))
-        assertEquals("ক", Transliterator.transliterateTokens(listOf("k"), smart = true))
-        // Without smart, discrete consonants still join into a conjunct.
-        assertEquals("ক্হ", Transliterator.transliterateTokens(listOf("k", "h"), smart = false))
+        fun keys(vararg t: String) = Transliterator.transliterateTokens(t.toList(), smart = true)
+        // Separate keys never merge or auto-join (each is a discrete letter).
+        assertEquals("কহ", keys("k", "h")) // not the "kh" digraph খ
+        assertEquals("নগ", keys("n", "g")) // not ং
+        assertEquals("কষ", keys("k", "Sh")) // two keys → no conjunct
+        // A multi-unit key (the Amader ক্ষ key sends one token "kSh") joins inside it.
+        assertEquals("ক্ষ", keys("kSh"))
+        assertEquals("ক্ষমা", keys("kSh", "m", "a")) // ম does NOT join ক্ষ
+        assertEquals("লক্ষ", keys("l", "kSh")) // ল does NOT steal the ক
+        // The hasanta (্) key explicitly joins two letter keys.
+        assertEquals("ক্ষ", keys("k", "`", "Sh"))
+        // Kars still attach across keys.
+        assertEquals("কু", keys("k", "u"))
+        assertEquals("ক", keys("k"))
+        // Without smart, separate keys still don't auto-join.
+        assertEquals("কহ", Transliterator.transliterateTokens(listOf("k", "h"), smart = false))
     }
 
     @Test fun fallsBackToPlainWhenListEmpty() {

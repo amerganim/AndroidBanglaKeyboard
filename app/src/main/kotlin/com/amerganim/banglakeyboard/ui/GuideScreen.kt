@@ -167,16 +167,36 @@ private fun guideSections(): List<Section> = listOf(
     Section(
         tr("যুক্তাক্ষর", "Conjuncts (juktakkhor)"),
         listOf(
-            Entry("kk", "ক্ক"),
+            Entry("kk kt", "ক্ক ক্ত"),
             Entry("kSh", "ক্ষ  (kShoma → ক্ষমা)"),
-            Entry("nt nd", "ন্ত ন্দ"),
-            Entry("st", "স্ত  (bistarito → বিস্তারিত)"),
-            Entry("r`k", tr("র্ক (রেফ)", "র্ক (ref)")),
-            Entry("k`z", tr("ক্য (য-ফলা)", "ক্য (ya-phala)")),
+            Entry("gg", tr("জ্ঞ — উচ্চারণে (biggan → বিজ্ঞান)", "জ্ঞ — by sound (biggan → বিজ্ঞান)")),
+            Entry("nch nj", tr("ঞ্চ ঞ্জ — উচ্চারণে (onchol → অঞ্চল)", "ঞ্চ ঞ্জ — by sound (onchol → অঞ্চল)")),
+            Entry("tt tth", "ত্ত ত্থ"),
+            Entry("nt nd ndh", "ন্ত ন্দ ন্ধ"),
+            Entry("st sth sp", "স্ত স্থ স্প  (bistarito → বিস্তারিত)"),
+            Entry("ST STh SN", "ষ্ট ষ্ঠ ষ্ণ"),
+            Entry("cc jj", "চ্চ জ্জ"),
+            Entry("ll nn mm", "ল্ল ন্ন ম্ম"),
+            Entry("hm hn", "হ্ম হ্ন"),
         ),
         note = tr(
-            "মাঝে স্বর ছাড়া ব্যঞ্জন টাইপ করলে সেগুলো স্বয়ংক্রিয়ভাবে যুক্ত হয়।",
-            "Type consonants with no vowel between them and they join automatically.",
+            "মাঝে স্বর ছাড়া পরপর ব্যঞ্জন লিখলেই যুক্তাক্ষর তৈরি হয়। স্মার্ট যুক্তাক্ষর চালু " +
+                "থাকলে শুধু প্রকৃত যুক্তাক্ষরই যুক্ত হয়, তাই “zkhn” → যখন।",
+            "Type consonants with no vowel between them to form a conjunct. With Smart " +
+                "conjunct on, only real juktakkhor join, so “zkhn” → যখন.",
+        ),
+    ),
+    Section(
+        tr("ফলা", "Phala forms"),
+        listOf(
+            Entry("rk rm", tr("র্ক র্ম — রেফ (r + ব্যঞ্জন)", "র্ক র্ম — ref (r + consonant)")),
+            Entry("kr pr gr", tr("ক্র প্র গ্র — র-ফলা", "ক্র প্র গ্র — ra-phala")),
+            Entry("kz bz", tr("ক্য ব্য — য-ফলা (z = য)", "ক্য ব্য — ya-phala (z = য)")),
+            Entry("sw tw", tr("স্ব ত্ব — ব-ফলা (w = ব)", "স্ব ত্ব — bo-phala (w = ব)")),
+        ),
+        note = tr(
+            "কঠিন ক্ষেত্রে জোর করে হসন্ত দিতে ` ব্যবহার করুন (r`k → র্ক)।",
+            "Use ` to force a hasanta where needed (r`k → র্ক).",
         ),
     ),
     Section(

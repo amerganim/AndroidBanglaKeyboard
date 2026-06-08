@@ -12,8 +12,12 @@ package com.amerganim.banglakeyboard.engine
  */
 object Transliterator {
 
-    /** One assembler input: a known [unit], or raw passthrough [text] (unit == null). */
-    private class Seg(val unit: Unit?, val text: String)
+    /**
+     * One assembler input: a known [unit], or raw passthrough [text] (unit == null).
+     * [boundary] marks the first segment of a fixed-layout key press, across which a
+     * consonant must NOT auto-join the previous one (each key is a discrete letter).
+     */
+    private class Seg(val unit: Unit?, val text: String, val boundary: Boolean = false)
 
     /**
      * @param smart when true, two consonants are joined only if the cluster is a real
@@ -28,16 +32,20 @@ object Transliterator {
     }
 
     /**
-     * Assemble a list of already-segmented roman tokens. Used by the fixed "Amader"
-     * layout so adjacent keys are NOT greedily re-tokenized — e.g. the ক key then the
-     * হ key stays ক+হ rather than merging into the "kh" digraph খ.
+     * Assemble a list of already-segmented roman tokens — the fixed "Amader" layout.
+     * Consonants join WITHIN a key (so the multi-unit ক্ষ key "kSh" → ক্ষ) but never
+     * ACROSS keys: tapping ক then হ stays কহ (not খ), and ক্ষ then ম then আ stays
+     * ক্ষমা (not ক্ষ্মা). A conjunct between two letter keys is made explicitly with
+     * the hasanta (্) key. Vowels still attach as kar.
      */
     fun transliterateTokens(tokens: List<String>, smart: Boolean = false): String {
         val useSmart = smart && Conjuncts.clusterPrefixes.isNotEmpty()
-        // Tokenize *within* each key (so a multi-unit key like "kSh" → ক্ষ works),
-        // but never across keys (so the ক key then the হ key stays কহ, not খ).
         val segs = ArrayList<Seg>()
-        for (tok in tokens) segs.addAll(tokenize(tok))
+        for (tok in tokens) {
+            tokenize(tok).forEachIndexed { i, s ->
+                segs.add(if (i == 0) Seg(s.unit, s.text, boundary = true) else s)
+            }
+        }
         return assemble(segs, useSmart)
     }
 
@@ -84,7 +92,11 @@ object Transliterator {
             when (unit.kind) {
                 Kind.CONSONANT -> {
                     if (useSmart) {
-                        if (pending.isNotEmpty()) {
+                        if (seg.boundary) {
+                            // New fixed-layout key: close the previous cluster instead
+                            // of joining it (each key is a discrete letter).
+                            flush()
+                        } else if (pending.isNotEmpty()) {
                             val candidate = pending.joinToString("") + unit.main
                             // ref (র্ + consonant) always forms; otherwise only when
                             // the cluster is the start of a real juktakkhor.
@@ -93,7 +105,8 @@ object Transliterator {
                         }
                         pending.add(unit.main)
                     } else {
-                        if (prevConsonant) out.append(RuleTable.HASANTA) // conjunct
+                        // Across a key boundary, don't auto-insert a conjunct hasanta.
+                        if (prevConsonant && !seg.boundary) out.append(RuleTable.HASANTA)
                         out.append(unit.main)
                         prevConsonant = true
                     }
