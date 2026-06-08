@@ -28,6 +28,8 @@ render.experimental.xml
 *.jks
 *.keystore
 keystore.properties
+keystore.b64
+*.b64
 
 # Google Services (e.g. APIs or Firebase)
 google-services.json
