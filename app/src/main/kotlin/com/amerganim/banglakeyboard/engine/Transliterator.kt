@@ -33,18 +33,24 @@ object Transliterator {
 
     /**
      * Assemble a list of already-segmented roman tokens — the fixed "Amader" layout.
-     * Consonants join WITHIN a key (so the multi-unit ক্ষ key "kSh" → ক্ষ) but never
-     * ACROSS keys: tapping ক then হ stays কহ (not খ), and ক্ষ then ম then আ stays
-     * ক্ষমা (not ক্ষ্মা). A conjunct between two letter keys is made explicitly with
-     * the hasanta (্) key. Vowels still attach as kar.
+     * Single-letter keys auto-join into conjuncts (ক then ত → ক্ত), but a pre-composed
+     * multi-letter key (the ক্ষ key, token "kSh") is treated as atomic: it neither
+     * extends into the next key nor lets the previous one extend into it — so ক্ষ then
+     * ম then আ stays ক্ষমা (not ক্ষ্মা) and ল then ক্ষ stays লক্ষ. The ক key then হ key
+     * never becomes the "kh" digraph খ. Vowels attach as kar.
      */
     fun transliterateTokens(tokens: List<String>, smart: Boolean = false): String {
         val useSmart = smart && Conjuncts.clusterPrefixes.isNotEmpty()
         val segs = ArrayList<Seg>()
+        var prevMulti = false
         for (tok in tokens) {
-            tokenize(tok).forEachIndexed { i, s ->
-                segs.add(if (i == 0) Seg(s.unit, s.text, boundary = true) else s)
+            val sub = tokenize(tok)
+            val multi = sub.size > 1 // a pre-composed key like ক্ষ
+            val boundary = multi || prevMulti
+            sub.forEachIndexed { i, s ->
+                segs.add(if (i == 0 && boundary) Seg(s.unit, s.text, boundary = true) else s)
             }
+            prevMulti = multi
         }
         return assemble(segs, useSmart)
     }

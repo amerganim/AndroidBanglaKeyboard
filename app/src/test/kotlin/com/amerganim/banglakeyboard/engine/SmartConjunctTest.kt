@@ -63,23 +63,24 @@ class SmartConjunctTest {
         assertEquals("বিগ্গান", plain("biggan"))
     }
 
-    @Test fun fixedLayoutTokensDoNotMerge() {
+    @Test fun fixedLayoutConjuncts() {
         fun keys(vararg t: String) = Transliterator.transliterateTokens(t.toList(), smart = true)
-        // Separate keys never merge or auto-join (each is a discrete letter).
-        assertEquals("কহ", keys("k", "h")) // not the "kh" digraph খ
+        // Single-letter keys never merge into a digraph, but DO auto-join valid conjuncts.
+        assertEquals("কহ", keys("k", "h")) // not the "kh" digraph খ (ক্হ invalid → কহ)
         assertEquals("নগ", keys("n", "g")) // not ং
-        assertEquals("কষ", keys("k", "Sh")) // two keys → no conjunct
-        // A multi-unit key (the Amader ক্ষ key sends one token "kSh") joins inside it.
+        assertEquals("ক্ষ", keys("k", "Sh")) // ক + ষ auto-join to ক্ষ
+        assertEquals("ক্ত", keys("k", "t")) // auto-join
+        // The pre-composed ক্ষ key is atomic — it doesn't over-extend.
         assertEquals("ক্ষ", keys("kSh"))
-        assertEquals("ক্ষমা", keys("kSh", "m", "a")) // ম does NOT join ক্ষ
+        assertEquals("ক্ষমা", keys("kSh", "m", "a")) // ম does NOT extend ক্ষ
         assertEquals("লক্ষ", keys("l", "kSh")) // ল does NOT steal the ক
-        // The hasanta (্) key explicitly joins two letter keys.
+        // The hasanta (্) key joins explicitly too.
         assertEquals("ক্ষ", keys("k", "`", "Sh"))
-        // Kars still attach across keys.
+        // Kars attach.
         assertEquals("কু", keys("k", "u"))
         assertEquals("ক", keys("k"))
-        // Without smart, separate keys still don't auto-join.
-        assertEquals("কহ", Transliterator.transliterateTokens(listOf("k", "h"), smart = false))
+        // Non-smart chains adjacent consonants.
+        assertEquals("ক্হ", Transliterator.transliterateTokens(listOf("k", "h"), smart = false))
     }
 
     @Test fun fallsBackToPlainWhenListEmpty() {

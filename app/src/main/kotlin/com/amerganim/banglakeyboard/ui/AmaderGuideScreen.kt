@@ -78,7 +78,7 @@ fun AmaderGuideScreen(onBack: () -> Unit) {
                     Bullet(tr("Shift (⇧): সম্পর্কিত রূপ — মূর্ধন্য বা দীর্ঘ স্বর (ত → ট, ই → ঈ)।", "Shift (⇧): the related variant — retroflex or long vowel (ত → ট, ই → ঈ)."))
                     Bullet(tr("দীর্ঘক্ষণ চাপ: মহাপ্রাণ রূপ (ক → খ, গ → ঘ, ত → থ)।", "Long-press: the aspirate form (ক → খ, গ → ঘ, ত → থ)."))
                     Bullet(tr("ব্যঞ্জনের পরে স্বর স্বয়ংক্রিয়ভাবে কার-চিহ্ন হয় (ক + ই → কি)।", "A vowel after a consonant becomes its kar sign automatically (ক + ই → কি)."))
-                    Bullet(tr("প্রতিটি কী একটি আলাদা অক্ষর — যুক্তাক্ষর বানাতে হসন্ত (্) ব্যবহার করুন (নিচে দেখুন)।", "Each key is a separate letter — use hasanta (্) to build conjuncts (see below)."))
+                    Bullet(tr("পরপর দুই ব্যঞ্জন স্বয়ংক্রিয়ভাবে যুক্তাক্ষরে যুক্ত হয় (ক + ত → ক্ত)।", "Two consonants in a row auto-join into a conjunct (ক + ত → ক্ত)."))
                     Bullet(tr("স্পেস, ব্যাকস্পেস, সাজেশন ও ইমোজি অন্য মোডের মতোই কাজ করে।", "Space, Backspace, suggestions and emoji work just like the other modes."))
                 }
             }
@@ -99,11 +99,10 @@ fun AmaderGuideScreen(onBack: () -> Unit) {
             Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
                 Column(Modifier.fillMaxWidth().padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     Text(tr("যুক্তাক্ষর", "Conjuncts (juktakkhor)"), fontWeight = FontWeight.SemiBold, fontSize = 17.sp)
+                    Bullet(tr("পরপর ব্যঞ্জন চাপুন — সেগুলো যুক্ত হয় (ক , ত → ক্ত; স , ত → স্ত; প , র → প্র)।", "Tap consonants in a row — they join (ক , ত → ক্ত; স , ত → স্ত; প , র → প্র)."))
                     Bullet(tr("ক্ষ-এর নিজস্ব কী আছে (x অবস্থানে) — সরাসরি ক্ষ দেয়।", "ক্ষ has its own key (at the x position) — gives ক্ষ directly."))
-                    Bullet(tr("অন্য যুক্তাক্ষর: প্রথম অক্ষর → হসন্ত (্) → পরের অক্ষর। হসন্ত পেতে ল কী দীর্ঘক্ষণ চাপুন।", "Other conjuncts: first letter → hasanta (্) → next letter. Long-press the ল key for ্."))
-                    Bullet(tr("ক্ত:  ক , ্ , ত", "ক্ত:  ক , ্ , ত"))
-                    Bullet(tr("রেফ — র , ্ , ক → র্ক", "Ref — র , ্ , ক → র্ক"))
-                    Bullet(tr("য-ফলা — ক , ্ , য → ক্য", "ya-phala — ক , ্ , য → ক্য"))
+                    Bullet(tr("য-ফলা: ব্যঞ্জন তারপর য (ক , য → ক্য)।", "ya-phala: a consonant then য (ক , য → ক্য)."))
+                    Bullet(tr("দরকারে জোর করে হসন্ত দিতে ্ কী চাপুন (ল কী দীর্ঘক্ষণ চাপুন)।", "Use the hasanta (্) key (long-press ল) to force a half-form when needed."))
                 }
             }
 
@@ -114,7 +113,7 @@ fun AmaderGuideScreen(onBack: () -> Unit) {
                     Bullet("কি:  ক , ই")
                     Bullet(tr("খাবার:  দীর্ঘক্ষণ চাপ ক→খ , আ , ব , আ , র", "খাবার:  long-press ক→খ , আ , ব , আ , র"))
                     Bullet(tr("ক্ষমা:  ক্ষ , ম , আ", "ক্ষমা:  ক্ষ , ম , আ"))
-                    Bullet(tr("বিদ্যা:  ব , ই , দ , ্ , য , আ", "বিদ্যা:  ব , ই , দ , ্ , য , আ"))
+                    Bullet(tr("বিদ্যা:  ব , ই , দ , য , আ", "বিদ্যা:  ব , ই , দ , য , আ"))
                 }
             }
         }
