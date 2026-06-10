@@ -1,5 +1,6 @@
 package com.amerganim.banglakeyboard.ime
 
+import android.view.KeyEvent
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
 import androidx.compose.runtime.getValue
@@ -192,10 +193,14 @@ class KeyboardViewModel(
         val ic = connection() ?: return
         if (!bufferEmpty()) finalizeWord(ic) // commit the in-progress word first
         if (imeAction != EditorInfo.IME_ACTION_NONE) {
-            // Search box / Done / Next / Go / Send: trigger the field's action.
+            // Field declared an explicit action (Search/Done/Next/Go/Send): do it.
             ic.performEditorAction(imeAction)
         } else {
-            ic.commitText("\n", 1)
+            // No explicit action — send a real Enter key so the field decides:
+            // single-line search/login boxes submit, multi-line inserts a newline.
+            // (A literal "\n" is ignored by single-line fields like Google search.)
+            ic.sendKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER))
+            ic.sendKeyEvent(KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER))
             prevWord = ""
         }
         candidates = emptyList()
