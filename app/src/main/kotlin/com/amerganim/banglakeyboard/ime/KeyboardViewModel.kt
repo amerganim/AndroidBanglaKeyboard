@@ -1,5 +1,6 @@
 package com.amerganim.banglakeyboard.ime
 
+import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -57,6 +58,12 @@ class KeyboardViewModel(
     /** Suggestions (word completions) or next-word predictions for the strip. */
     var candidates by mutableStateOf<List<String>>(emptyList())
         private set
+
+    /** The editor's requested Enter action (Search/Done/Next/Go/Send) or NONE. */
+    var imeAction by mutableStateOf(EditorInfo.IME_ACTION_NONE)
+        private set
+
+    fun updateImeAction(action: Int) { imeAction = action }
 
     // The in-progress word as a list of key-press tokens. For phonetic/English each
     // token is one character; for the Amader (fixed) layout each token is a whole
@@ -183,14 +190,15 @@ class KeyboardViewModel(
     fun onEnter() {
         feedback()
         val ic = connection() ?: return
-        if (!bufferEmpty()) {
-            finalizeWord(ic)
-            candidates = emptyList()
+        if (!bufferEmpty()) finalizeWord(ic) // commit the in-progress word first
+        if (imeAction != EditorInfo.IME_ACTION_NONE) {
+            // Search box / Done / Next / Go / Send: trigger the field's action.
+            ic.performEditorAction(imeAction)
         } else {
             ic.commitText("\n", 1)
             prevWord = ""
-            candidates = emptyList()
         }
+        candidates = emptyList()
     }
 
     /** Commit a literal character (long-press alternate of a sign key). */

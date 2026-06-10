@@ -6,13 +6,21 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import android.view.inputmethod.EditorInfo
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.Backspace
 import androidx.compose.material.icons.automirrored.filled.KeyboardReturn
+import androidx.compose.material.icons.automirrored.filled.KeyboardTab
+import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Language
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import com.amerganim.banglakeyboard.ime.KeyboardMode
 import com.amerganim.banglakeyboard.ime.KeyboardViewModel
@@ -130,11 +138,22 @@ private fun BottomRow(vm: KeyboardViewModel) {
         KeyButton(
             onClick = vm::onEnter,
             modifier = Modifier.weight(1.5f),
-            icon = Icons.AutoMirrored.Filled.KeyboardReturn,
+            icon = enterIcon(vm.imeAction),
             style = KeyStyle.ACCENT,
             height = vm.keySize.rowHeight,
         )
     }
+}
+
+/** Icon for the Enter key based on the field's requested action (like Samsung). */
+private fun enterIcon(action: Int): ImageVector = when (action) {
+    EditorInfo.IME_ACTION_SEARCH -> Icons.Filled.Search
+    EditorInfo.IME_ACTION_SEND -> Icons.AutoMirrored.Filled.Send
+    EditorInfo.IME_ACTION_DONE -> Icons.Filled.Done
+    EditorInfo.IME_ACTION_GO -> Icons.AutoMirrored.Filled.ArrowForward
+    EditorInfo.IME_ACTION_NEXT -> Icons.AutoMirrored.Filled.KeyboardTab
+    EditorInfo.IME_ACTION_PREVIOUS -> Icons.AutoMirrored.Filled.ArrowBack
+    else -> Icons.AutoMirrored.Filled.KeyboardReturn
 }
 
 @Composable
