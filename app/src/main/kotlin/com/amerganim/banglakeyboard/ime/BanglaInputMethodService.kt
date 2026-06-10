@@ -199,15 +199,15 @@ class BanglaInputMethodService :
 
     /**
      * The action the Enter key should perform for this field (Search/Done/Next/…),
-     * or [EditorInfo.IME_ACTION_NONE] when Enter should just insert a newline
-     * (multi-line fields, or fields that ask for no enter action).
+     * or [EditorInfo.IME_ACTION_NONE] when Enter should just insert a newline.
+     *
+     * A declared action wins even on a multi-line field (e.g. Google's search bar is
+     * multi-line yet wants Search); only [EditorInfo.IME_FLAG_NO_ENTER_ACTION] — which
+     * the framework sets for fields that truly want a newline — suppresses it.
      */
     private fun editorAction(info: EditorInfo?): Int {
         if (info == null) return EditorInfo.IME_ACTION_NONE
         if ((info.imeOptions and EditorInfo.IME_FLAG_NO_ENTER_ACTION) != 0) {
-            return EditorInfo.IME_ACTION_NONE
-        }
-        if ((info.inputType and InputType.TYPE_TEXT_FLAG_MULTI_LINE) != 0) {
             return EditorInfo.IME_ACTION_NONE
         }
         return when (val action = info.imeOptions and EditorInfo.IME_MASK_ACTION) {
