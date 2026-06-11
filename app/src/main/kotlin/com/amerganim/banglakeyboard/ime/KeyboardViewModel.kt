@@ -1,5 +1,7 @@
 package com.amerganim.banglakeyboard.ime
 
+import android.text.InputType
+import android.text.TextUtils
 import android.view.KeyEvent
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
@@ -90,7 +92,28 @@ class KeyboardViewModel(
     // personalized learning / suggestions). Suggestions can still be shown.
     private var noLearn: Boolean = false
 
+    // The current field's input type, for auto-capitalization (getCursorCapsMode).
+    private var inputType: Int = 0
+
     private fun lang() = if (mode == KeyboardMode.ENGLISH) Lang.ENGLISH else Lang.BANGLA
+
+    /**
+     * Auto-capitalization: in English mode only, set the shift state from the field's
+     * caps mode at the cursor (start of field / after a sentence, per the field's
+     * flags). Bangla modes are skipped — there shift selects a different letter.
+     */
+    private fun refreshAutoCaps() {
+        if (mode != KeyboardMode.ENGLISH || !bufferEmpty()) return
+        val capFlags = inputType and CAP_FLAGS
+        if (capFlags == 0) { // field didn't ask for any auto-capitalization
+            shifted = false
+            return
+        }
+        // Compute caps from the text before the cursor (more reliable across editors,
+        // incl. Compose, than InputConnection.getCursorCapsMode at input-start).
+        val before = connection()?.getTextBeforeCursor(64, 0) ?: ""
+        shifted = TextUtils.getCapsMode(before, before.length, capFlags) != 0
+    }
 
     /** The text currently being composed (transliterated in Bangla modes). */
     private fun composed(): String = when (mode) {
@@ -129,6 +152,7 @@ class KeyboardViewModel(
             candidates = emptyList()
         }
         if (shifted) shifted = false
+        refreshAutoCaps() // re-engage caps after sentence punctuation
     }
 
     /**
@@ -150,6 +174,7 @@ class KeyboardViewModel(
         finalizeWord(ic)
         ic.commitText(" ", 1)
         candidates = predictions(prevWord)
+        refreshAutoCaps()
     }
 
     fun onBackspace() {
@@ -172,6 +197,7 @@ class KeyboardViewModel(
             prevWord = ""
             candidates = emptyList()
         }
+        refreshAutoCaps()
     }
 
     private fun deleteLastGrapheme(ic: InputConnection) {
@@ -204,6 +230,7 @@ class KeyboardViewModel(
             prevWord = ""
         }
         candidates = emptyList()
+        refreshAutoCaps() // a newline starts a new line/sentence
     }
 
     /** Commit a literal character (long-press alternate of a sign key). */
@@ -215,6 +242,7 @@ class KeyboardViewModel(
         prevWord = ""
         candidates = emptyList()
         if (shifted) shifted = false
+        refreshAutoCaps()
     }
 
     /** The user tapped a suggestion/prediction chip. */
@@ -228,6 +256,7 @@ class KeyboardViewModel(
         prevWord = word
         candidates = predictions(word)
         if (shifted) shifted = false
+        refreshAutoCaps()
     }
 
     /** The user long-pressed a chip — forget that word from history. */
@@ -302,6 +331,7 @@ class KeyboardViewModel(
         prevWord = ""
         candidates = emptyList()
         mode = mode.next()
+        refreshAutoCaps() // engage caps if we just switched into English
     }
 
     /**
@@ -310,18 +340,20 @@ class KeyboardViewModel(
      * fresh at the new position (instead of jumping back to the old word).
      */
     fun onSelectionChanged(newSelStart: Int, newSelEnd: Int, candStart: Int, candEnd: Int) {
-        if (bufferEmpty()) return
-        val cursorInComposing =
-            candStart >= 0 && newSelStart == newSelEnd && newSelStart in candStart..candEnd
-        if (!cursorInComposing) {
-            connection()?.finishComposingText() // keep the already-composed text in place
-            tokens.clear()
-            prevWord = ""
-            candidates = emptyList()
+        if (!bufferEmpty()) {
+            val cursorInComposing =
+                candStart >= 0 && newSelStart == newSelEnd && newSelStart in candStart..candEnd
+            if (!cursorInComposing) {
+                connection()?.finishComposingText() // keep the already-composed text in place
+                tokens.clear()
+                prevWord = ""
+                candidates = emptyList()
+            }
         }
+        refreshAutoCaps() // caps state follows the cursor position
     }
 
-    fun onInputStart(noLearning: Boolean = false, noSuggestions: Boolean = false) {
+    fun onInputStart(noLearning: Boolean = false, noSuggestions: Boolean = false, fieldInputType: Int = 0) {
         tokens.clear()
         prevWord = ""
         candidates = emptyList()
@@ -331,6 +363,8 @@ class KeyboardViewModel(
         shifted = false
         noLearn = noLearning
         noSuggest = noSuggestions
+        inputType = fieldInputType
+        refreshAutoCaps() // capitalize the first letter of an empty/sentence-start field
     }
 
     // ---- Helpers --------------------------------------------------------
@@ -350,5 +384,10 @@ class KeyboardViewModel(
     private companion object {
         // Enough to cover the longest emoji ZWJ sequences (e.g. family emoji).
         const val MAX_GRAPHEME_LOOKBACK = 16
+
+        // The field's auto-capitalization request bits.
+        const val CAP_FLAGS = InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS or
+            InputType.TYPE_TEXT_FLAG_CAP_WORDS or
+            InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
     }
 }

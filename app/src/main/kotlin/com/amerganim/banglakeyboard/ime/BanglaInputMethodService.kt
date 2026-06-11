@@ -193,7 +193,11 @@ class BanglaInputMethodService :
         // Only fully hide suggestions for password fields. Other fields (e.g. a
         // search box that sets NO_SUGGESTIONS) still get suggestions; we just
         // don't learn from them.
-        viewModel.onInputStart(noLearning = noLearning, noSuggestions = password)
+        viewModel.onInputStart(
+            noLearning = noLearning,
+            noSuggestions = password,
+            fieldInputType = info?.inputType ?: 0,
+        )
         viewModel.updateImeAction(editorAction(info))
     }
 
