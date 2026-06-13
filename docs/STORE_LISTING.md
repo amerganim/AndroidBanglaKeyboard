@@ -6,28 +6,35 @@ Draft copy for the Play Console listing. Tweak before submission.
 Amader Bangla Keyboard
 
 ## Short description (≤ 80 chars)
-Private, offline Bangla phonetic keyboard. Type "amar" → আমার. English too.
+Private, offline Bangla phonetic keyboard. Type the sound, write Bangla & English.
 
 ## Full description
-Amader Bangla Keyboard lets you type Bangla the way it sounds — just type
-"amar" and get আমার. No need to memorize a fixed layout.
+Amader Bangla Keyboard lets you type Bangla the way it sounds — just type "amar"
+and get আমার. No fixed layout to memorize.
 
 ★ Phonetic Bangla typing — a clear, case-sensitive scheme (t→ত, T→ট, kSh→ক্ষ)
-  with live preview and commit-on-space.
-★ English keyboard built in — switch English ⇄ Bangla with one key.
-★ Smart suggestions — word completion from a large Bangla dictionary and a
+  with a live preview and commit-on-space. Conjuncts (juktakkhor) form
+  automatically.
+★ Amader layout — an optional fixed Bangla layout where each key sits at its
+  English-sound QWERTY position (k→ক, m→ম, a→আ).
+★ English keyboard built in — switch English and Bangla with one key, with
+  auto-capitalization in English.
+★ Smart suggestions — word completion from a large Bangla dictionary and an
   English dictionary.
-★ Learns as you type — next-word predictions and a personal dictionary that
+★ Learns as you type — next-word prediction and a personal dictionary that
   improve with use. Long-press a suggestion to forget it.
-★ Emoji, two symbol pages, and all Bangla signs (chandrabindu, hasanta, visarga).
-★ Light & dark themes, adjustable key size.
-★ Built-in typing guide.
+★ Voice typing — speak in Bangla or English with the microphone key.
+★ Emoji, two symbol pages, and every Bangla sign (chandrabindu, hasanta,
+  visarga, khanda-ta and more).
+★ Full Bangla & English app interface — switch the whole app language. Built-in
+  typing guides for both layouts.
+★ Light & dark themes, adjustable key size, and an optional key-press sound.
 
 ★ Truly private — the keyboard has NO internet permission. Everything you type,
-  every suggestion and everything it learns stays on your device. Nothing is ever
-  uploaded. In password fields it never suggests or learns.
+  every suggestion, and everything it learns stays on your device. Nothing is
+  ever uploaded. In password fields it never suggests or learns.
 
-Free, no ads, no tracking.
+Free. No ads. No tracking.
 
 ## Category
 Tools
