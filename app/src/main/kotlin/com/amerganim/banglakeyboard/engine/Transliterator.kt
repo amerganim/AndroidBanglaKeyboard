@@ -104,10 +104,13 @@ object Transliterator {
                             flush()
                         } else if (pending.isNotEmpty()) {
                             val candidate = pending.joinToString("") + unit.main
-                            // ref (র্ + consonant) always forms; otherwise only when
-                            // the cluster is the start of a real juktakkhor.
+                            // ref (র্ + consonant) always forms; ya-phala (্য) and
+                            // ra-phala (্র) attach productively to almost any consonant,
+                            // so allow them even when the exact cluster isn't listed
+                            // (e.g. ফ্য in ফ্যাসিস্ট). Otherwise require a real juktakkhor.
                             val isRef = pending.size == 1 && pending[0] == RA
-                            if (!isRef && candidate !in Conjuncts.clusterPrefixes) flush()
+                            val isPhala = unit.main == YA || unit.main == RA
+                            if (!isRef && !isPhala && candidate !in Conjuncts.clusterPrefixes) flush()
                         }
                         pending.add(unit.main)
                     } else {
@@ -141,8 +144,9 @@ object Transliterator {
         return out.toString()
     }
 
-    /** ref consonant (র); ref always forms before another consonant. */
+    /** ref/ra-phala consonant (র) and ya-phala consonant (য) — productive joins. */
     private const val RA = "র"
+    private const val YA = "য"
 
     // n before চ/ছ/জ/ঝ is pronounced (and written) as ঞ.
     private val N_NASAL = Regex("n(chh|ch|jh|j)")

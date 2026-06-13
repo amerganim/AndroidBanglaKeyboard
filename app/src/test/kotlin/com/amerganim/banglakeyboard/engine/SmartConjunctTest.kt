@@ -34,6 +34,18 @@ class SmartConjunctTest {
         assertEquals("ক্ষ্ম", smart("kShm"))
     }
 
+    @Test fun phalaFormsAlwaysJoin() {
+        // ya-phala (্য) and ra-phala (্র) join even when the exact cluster isn't listed.
+        assertEquals("ফ্য", smart("fz")) // ফ + য (was wrongly breaking to ফয)
+        assertEquals("ফ্যাসিস্ট", smart("fzasisT"))
+        assertEquals("ক্য", smart("kz"))
+        assertEquals("ফ্র", smart("fr"))
+        // A vowel between them keeps them separate.
+        assertEquals("ফয", smart("foz"))
+        // Amader (discrete keys): the ফ key then the য key joins to ফ্য.
+        assertEquals("ফ্য", Transliterator.transliterateTokens(listOf("f", "z"), smart = true))
+    }
+
     @Test fun refAlwaysForms() {
         assertEquals("র্ক", smart("rk"))
         assertEquals("রক", smart("rok")) // explicit inherent vowel -> no ref
