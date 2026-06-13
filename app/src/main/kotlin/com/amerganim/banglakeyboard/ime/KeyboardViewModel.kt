@@ -357,7 +357,9 @@ class KeyboardViewModel(
         tokens.clear()
         prevWord = ""
         candidates = emptyList()
-        symbolsPage = false
+        // Number/phone/PIN fields (incl. each box of an OTP field) open straight on
+        // the number layout and stay there, instead of reverting to letters.
+        symbolsPage = isNumericInput(fieldInputType)
         symbolsPageIndex = 0
         emojiPanel = false
         shifted = false
@@ -365,6 +367,11 @@ class KeyboardViewModel(
         noSuggest = noSuggestions
         inputType = fieldInputType
         refreshAutoCaps() // capitalize the first letter of an empty/sentence-start field
+    }
+
+    private fun isNumericInput(type: Int): Boolean = when (type and InputType.TYPE_MASK_CLASS) {
+        InputType.TYPE_CLASS_NUMBER, InputType.TYPE_CLASS_PHONE, InputType.TYPE_CLASS_DATETIME -> true
+        else -> false
     }
 
     // ---- Helpers --------------------------------------------------------
