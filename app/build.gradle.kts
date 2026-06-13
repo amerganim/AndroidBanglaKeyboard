@@ -51,6 +51,11 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            // Bundle native debug symbols (from library .so files) so Play can
+            // symbolicate native crashes/ANRs — silences the upload warning.
+            ndk {
+                debugSymbolLevel = "FULL"
+            }
             signingConfig = if (hasSigning) signingConfigs.getByName("release") else null
         }
     }
