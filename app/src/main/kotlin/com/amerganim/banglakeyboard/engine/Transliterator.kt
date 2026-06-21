@@ -151,12 +151,16 @@ object Transliterator {
     // n before চ/ছ/জ/ঝ is pronounced (and written) as ঞ.
     private val N_NASAL = Regex("n(chh|ch|jh|j)")
 
+    // "gg" -> জ্ঞ, but NOT when the first g belongs to the ঙ digraph "Ng"
+    // (so ঙ্গ "Ngg…" / ঙ্ঘ "Nggh…" stay ঙ+গ/ঘ instead of becoming জ্ঞ).
+    private val GG = Regex("(?<!N)gg")
+
     /**
      * Pronunciation-based conjunct spellings (smart mode): so বিজ্ঞান can be typed
      * "biggan" and অঞ্চল as "onchol".
      */
     private fun applyPhoneticSpellings(s: String): String {
-        var r = s.replace("gg", "jNG") // জ্ঞ
+        var r = GG.replace(s, "jNG") // জ্ঞ
         r = N_NASAL.replace(r) { "NG" + it.groupValues[1] }
         return r
     }
