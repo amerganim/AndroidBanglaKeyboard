@@ -58,6 +58,10 @@ class KeyboardViewModel(
     var keySize by mutableStateOf(KeySize.MEDIUM)
         private set
 
+    /** True for number/phone/PIN fields — digits stay ASCII, not Bangla. */
+    var numericField by mutableStateOf(false)
+        private set
+
     /** Suggestions (word completions) or next-word predictions for the strip. */
     var candidates by mutableStateOf<List<String>>(emptyList())
         private set
@@ -139,6 +143,13 @@ class KeyboardViewModel(
     fun onChar(c: Char) {
         feedback()
         val ic = connection() ?: return
+        // In number/phone/PIN fields, commit digits as ASCII (apps expect 0-9, not ০-৯).
+        if (numericField && c in '0'..'9') {
+            finalizeWord(ic)
+            ic.commitText(c.toString(), 1)
+            candidates = emptyList()
+            return
+        }
         val isWordChar =
             if (mode == KeyboardMode.ENGLISH) c.isLetter() else Transliterator.isPhoneticInput(c)
         if (isWordChar) {
@@ -359,7 +370,8 @@ class KeyboardViewModel(
         candidates = emptyList()
         // Number/phone/PIN fields (incl. each box of an OTP field) open straight on
         // the number layout and stay there, instead of reverting to letters.
-        symbolsPage = isNumericInput(fieldInputType)
+        numericField = isNumericInput(fieldInputType)
+        symbolsPage = numericField
         symbolsPageIndex = 0
         emojiPanel = false
         shifted = false

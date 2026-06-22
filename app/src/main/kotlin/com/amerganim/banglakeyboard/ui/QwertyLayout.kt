@@ -191,6 +191,9 @@ private fun RowScope.CharKey(c: Char, vm: KeyboardViewModel) {
     val shown = if (vm.shifted) c.uppercaseChar() else c
     // In any Bangla mode `^`/`` ` `` produce Bangla signs; long-press types the literal.
     val hasLiteralAlternate = vm.mode != KeyboardMode.ENGLISH && (c == '^' || c == '`')
+    // In Bangla modes the number page shows Bangla digits — except in number/PIN
+    // fields, where digits stay ASCII (and are typed as ASCII).
+    val banglaDigits = vm.mode != KeyboardMode.ENGLISH && !vm.numericField
     // Top-row letters long-press to their digit (Bangla digit in Bangla modes).
     val digit = TOP_ROW_DIGITS[c]
     val longPress: (() -> Unit)? = when {
@@ -200,22 +203,24 @@ private fun RowScope.CharKey(c: Char, vm: KeyboardViewModel) {
     }
     val hint = when {
         hasLiteralAlternate -> c.toString()
-        digit != null -> digit.toString()
+        digit != null -> if (banglaDigits) BANGLA_DIGITS[digit - '0'].toString() else digit.toString()
         else -> null
     }
     KeyButton(
         onClick = { vm.onChar(shown) },
         modifier = Modifier.weight(1f),
         // In Bangla mode, show the actual sign glyph so it's discoverable.
-        label = displayLabel(shown, vm.mode),
+        label = displayLabel(shown, vm.mode, banglaDigits),
         onLongPress = longPress,
         hint = hint,
         height = vm.keySize.rowHeight,
     )
 }
 
-/** The label shown on a key — Bangla sign glyphs replace their roman triggers. */
-private fun displayLabel(c: Char, mode: KeyboardMode): String {
+private const val BANGLA_DIGITS = "০১২৩৪৫৬৭৮৯"
+
+/** The label shown on a key — Bangla sign/digit glyphs replace their roman triggers. */
+private fun displayLabel(c: Char, mode: KeyboardMode, banglaDigits: Boolean): String {
     if (mode != KeyboardMode.ENGLISH) {
         when (c) {
             '^' -> return "ঁ" // chandrabindu
@@ -223,6 +228,7 @@ private fun displayLabel(c: Char, mode: KeyboardMode): String {
             '`' -> return "্" // hasanta
             '.' -> return "।" // dari
         }
+        if (banglaDigits && c in '0'..'9') return BANGLA_DIGITS[c - '0'].toString()
     }
     return c.toString()
 }
