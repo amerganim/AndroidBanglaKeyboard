@@ -179,23 +179,37 @@ private fun RowScope.PageSwitchKey(vm: KeyboardViewModel, label: String) {
     )
 }
 
+/** The top QWERTY row long-presses to a digit (q→1 … p→0), like other keyboards. */
+private val TOP_ROW_DIGITS = mapOf(
+    'q' to '1', 'w' to '2', 'e' to '3', 'r' to '4', 't' to '5',
+    'y' to '6', 'u' to '7', 'i' to '8', 'o' to '9', 'p' to '0',
+)
+
 /** A character key that respects the shift state for casing. */
 @Composable
 private fun RowScope.CharKey(c: Char, vm: KeyboardViewModel) {
     val shown = if (vm.shifted) c.uppercaseChar() else c
     // In any Bangla mode `^`/`` ` `` produce Bangla signs; long-press types the literal.
     val hasLiteralAlternate = vm.mode != KeyboardMode.ENGLISH && (c == '^' || c == '`')
+    // Top-row letters long-press to their digit (Bangla digit in Bangla modes).
+    val digit = TOP_ROW_DIGITS[c]
+    val longPress: (() -> Unit)? = when {
+        hasLiteralAlternate -> { { vm.onLiteral(c) } }
+        digit != null -> { { vm.onChar(digit) } }
+        else -> null
+    }
+    val hint = when {
+        hasLiteralAlternate -> c.toString()
+        digit != null -> digit.toString()
+        else -> null
+    }
     KeyButton(
         onClick = { vm.onChar(shown) },
         modifier = Modifier.weight(1f),
         // In Bangla mode, show the actual sign glyph so it's discoverable.
         label = displayLabel(shown, vm.mode),
-        onLongPress = if (hasLiteralAlternate) {
-            { vm.onLiteral(c) }
-        } else {
-            null
-        },
-        hint = if (hasLiteralAlternate) c.toString() else null,
+        onLongPress = longPress,
+        hint = hint,
         height = vm.keySize.rowHeight,
     )
 }
