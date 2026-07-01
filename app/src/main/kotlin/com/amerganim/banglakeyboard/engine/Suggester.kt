@@ -29,7 +29,22 @@ class Suggester {
     @Volatile
     private var words: List<Word> = emptyList() // sorted by `bangla`
 
+    // Same words, sorted by their hasanta-stripped ("loose") form. Lets a word with
+    // a slightly-wrong/missing conjunct still match the right suggestion.
+    @Volatile
+    private var looseWords: List<Word> = emptyList()
+
     private val learned = ConcurrentHashMap<String, Int>()
+
+    /** Set both word indexes atomically (sorted by exact and by loose form). */
+    private fun assignWords(newWords: List<Word>) {
+        words = newWords
+        looseWords = newWords.sortedBy { loose(it.bangla) }
+    }
+
+    /** A word's "loose" form: conjuncts collapsed by dropping hasanta (্). */
+    private fun loose(s: String): String =
+        if (s.indexOf(HASANTA) < 0) s else s.replace(HASANTA.toString(), "")
 
     /**
      * Add dictionary entries from TSV text: `roman<TAB>bangla<TAB>freq` per line
@@ -75,7 +90,7 @@ class Suggester {
             if (bangla.isNotEmpty()) merged.add(Word(bangla, freq))
         }
         merged.sortBy { it.bangla }
-        words = merged // atomic swap
+        assignWords(merged) // atomic swap (exact + loose indexes)
     }
 
     /** Load learned counts from TSV text: `bangla<TAB>count` per line. */
@@ -108,14 +123,14 @@ class Suggester {
     /** Add a user-typed word so it is suggested in future (deduplicated). */
     fun addUserWord(bangla: String) {
         if (bangla.isBlank() || words.any { it.bangla == bangla }) return
-        words = (words + Word(bangla, USER_WEIGHT)).sortedBy { it.bangla }
+        assignWords((words + Word(bangla, USER_WEIGHT)).sortedBy { it.bangla })
     }
 
     /** Forget [bangla] from learned counts and user-added words. */
     fun forget(bangla: String) {
         learned.remove(bangla)
         if (words.any { it.bangla == bangla && it.freq == USER_WEIGHT }) {
-            words = words.filterNot { it.bangla == bangla && it.freq == USER_WEIGHT }
+            assignWords(words.filterNot { it.bangla == bangla && it.freq == USER_WEIGHT })
         }
     }
 
@@ -160,6 +175,9 @@ class Suggester {
             }
         }
 
+        // Forgiving completion: tolerate a wrong/missing conjunct.
+        addLooseMatches(literal, cand)
+
         val scored = ArrayList<Pair<String, Int>>(cand.size)
         for ((bangla, base) in cand) {
             if (bangla == literal) continue // already element 0
@@ -196,6 +214,7 @@ class Suggester {
             if (cur == null || w.freq > cur) cand[w.bangla] = w.freq
             i++
         }
+        addLooseMatches(prefix, cand) // tolerate a wrong/missing conjunct
         val scored = ArrayList<Pair<String, Int>>(cand.size)
         for ((bangla, base) in cand) {
             if (bangla == prefix) continue
@@ -209,7 +228,50 @@ class Suggester {
         return out
     }
 
+    /**
+     * Add "forgiving" candidates: dictionary words whose hasanta-stripped form starts
+     * with the stripped [literal], so a slightly-wrong or missing conjunct still
+     * surfaces the intended word (e.g. typing ফয still suggests ফ্যাসিস্ট). These are
+     * demoted so exact matches always rank above them.
+     */
+    private fun addLooseMatches(literal: String, cand: HashMap<String, Int>) {
+        if (literal.isEmpty()) return
+        val looseLit = loose(literal)
+        val snapshot = looseWords
+        var i = looseLowerBound(snapshot, looseLit)
+        var added = 0
+        var scanned = 0
+        while (i < snapshot.size && added < LOOSE_LIMIT && scanned < MAX_LOOSE_SCAN) {
+            val w = snapshot[i]
+            if (!loose(w.bangla).startsWith(looseLit)) break
+            if (!cand.containsKey(w.bangla)) {
+                cand[w.bangla] = w.freq / 2 // rank fuzzy matches below exact ones
+                added++
+            }
+            i++
+            scanned++
+        }
+    }
+
+    /** First index in [list] (sorted by loose form) whose loose form is >= [prefix]. */
+    private fun looseLowerBound(list: List<Word>, prefix: String): Int {
+        var lo = 0
+        var hi = list.size
+        while (lo < hi) {
+            val mid = (lo + hi) ushr 1
+            if (loose(list[mid].bangla) < prefix) lo = mid + 1 else hi = mid
+        }
+        return lo
+    }
+
     private companion object {
+        /** Hasanta (virama) — dropped to form a word's "loose" match key. */
+        const val HASANTA = '্'
+
+        /** Max forgiving matches to add, and max entries to scan finding them. */
+        const val LOOSE_LIMIT = 8
+        const val MAX_LOOSE_SCAN = 400
+
         /** Each committed use is worth this much static-frequency weight. */
         const val LEARN_WEIGHT = 40
 

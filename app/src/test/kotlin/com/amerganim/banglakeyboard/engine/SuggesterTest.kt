@@ -45,6 +45,26 @@ class SuggesterTest {
         assertTrue(v.contains("আকাশগঙ্গা"))
     }
 
+    @Test fun forgivingMatchToleratesMissingConjunct() {
+        val s = Suggester()
+        s.loadWordList("ফ্যাসিস্ট\t50\n")
+        // "foz" makes ফয (no conjunct) — exact prefix ফয != ফ্য, but the loose index
+        // (hasanta stripped) still surfaces ফ্যাসিস্ট.
+        assertTrue(s.suggest("foz").contains("ফ্যাসিস্ট"))
+        // And it of course still matches when the conjunct is typed.
+        assertTrue(s.suggest("fz").contains("ফ্যাসিস্ট"))
+    }
+
+    @Test fun exactMatchOutranksForgivingMatch() {
+        val s = Suggester()
+        s.loadWordList("কত\t50\nক্ত\t50\n")
+        // Typing কত should put the exact কত before the loose-only ক্ত.
+        val v = s.suggest("kot") // কত
+        val exact = v.indexOf("কত")
+        val loose = v.indexOf("ক্ত")
+        assertTrue(exact in 0 until loose || loose == -1)
+    }
+
     @Test fun learnedUsagePromotesWord() {
         val s = Suggester()
         repeat(5) { s.recordUsage("আমাকে") }
