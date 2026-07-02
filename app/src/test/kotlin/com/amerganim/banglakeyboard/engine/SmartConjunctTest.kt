@@ -65,13 +65,18 @@ class SmartConjunctTest {
     }
 
     @Test fun raYaPhalaLoanwords() {
-        // র্যাব / র্যাম etc. = র + ya-phala (z=য) + kar. z inserts the ya-phala.
-        assertEquals("র্যাব", smart("rzab"))
-        assertEquals("র্যাম", smart("rzam"))
-        assertEquals("র্যাগিং", smart("rzaging"))
-        assertEquals("র্যান্ডম", smart("rzanDom"))
+        // Word-initial র + ya-phala gets a ZWJ (‍) so it renders as ya-phala on র
+        // (র‍্যাব, র‍্যান্ডম…), not reph.
+        val z = "‍"
+        assertEquals("র${z}্যাব", smart("rzab"))
+        assertEquals("র${z}্যাম", smart("rzam"))
+        assertEquals("র${z}্যাগিং", smart("rzaging"))
+        assertEquals("র${z}্যান্ডম", smart("rzanDom"))
         // Amader: tap র , য , আ , ম
-        assertEquals("র্যাম", Transliterator.transliterateTokens(listOf("r", "z", "a", "m"), smart = true))
+        assertEquals("র${z}্যাম", Transliterator.transliterateTokens(listOf("r", "z", "a", "m"), smart = true))
+        // Mid-word র্য stays reph (no ZWJ): সূর্য, কার্য.
+        assertEquals("সূর্য", smart("sUrz"))
+        assertEquals("কার্য", smart("karz"))
     }
 
     @Test fun pronunciationConjunctSpellings() {

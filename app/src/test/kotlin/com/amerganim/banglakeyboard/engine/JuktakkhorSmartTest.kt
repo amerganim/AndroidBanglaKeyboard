@@ -34,7 +34,9 @@ class JuktakkhorSmartTest {
 
         val failures = all.mapNotNull { jukto ->
             val roman = BanglaReverse.toRoman(jukto)
-            val got = Transliterator.transliterate(roman, smart = true)
+            // Strip the (invisible) ZWJ the engine adds to word-initial র্য (র‍্য);
+            // it's a rendering hint, not a change to the conjunct itself.
+            val got = Transliterator.transliterate(roman, smart = true).replace("‍", "")
             if (got != jukto) "\"$jukto\" <- roman \"$roman\" -> got \"$got\"" else null
         }
         assertTrue(

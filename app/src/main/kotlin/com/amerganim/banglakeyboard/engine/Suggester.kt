@@ -42,9 +42,13 @@ class Suggester {
         looseWords = newWords.sortedBy { loose(it.bangla) }
     }
 
-    /** A word's "loose" form: conjuncts collapsed by dropping hasanta (্). */
-    private fun loose(s: String): String =
-        if (s.indexOf(HASANTA) < 0) s else s.replace(HASANTA.toString(), "")
+    /** A word's "loose" form: conjuncts collapsed by dropping hasanta (্) and ZWJ. */
+    private fun loose(s: String): String {
+        var r = s
+        if (r.indexOf(HASANTA) >= 0) r = r.replace(HASANTA.toString(), "")
+        if (r.indexOf('‍') >= 0) r = r.replace("‍", "") // ZWJ (র‍্য) — rendering hint only
+        return r
+    }
 
     /**
      * Add dictionary entries from TSV text: `roman<TAB>bangla<TAB>freq` per line

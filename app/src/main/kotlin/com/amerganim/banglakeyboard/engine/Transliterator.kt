@@ -1,4 +1,4 @@
-package com.amerganim.banglakeyboard.engine
+﻿package com.amerganim.banglakeyboard.engine
 
 /**
  * Greedy longest-match tokenizer + stateful assembler that converts a romanized
@@ -82,7 +82,15 @@ object Transliterator {
 
         fun flush() {
             if (pending.isNotEmpty()) {
-                out.append(pending.joinToString(RuleTable.HASANTA))
+                val joined = pending.joinToString(RuleTable.HASANTA)
+                // Word-initial র + ya-phala (র্যাব, র্যান্ডম, র্যাগিং…): insert a ZWJ so
+                // it renders as ya-phala on র, not reph. Mid-word র্য (কার্য, সূর্য)
+                // stays reph because `out` is no longer empty there.
+                if (out.isEmpty() && pending.size >= 2 && pending[0] == RA && pending[1] == YA) {
+                    out.append(RA).append(ZWJ).append(joined.substring(RA.length))
+                } else {
+                    out.append(joined)
+                }
                 pending.clear()
             }
         }
@@ -147,6 +155,9 @@ object Transliterator {
     /** ref/ra-phala consonant (র) and ya-phala consonant (য) — productive joins. */
     private const val RA = "র"
     private const val YA = "য"
+
+    /** Zero-width joiner — forces ya-phala rendering for word-initial র্য. */
+    private const val ZWJ = '‍'
 
     // n before চ/ছ/জ/ঝ is pronounced (and written) as ঞ.
     private val N_NASAL = Regex("n(chh|ch|jh|j)")
