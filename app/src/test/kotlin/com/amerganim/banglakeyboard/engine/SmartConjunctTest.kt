@@ -64,6 +64,15 @@ class SmartConjunctTest {
         assertEquals("য্খ্ন", plain("zkhn"))
     }
 
+    @Test fun raYaPhalaLoanwords() {
+        // র্যাব / র্যাম etc. = র + ya-phala (z=য) + kar. z inserts the ya-phala.
+        assertEquals("র্যাব", smart("rzab"))
+        assertEquals("র্যাম", smart("rzam"))
+        assertEquals("র্যাগিং", smart("rzaging"))
+        // Amader: tap র , য , আ , ম
+        assertEquals("র্যাম", Transliterator.transliterateTokens(listOf("r", "z", "a", "m"), smart = true))
+    }
+
     @Test fun pronunciationConjunctSpellings() {
         // gg -> জ্ঞ, and n before চ/জ -> ঞ (smart mode).
         assertEquals("জ্ঞান", smart("ggan"))
