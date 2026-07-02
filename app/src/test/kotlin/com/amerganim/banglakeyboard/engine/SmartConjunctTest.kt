@@ -69,6 +69,7 @@ class SmartConjunctTest {
         assertEquals("র্যাব", smart("rzab"))
         assertEquals("র্যাম", smart("rzam"))
         assertEquals("র্যাগিং", smart("rzaging"))
+        assertEquals("র্যান্ডম", smart("rzanDom"))
         // Amader: tap র , য , আ , ম
         assertEquals("র্যাম", Transliterator.transliterateTokens(listOf("r", "z", "a", "m"), smart = true))
     }
