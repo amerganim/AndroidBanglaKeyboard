@@ -171,6 +171,16 @@ private fun SetupScreen(
             }
         }
 
+        // Reassure users about Android's mandatory "keyboards may collect text" warning.
+        Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)) {
+            Text(
+                stringResource(R.string.security_note),
+                modifier = Modifier.padding(14.dp),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
+            )
+        }
+
         Button(
             onClick = {
                 context.startActivity(

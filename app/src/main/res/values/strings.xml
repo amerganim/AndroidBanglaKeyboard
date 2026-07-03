@@ -12,6 +12,7 @@
     <string name="gs_2">2. Switch to it with the keyboard picker.</string>
     <string name="gs_3">3. Tap the 🌐 globe key to switch English ⇄ Bangla.</string>
     <string name="gs_4">4. Tap ⇧ once for one capital (T → ট); it releases after one key.</string>
+    <string name="security_note">Note: Android will warn that this keyboard \"may collect what you type.\" That is the standard message Android shows for every keyboard (even Gboard) — it is about what keyboards can technically do. Amader Bangla Keyboard has no internet permission, so it cannot send anything anywhere; everything stays on your device.</string>
     <string name="enable_keyboard">Enable keyboard in Settings</string>
     <string name="choose_keyboard">Choose keyboard</string>
     <string name="bangla_typing_guide">Bangla typing guide</string>
