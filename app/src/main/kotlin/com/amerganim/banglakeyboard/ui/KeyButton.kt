@@ -9,8 +9,10 @@ import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -28,10 +30,14 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupProperties
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -57,11 +63,14 @@ fun KeyButton(
     onLongPress: (() -> Unit)? = null,
     hint: String? = null,
     height: Dp = 54.dp,
+    popupChars: List<Char>? = null,
+    onPopupChar: ((Char) -> Unit)? = null,
 ) {
     val colors = MaterialTheme.colorScheme
     val interaction = remember { MutableInteractionSource() }
     val pressedByClick by interaction.collectIsPressedAsState()
     var pressedByHold by remember { mutableStateOf(false) }
+    var popupOpen by remember { mutableStateOf(false) }
     val pressed = pressedByClick || pressedByHold
 
     val baseColor = when {
@@ -72,9 +81,15 @@ fun KeyButton(
     val background = if (pressed) baseColor.blendTowards(colors.primary, 0.35f) else baseColor
     val contentColor = if (active || style == KeyStyle.ACCENT) colors.onPrimary else colors.onSurface
 
+    val hasPopup = !popupChars.isNullOrEmpty() && onPopupChar != null
     val clickModifier = when {
         repeatOnHold -> Modifier.repeatingClickable(
             onClick = onClick,
+            onPressedChange = { pressedByHold = it },
+        )
+        hasPopup -> Modifier.tapOrLongPress(
+            onClick = onClick,
+            onLongPress = { popupOpen = true },
             onPressedChange = { pressedByHold = it },
         )
         onLongPress != null -> Modifier.tapOrLongPress(
@@ -120,6 +135,40 @@ fun KeyButton(
                 fontWeight = FontWeight.Medium,
                 color = contentColor,
             )
+        }
+
+        // Long-press punctuation popup (shown above the key).
+        if (popupOpen && hasPopup) {
+            val yOffset = with(LocalDensity.current) { -(height + 6.dp).roundToPx() }
+            Popup(
+                alignment = Alignment.TopCenter,
+                offset = IntOffset(0, yOffset),
+                onDismissRequest = { popupOpen = false },
+                properties = PopupProperties(focusable = false),
+            ) {
+                Row(
+                    modifier = Modifier
+                        .shadow(6.dp, RoundedCornerShape(12.dp))
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(colors.surfaceContainerHighest)
+                        .padding(4.dp),
+                ) {
+                    for (ch in popupChars!!) {
+                        Box(
+                            modifier = Modifier
+                                .size(42.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                                .clickable {
+                                    onPopupChar!!(ch)
+                                    popupOpen = false
+                                },
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text(ch.toString(), fontSize = 19.sp, color = colors.onSurface)
+                        }
+                    }
+                }
+            }
         }
     }
 }

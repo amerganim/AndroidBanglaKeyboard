@@ -201,9 +201,13 @@ private fun RowScope.CharKey(c: Char, vm: KeyboardViewModel) {
         digit != null -> { { vm.onChar(digit) } }
         else -> null
     }
+    // The "।"/"." key long-presses to a punctuation popup — this is the only way to
+    // reach the English "." (and other marks) in Bangla mode.
+    val isPeriodKey = c == '.'
     val hint = when {
         hasLiteralAlternate -> c.toString()
         digit != null -> if (banglaDigits) BANGLA_DIGITS[digit - '0'].toString() else digit.toString()
+        isPeriodKey && vm.mode != KeyboardMode.ENGLISH -> "." // period lives on long-press here
         else -> null
     }
     KeyButton(
@@ -214,8 +218,13 @@ private fun RowScope.CharKey(c: Char, vm: KeyboardViewModel) {
         onLongPress = longPress,
         hint = hint,
         height = vm.keySize.rowHeight,
+        popupChars = if (isPeriodKey) PUNCTUATION_POPUP else null,
+        onPopupChar = if (isPeriodKey) { ch -> vm.onLiteral(ch) } else null,
     )
 }
+
+/** Common punctuation reachable by long-pressing the "।"/"." key. */
+private val PUNCTUATION_POPUP = listOf('.', ',', '?', '!', ':', ';', '-', '"')
 
 private const val BANGLA_DIGITS = "০১২৩৪৫৬৭৮৯"
 
