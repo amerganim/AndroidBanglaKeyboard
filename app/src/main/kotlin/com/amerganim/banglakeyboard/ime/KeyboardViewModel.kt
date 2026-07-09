@@ -201,6 +201,11 @@ class KeyboardViewModel(
                 ic.setComposingText(composed(), 1)
                 candidates = completions()
             }
+        } else if (!ic.getSelectedText(0).isNullOrEmpty()) {
+            // Text is selected — backspace deletes the whole selection.
+            ic.commitText("", 1)
+            prevWord = ""
+            candidates = emptyList()
         } else {
             // Delete a whole grapheme cluster so an emoji (a surrogate pair /
             // ZWJ / variation-selector sequence) is removed in one press.
