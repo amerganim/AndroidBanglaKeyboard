@@ -52,11 +52,15 @@ import com.amerganim.banglakeyboard.data.KeySize
 import com.amerganim.banglakeyboard.data.KeyboardPrefs
 import com.amerganim.banglakeyboard.ui.AmaderGuideScreen
 import com.amerganim.banglakeyboard.ui.GuideScreen
+import com.amerganim.banglakeyboard.ui.HelpScreen
+import com.amerganim.banglakeyboard.ui.OnboardingScreen
 import com.amerganim.banglakeyboard.ui.PolicyScreen
+import com.amerganim.banglakeyboard.ui.openPlayStoreListing
+import com.amerganim.banglakeyboard.ui.sendFeedbackEmail
 import com.amerganim.banglakeyboard.ui.theme.BanglaKeyboardTheme
 import java.util.Locale
 
-private enum class Screen { SETUP, GUIDE, AMADER_GUIDE, POLICY }
+private enum class Screen { SETUP, ONBOARDING, GUIDE, AMADER_GUIDE, HELP, POLICY }
 
 /**
  * Launcher screen: enable/select the keyboard, choose the app language (EN/বাংলা),
@@ -81,11 +85,28 @@ class SetupActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background,
                 ) {
-                    var screen by remember { mutableStateOf(Screen.SETUP) }
+                    val prefs = remember { KeyboardPrefs(this) }
+                    // New users land on the walkthrough; everyone else on Setup. Only
+                    // the very first launch opens it automatically.
+                    var screen by remember {
+                        mutableStateOf(if (prefs.onboardingSeen) Screen.SETUP else Screen.ONBOARDING)
+                    }
                     // Hoisted above the screen switch so it survives navigating to a
                     // guide/policy and back (and across a language change).
                     var tryText by rememberSaveable { mutableStateOf("") }
                     when (screen) {
+                        Screen.ONBOARDING -> {
+                            val closeOnboarding = {
+                                prefs.onboardingSeen = true
+                                screen = Screen.SETUP
+                            }
+                            BackHandler(onBack = closeOnboarding)
+                            OnboardingScreen(onFinish = closeOnboarding)
+                        }
+                        Screen.HELP -> {
+                            BackHandler { screen = Screen.SETUP }
+                            HelpScreen(onBack = { screen = Screen.SETUP })
+                        }
                         Screen.GUIDE -> {
                             BackHandler { screen = Screen.SETUP }
                             GuideScreen(onBack = { screen = Screen.SETUP })
@@ -101,8 +122,10 @@ class SetupActivity : ComponentActivity() {
                         Screen.SETUP -> SetupScreen(
                             tryText = tryText,
                             onTryTextChange = { tryText = it },
+                            onOpenWalkthrough = { screen = Screen.ONBOARDING },
                             onOpenGuide = { screen = Screen.GUIDE },
                             onOpenAmaderGuide = { screen = Screen.AMADER_GUIDE },
+                            onOpenHelp = { screen = Screen.HELP },
                             onOpenPolicy = { screen = Screen.POLICY },
                         )
                     }
@@ -116,12 +139,16 @@ class SetupActivity : ComponentActivity() {
 private fun SetupScreen(
     tryText: String,
     onTryTextChange: (String) -> Unit,
+    onOpenWalkthrough: () -> Unit,
     onOpenGuide: () -> Unit,
     onOpenAmaderGuide: () -> Unit,
+    onOpenHelp: () -> Unit,
     onOpenPolicy: () -> Unit,
 ) {
     val context = LocalContext.current
     val prefs = remember { KeyboardPrefs(context) }
+    val feedbackSubject = stringResource(R.string.feedback_subject)
+    val feedbackHeader = stringResource(R.string.feedback_body_header)
 
     Column(
         modifier = Modifier
@@ -199,11 +226,17 @@ private fun SetupScreen(
             modifier = Modifier.fillMaxWidth(),
         ) { Text(stringResource(R.string.choose_keyboard)) }
 
+        OutlinedButton(onClick = onOpenWalkthrough, modifier = Modifier.fillMaxWidth()) {
+            Text(stringResource(R.string.show_walkthrough))
+        }
         OutlinedButton(onClick = onOpenGuide, modifier = Modifier.fillMaxWidth()) {
             Text(stringResource(R.string.bangla_typing_guide))
         }
         OutlinedButton(onClick = onOpenAmaderGuide, modifier = Modifier.fillMaxWidth()) {
             Text(stringResource(R.string.amader_layout_guide))
+        }
+        OutlinedButton(onClick = onOpenHelp, modifier = Modifier.fillMaxWidth()) {
+            Text(stringResource(R.string.help_and_faq))
         }
         OutlinedButton(onClick = onOpenPolicy, modifier = Modifier.fillMaxWidth()) {
             Text(stringResource(R.string.privacy_policy))
@@ -251,6 +284,27 @@ private fun SetupScreen(
             keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
             modifier = Modifier.fillMaxWidth(),
         )
+
+        // Rating and feedback live at the bottom, after the user has had a chance to
+        // actually try the keyboard above.
+        Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
+            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Text(stringResource(R.string.enjoying_app), fontWeight = FontWeight.SemiBold)
+                Text(
+                    stringResource(R.string.enjoying_app_desc),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                FilledTonalButton(
+                    onClick = { openPlayStoreListing(context) },
+                    modifier = Modifier.fillMaxWidth(),
+                ) { Text(stringResource(R.string.rate_this_app)) }
+                OutlinedButton(
+                    onClick = { sendFeedbackEmail(context, feedbackSubject, feedbackHeader) },
+                    modifier = Modifier.fillMaxWidth(),
+                ) { Text(stringResource(R.string.send_feedback)) }
+            }
+        }
     }
 }
 

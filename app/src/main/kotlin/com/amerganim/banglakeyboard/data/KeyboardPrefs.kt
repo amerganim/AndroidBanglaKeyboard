@@ -37,10 +37,19 @@ class KeyboardPrefs(context: Context) {
         get() = prefs.getString(APP_LANG, "") ?: ""
         set(value) = prefs.edit().putString(APP_LANG, value).apply()
 
+    /**
+     * Whether the first-run walkthrough has been shown. Set once the user finishes
+     * or skips it, so it never reappears on its own (it stays reachable from Setup).
+     */
+    var onboardingSeen: Boolean
+        get() = prefs.getBoolean(ONBOARDING_SEEN, false)
+        set(value) = prefs.edit().putBoolean(ONBOARDING_SEEN, value).apply()
+
     private companion object {
         const val KEY_SIZE = "key_size"
         const val KEY_SOUND = "key_sound"
         const val SMART_CONJUNCT = "smart_conjunct"
         const val APP_LANG = "app_lang"
+        const val ONBOARDING_SEEN = "onboarding_seen"
     }
 }

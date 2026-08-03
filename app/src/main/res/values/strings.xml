@@ -27,10 +27,21 @@
     <string name="smart_conjunct">Smart conjunct</string>
     <string name="smart_conjunct_desc">Join consonants only when they form a real juktakkhor (so \"zkhn\" → যখন, but \"kSh\" → ক্ষ).</string>
     <string name="try_keyboard_here">Try the keyboard here</string>
+    <string name="show_walkthrough">Quick walkthrough</string>
+    <string name="help_and_faq">Help &amp; FAQ</string>
+
+    <!-- Rating and feedback -->
+    <string name="enjoying_app">Enjoying Amader Bangla Keyboard?</string>
+    <string name="enjoying_app_desc">A rating helps other Bangla typists find the app. If something is wrong, tell us first — we read every message.</string>
+    <string name="rate_this_app">Rate this app</string>
+    <string name="send_feedback">Send feedback</string>
+    <string name="feedback_subject">Amader Bangla Keyboard — feedback</string>
+    <string name="feedback_body_header">Please describe your feedback or the problem here:</string>
 
     <!-- Screen titles -->
     <string name="back">Back</string>
     <string name="guide_title">Bangla Typing Guide</string>
     <string name="amader_guide_title">Amader Layout — Guide</string>
+    <string name="help_title">Help &amp; FAQ</string>
     <string name="policy_title">Privacy Policy</string>
 </resources>

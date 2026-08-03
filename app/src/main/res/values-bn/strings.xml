@@ -26,10 +26,21 @@
     <string name="smart_conjunct">স্মার্ট যুক্তাক্ষর</string>
     <string name="smart_conjunct_desc">শুধু প্রকৃত যুক্তাক্ষর তৈরি হলেই ব্যঞ্জন যুক্ত করে (যেমন \"zkhn\" → যখন, কিন্তু \"kSh\" → ক্ষ)।</string>
     <string name="try_keyboard_here">এখানে কিবোর্ড পরীক্ষা করুন</string>
+    <string name="show_walkthrough">সংক্ষিপ্ত পরিচিতি</string>
+    <string name="help_and_faq">সাহায্য ও প্রশ্নোত্তর</string>
+
+    <!-- Rating and feedback -->
+    <string name="enjoying_app">আমাদের বাংলা কিবোর্ড ভালো লাগছে?</string>
+    <string name="enjoying_app_desc">আপনার রেটিং অন্য বাংলা টাইপিস্টদের অ্যাপটি খুঁজে পেতে সাহায্য করে। কোনো সমস্যা হলে আগে আমাদের জানান — আমরা প্রতিটি বার্তা পড়ি।</string>
+    <string name="rate_this_app">অ্যাপটি রেটিং দিন</string>
+    <string name="send_feedback">মতামত পাঠান</string>
+    <string name="feedback_subject">আমাদের বাংলা কিবোর্ড — মতামত</string>
+    <string name="feedback_body_header">আপনার মতামত বা সমস্যা এখানে লিখুন:</string>
 
     <!-- Screen titles -->
     <string name="back">ফিরে যান</string>
     <string name="guide_title">বাংলা টাইপিং গাইড</string>
     <string name="amader_guide_title">আমাদের লেআউট — গাইড</string>
+    <string name="help_title">সাহায্য ও প্রশ্নোত্তর</string>
     <string name="policy_title">গোপনীয়তা নীতি</string>
 </resources>
