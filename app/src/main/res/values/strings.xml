@@ -24,6 +24,15 @@
     <string name="size_large">Large</string>
     <string name="theme_note">The keyboard follows your system light/dark theme.</string>
     <string name="key_sound">Key press sound</string>
+    <string name="key_haptic">Vibrate on key press</string>
+    <string name="key_haptic_desc">A short vibration each time you type. Requires vibration to be on in your system settings.</string>
+    <string name="cancel">Cancel</string>
+    <string name="clear_learned">Learned words</string>
+    <string name="clear_learned_desc">The keyboard remembers the words you type to improve its suggestions. You can erase all of it — the built-in dictionary is not affected.</string>
+    <string name="clear_learned_button">Clear learned words</string>
+    <string name="clear_learned_done">Learned words cleared</string>
+    <string name="clear_learned_confirm_title">Clear learned words?</string>
+    <string name="clear_learned_confirm_body">This erases every word the keyboard has learned from you, along with your next-word predictions. It cannot be undone.</string>
     <string name="smart_conjunct">Smart conjunct</string>
     <string name="smart_conjunct_desc">Join consonants only when they form a real juktakkhor (so \"zkhn\" → যখন, but \"kSh\" → ক্ষ).</string>
     <string name="try_keyboard_here">Try the keyboard here</string>

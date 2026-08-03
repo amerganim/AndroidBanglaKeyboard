@@ -5,6 +5,39 @@ EN text into `en-US` and the BN text into `bn-BD`.
 
 ---
 
+## 1.0.8 (versionCode 9)
+
+Two user-control features. No changes to the typing engine's output.
+
+**Changes**
+- "Clear learned words" in Setup, behind a confirmation dialog. Erases learned
+  counts, saved words and next-word pairs; the bundled dictionaries are
+  untouched, so ordinary suggestions keep working. Replaces the old advice of
+  clearing the app's storage, which also wiped every setting.
+- "Vibrate on key press" setting, alongside the existing key sound. Off by
+  default and respects the system haptics setting.
+
+**Implementation note:** the settings screen deletes the learned files and bumps
+a generation counter in prefs. A keyboard that is already running still holds the
+data in memory and would write it straight back on the next commit, so it drops
+its copy in `onStartInputView` when it sees the counter change. The counter is
+seeded from prefs at service start, so a normal launch never looks like a
+pending clear.
+
+### What's new — EN (`en-US`)
+```
+• New setting: clear everything the keyboard has learned from you, in one tap. Your built-in dictionary stays put.
+• New setting: vibrate on key press.
+```
+
+### What's new — BN (`bn-BD`)
+```
+• নতুন সেটিং: কিবোর্ড আপনার কাছ থেকে যা কিছু শিখেছে, এক চাপে মুছে ফেলুন। বিল্ট-ইন অভিধান অক্ষত থাকবে।
+• নতুন সেটিং: কী চাপলে কম্পন।
+```
+
+---
+
 ## 1.0.7 (versionCode 8)
 
 Accessibility release. No changes to the typing engine.

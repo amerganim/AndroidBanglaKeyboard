@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -35,6 +36,7 @@ import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -48,6 +50,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
+import com.amerganim.banglakeyboard.data.DictionaryRepository
 import com.amerganim.banglakeyboard.data.KeySize
 import com.amerganim.banglakeyboard.data.KeyboardPrefs
 import com.amerganim.banglakeyboard.ui.AmaderGuideScreen
@@ -269,6 +272,14 @@ private fun SetupScreen(
             onCheckedChange = { keySound = it; prefs.keySound = it },
         )
 
+        var keyHaptic by remember { mutableStateOf(prefs.keyHaptic) }
+        SettingSwitch(
+            title = stringResource(R.string.key_haptic),
+            subtitle = stringResource(R.string.key_haptic_desc),
+            checked = keyHaptic,
+            onCheckedChange = { keyHaptic = it; prefs.keyHaptic = it },
+        )
+
         var smart by remember { mutableStateOf(prefs.smartConjunct) }
         SettingSwitch(
             title = stringResource(R.string.smart_conjunct),
@@ -276,6 +287,8 @@ private fun SetupScreen(
             checked = smart,
             onCheckedChange = { smart = it; prefs.smartConjunct = it },
         )
+
+        ClearLearnedSetting(prefs)
 
         OutlinedTextField(
             value = tryText,
@@ -305,6 +318,64 @@ private fun SetupScreen(
                 ) { Text(stringResource(R.string.send_feedback)) }
             }
         }
+    }
+}
+
+/**
+ * Wipes everything the keyboard has learned. Destructive and not undoable, so it
+ * asks first and reports back — the words are the user's own typing history.
+ */
+@Composable
+private fun ClearLearnedSetting(prefs: KeyboardPrefs) {
+    val context = LocalContext.current
+    var confirming by remember { mutableStateOf(false) }
+    var cleared by rememberSaveable { mutableStateOf(false) }
+
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Text(
+            stringResource(R.string.clear_learned),
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.SemiBold,
+        )
+        Text(
+            stringResource(R.string.clear_learned_desc),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        OutlinedButton(
+            onClick = { confirming = true },
+            enabled = !cleared,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Text(
+                stringResource(
+                    if (cleared) R.string.clear_learned_done else R.string.clear_learned_button,
+                ),
+            )
+        }
+    }
+
+    if (confirming) {
+        AlertDialog(
+            onDismissRequest = { confirming = false },
+            title = { Text(stringResource(R.string.clear_learned_confirm_title)) },
+            text = { Text(stringResource(R.string.clear_learned_confirm_body)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    // Delete the files now; a running keyboard drops its in-memory
+                    // copy when it next opens and sees the bumped generation.
+                    DictionaryRepository.deleteStoredFiles(context)
+                    prefs.clearLearnedGeneration = prefs.clearLearnedGeneration + 1
+                    cleared = true
+                    confirming = false
+                }) { Text(stringResource(R.string.clear_learned_button)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { confirming = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            },
+        )
     }
 }
 

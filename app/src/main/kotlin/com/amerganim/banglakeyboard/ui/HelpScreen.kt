@@ -230,11 +230,11 @@ private fun faqs(): List<Faq> = listOf(
     Faq(
         tr("আমার শেখা শব্দগুলো কীভাবে মুছব?", "How do I clear what the keyboard has learned?"),
         tr(
-            "একটি একটি করে সরাতে সাজেশনে দীর্ঘক্ষণ চাপুন। সব একসাথে মুছতে Android সেটিংসে " +
-                "অ্যাপের স্টোরেজ থেকে ডেটা মুছে ফেলুন — এতে সব শেখা শব্দ ও সেটিংস রিসেট হবে।",
-            "Long-press a suggestion to remove entries one at a time. To clear everything, clear " +
-                "the app's storage from Android settings — that resets all learned words and " +
-                "settings.",
+            "একটি একটি করে সরাতে সাজেশনে দীর্ঘক্ষণ চাপুন। সব একসাথে মুছতে সেটআপ পর্দার " +
+                "“শেখা শব্দ মুছুন” ব্যবহার করুন — এতে বিল্ট-ইন অভিধান অক্ষত থাকে।",
+            "Long-press a suggestion to remove entries one at a time. To erase everything at " +
+                "once, use “Clear learned words” on the setup screen — the built-in dictionary " +
+                "is not affected.",
         ),
     ),
 )

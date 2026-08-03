@@ -118,6 +118,23 @@ class DictionaryRepository(private val appContext: Context) {
         }
     }
 
+    /**
+     * Forget everything the user has taught the keyboard — learned counts, saved
+     * words and next-word pairs, in memory and on disk. The bundled dictionaries
+     * are untouched, so ordinary suggestions keep working.
+     */
+    suspend fun clearLearned() = withContext(Dispatchers.IO) {
+        writeMutex.withLock {
+            bangla.clearLearned()
+            english.clearLearned()
+            banglaBigrams.clear()
+            englishBigrams.clear()
+            bnUserWords.clear()
+            enUserWords.clear()
+            deleteStoredFiles(appContext)
+        }
+    }
+
     private fun persistBangla() {
         runCatching { file(BN_LEARNED).writeText(bangla.dumpLearnedData()) }
         runCatching { file(BN_BIGRAMS).writeText(banglaBigrams.dump()) }
@@ -130,16 +147,31 @@ class DictionaryRepository(private val appContext: Context) {
         runCatching { file(EN_USER).writeText(enUserWords.joinToString("\n")) }
     }
 
-    private companion object {
-        const val BN_DICT = "dictionary.tsv"
-        const val BN_WORDS = "words.tsv"
-        const val EN_WORDS = "english_words.txt"
-        const val JUKTAKKHOR = "juktakkhor.txt"
-        const val BN_LEARNED = "bn_learned.tsv"
-        const val EN_LEARNED = "en_learned.tsv"
-        const val BN_BIGRAMS = "bn_bigrams.tsv"
-        const val EN_BIGRAMS = "en_bigrams.tsv"
-        const val BN_USER = "bn_user.tsv"
-        const val EN_USER = "en_user.tsv"
+    companion object {
+        private const val BN_DICT = "dictionary.tsv"
+        private const val BN_WORDS = "words.tsv"
+        private const val EN_WORDS = "english_words.txt"
+        private const val JUKTAKKHOR = "juktakkhor.txt"
+        private const val BN_LEARNED = "bn_learned.tsv"
+        private const val EN_LEARNED = "en_learned.tsv"
+        private const val BN_BIGRAMS = "bn_bigrams.tsv"
+        private const val EN_BIGRAMS = "en_bigrams.tsv"
+        private const val BN_USER = "bn_user.tsv"
+        private const val EN_USER = "en_user.tsv"
+
+        /** Every file written by [persistBangla] / [persistEnglish]. */
+        private val STORED_FILES = listOf(
+            BN_LEARNED, EN_LEARNED, BN_BIGRAMS, EN_BIGRAMS, BN_USER, EN_USER,
+        )
+
+        /**
+         * Delete the on-disk learned data. Exposed so the settings screen can wipe
+         * it immediately, without owning a loaded repository of its own; a running
+         * keyboard drops its in-memory copy separately (see [clearLearned]).
+         */
+        fun deleteStoredFiles(context: Context) {
+            val dir = context.applicationContext.filesDir
+            for (name in STORED_FILES) runCatching { File(dir, name).delete() }
+        }
     }
 }

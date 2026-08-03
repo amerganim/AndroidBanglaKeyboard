@@ -11,6 +11,7 @@ import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
 import android.text.InputType
+import android.view.HapticFeedbackConstants
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.Toast
@@ -72,6 +73,8 @@ class BanglaInputMethodService :
 
         repository = DictionaryRepository(applicationContext)
         prefs = KeyboardPrefs(applicationContext)
+        // Start in sync, so only a clear requested while we are running triggers one.
+        appliedClearGeneration = prefs.clearLearnedGeneration
         viewModel = KeyboardViewModel(
             connection = { currentInputConnection },
             repository = repository,
@@ -79,6 +82,7 @@ class BanglaInputMethodService :
             onMicStart = ::onMicPressed,
             onMicStop = ::stopVoiceInput,
             onKeyFeedback = ::playKeyClick,
+            onKeyHaptic = ::performKeyHaptic,
         )
         clickSoundId = soundPool.load(this, R.raw.key_click, 1)
         scope.launch { repository.load() }
@@ -102,6 +106,16 @@ class BanglaInputMethodService :
     private fun playKeyClick() {
         if (clickSoundId == 0) clickSoundId = soundPool.load(this, R.raw.key_click, 1)
         soundPool.play(clickSoundId, 0.5f, 0.5f, 1, 0, 1f)
+    }
+
+    /**
+     * Short vibration on key press. Unlike the click sound — which uses SoundPool to
+     * bypass the system's touch-sounds setting — this deliberately respects the
+     * system haptics setting, since the flag to override it is deprecated and is a
+     * no-op on recent Android.
+     */
+    private fun performKeyHaptic() {
+        inputView?.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
     }
 
     // ---- Voice typing ---------------------------------------------------
@@ -168,12 +182,16 @@ class BanglaInputMethodService :
         speechRecognizer = null
     }
 
+    /** The Compose view hosting the keys — the target for haptic feedback. */
+    private var inputView: View? = null
+
     override fun onCreateInputView(): View {
         val composeView = ComposeView(this).apply {
             setContent {
                 KeyboardScreen(viewModel)
             }
         }
+        inputView = composeView
         // Compose creates its window recomposer by searching UP from the IME
         // window's root (decorView). The ViewTree owners must therefore live on
         // that root, not only on the deep-child ComposeView — otherwise the view
@@ -266,9 +284,31 @@ class BanglaInputMethodService :
         // Pick up any settings changes made in the setup screen.
         viewModel.updateKeySize(prefs.keySize)
         viewModel.updateKeySound(prefs.keySound)
+        viewModel.updateKeyHaptic(prefs.keyHaptic)
         viewModel.updateSmartConjunct(prefs.smartConjunct)
+        applyPendingLearnedClear()
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
     }
+
+    /**
+     * The settings screen deletes the learned files and bumps a generation counter.
+     * A keyboard that was already running still holds the data in memory and would
+     * write it straight back on the next commit, so drop it here before any typing
+     * happens.
+     */
+    private fun applyPendingLearnedClear() {
+        val generation = prefs.clearLearnedGeneration
+        if (generation == appliedClearGeneration) return
+        appliedClearGeneration = generation
+        scope.launch { repository.clearLearned() }
+    }
+
+    /**
+     * Seeded from prefs in [onCreate], never -1 — a sentinel would make the first
+     * [onStartInputView] of every service start look like a pending clear and wipe
+     * the user's learned words.
+     */
+    private var appliedClearGeneration: Int = 0
 
     override fun onFinishInputView(finishingInput: Boolean) {
         finishVoiceInput()

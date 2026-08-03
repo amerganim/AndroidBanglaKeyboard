@@ -139,6 +139,17 @@ class Suggester {
     }
 
     /**
+     * Drop everything learned from the user — usage counts and user-added words —
+     * leaving the bundled dictionary untouched.
+     */
+    fun clearLearned() {
+        learned.clear()
+        if (words.any { it.freq == USER_WEIGHT }) {
+            assignWords(words.filterNot { it.freq == USER_WEIGHT })
+        }
+    }
+
+    /**
      * Suggestions for [prefix]: element 0 is always the literal transliteration
      * of [prefix]; the rest are dictionary/word-list entries whose romanization
      * (or Bangla transliteration) starts with [prefix], best-ranked first,

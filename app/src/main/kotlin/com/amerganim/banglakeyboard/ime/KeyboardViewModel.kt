@@ -30,6 +30,7 @@ class KeyboardViewModel(
     private val onMicStart: () -> Unit = {},
     private val onMicStop: () -> Unit = {},
     private val onKeyFeedback: () -> Unit = {},
+    private val onKeyHaptic: () -> Unit = {},
 ) {
     var mode by mutableStateOf(KeyboardMode.BANGLA_PHONETIC)
         private set
@@ -78,16 +79,21 @@ class KeyboardViewModel(
     private val tokens = ArrayList<String>()
     private var prevWord: String = "" // last committed word, for next-word prediction
     private var keySoundEnabled: Boolean = false
+    private var keyHapticEnabled: Boolean = false
     private var smartConjunct: Boolean = false
 
     private fun bufferEmpty() = tokens.isEmpty()
     private fun romanString() = tokens.joinToString("")
 
     fun updateKeySound(enabled: Boolean) { keySoundEnabled = enabled }
+    fun updateKeyHaptic(enabled: Boolean) { keyHapticEnabled = enabled }
     fun updateSmartConjunct(enabled: Boolean) { smartConjunct = enabled }
 
-    /** Play a key-press sound if enabled. Called from key handlers. */
-    private fun feedback() { if (keySoundEnabled) onKeyFeedback() }
+    /** Play the enabled key-press feedback. Called from key handlers. */
+    private fun feedback() {
+        if (keySoundEnabled) onKeyFeedback()
+        if (keyHapticEnabled) onKeyHaptic()
+    }
 
     // Hide the suggestion bar entirely (password fields only).
     private var noSuggest: Boolean = false

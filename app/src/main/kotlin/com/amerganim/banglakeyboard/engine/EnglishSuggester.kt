@@ -51,6 +51,17 @@ class EnglishSuggester {
         }
     }
 
+    /**
+     * Drop everything learned from the user — usage counts and user-added words —
+     * leaving the bundled word list untouched.
+     */
+    fun clearLearned() {
+        learned.clear()
+        if (words.any { it.freq == USER_WEIGHT }) {
+            words = words.filterNot { it.freq == USER_WEIGHT }
+        }
+    }
+
     fun loadLearnedData(tsv: String) {
         for (raw in tsv.lineSequence()) {
             val p = raw.indexOf('\t')

@@ -34,6 +34,9 @@ class Bigrams {
         for (nexts in map.values) nexts.remove(word)
     }
 
+    /** Drop every recorded pair. */
+    fun clear() = map.clear()
+
     fun load(tsv: String) {
         for (raw in tsv.lineSequence()) {
             val parts = raw.split('\t')

@@ -23,6 +23,15 @@
     <string name="size_large">বড়</string>
     <string name="theme_note">কিবোর্ডটি আপনার সিস্টেমের লাইট/ডার্ক থিম অনুসরণ করে।</string>
     <string name="key_sound">কী চাপার শব্দ</string>
+    <string name="key_haptic">কী চাপলে কম্পন</string>
+    <string name="key_haptic_desc">প্রতিবার টাইপ করার সময় হালকা কম্পন। এর জন্য সিস্টেম সেটিংসে কম্পন চালু থাকতে হবে।</string>
+    <string name="cancel">বাতিল</string>
+    <string name="clear_learned">শেখা শব্দ</string>
+    <string name="clear_learned_desc">সাজেশন উন্নত করতে কিবোর্ড আপনার লেখা শব্দ মনে রাখে। আপনি চাইলে সব মুছে ফেলতে পারেন — বিল্ট-ইন অভিধান অক্ষত থাকবে।</string>
+    <string name="clear_learned_button">শেখা শব্দ মুছুন</string>
+    <string name="clear_learned_done">শেখা শব্দ মুছে ফেলা হয়েছে</string>
+    <string name="clear_learned_confirm_title">শেখা শব্দ মুছে ফেলবেন?</string>
+    <string name="clear_learned_confirm_body">কিবোর্ড আপনার কাছ থেকে যা কিছু শিখেছে এবং পরবর্তী শব্দের পূর্বাভাস — সবই মুছে যাবে। এটি ফেরানো যাবে না।</string>
     <string name="smart_conjunct">স্মার্ট যুক্তাক্ষর</string>
     <string name="smart_conjunct_desc">শুধু প্রকৃত যুক্তাক্ষর তৈরি হলেই ব্যঞ্জন যুক্ত করে (যেমন \"zkhn\" → যখন, কিন্তু \"kSh\" → ক্ষ)।</string>
     <string name="try_keyboard_here">এখানে কিবোর্ড পরীক্ষা করুন</string>

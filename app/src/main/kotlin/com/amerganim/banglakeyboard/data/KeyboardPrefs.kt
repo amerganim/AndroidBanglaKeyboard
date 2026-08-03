@@ -27,6 +27,20 @@ class KeyboardPrefs(context: Context) {
         get() = prefs.getBoolean(KEY_SOUND, false)
         set(value) = prefs.edit().putBoolean(KEY_SOUND, value).apply()
 
+    /** Whether the key press vibrates. Off by default, like the click sound. */
+    var keyHaptic: Boolean
+        get() = prefs.getBoolean(KEY_HAPTIC, false)
+        set(value) = prefs.edit().putBoolean(KEY_HAPTIC, value).apply()
+
+    /**
+     * Bumped by the settings screen when the user clears their learned words. A
+     * running keyboard compares it against the value it last applied and drops its
+     * in-memory copy when they differ — the files are already gone by then.
+     */
+    var clearLearnedGeneration: Int
+        get() = prefs.getInt(CLEAR_LEARNED_GEN, 0)
+        set(value) = prefs.edit().putInt(CLEAR_LEARNED_GEN, value).apply()
+
     /** Smart conjunct: only join consonants that form a real juktakkhor. On by default. */
     var smartConjunct: Boolean
         get() = prefs.getBoolean(SMART_CONJUNCT, true)
@@ -48,6 +62,8 @@ class KeyboardPrefs(context: Context) {
     private companion object {
         const val KEY_SIZE = "key_size"
         const val KEY_SOUND = "key_sound"
+        const val KEY_HAPTIC = "key_haptic"
+        const val CLEAR_LEARNED_GEN = "clear_learned_generation"
         const val SMART_CONJUNCT = "smart_conjunct"
         const val APP_LANG = "app_lang"
         const val ONBOARDING_SEEN = "onboarding_seen"
