@@ -21,7 +21,9 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.amerganim.banglakeyboard.R
 import com.amerganim.banglakeyboard.ime.KeyboardMode
 import com.amerganim.banglakeyboard.ime.KeyboardViewModel
 
@@ -64,6 +66,7 @@ private fun LetterRows(vm: KeyboardViewModel) {
             onClick = vm::onShift,
             modifier = Modifier.weight(1.5f),
             icon = Icons.Filled.KeyboardArrowUp,
+            contentDescription = stringResource(R.string.key_shift),
             style = KeyStyle.SPECIAL,
             active = vm.shifted,
             height = vm.keySize.rowHeight,
@@ -106,6 +109,9 @@ private fun BottomRow(vm: KeyboardViewModel) {
             onClick = vm::toggleSymbols,
             modifier = Modifier.weight(1.5f),
             label = if (vm.symbolsPage) "ABC" else "?123",
+            contentDescription = stringResource(
+                if (vm.symbolsPage) R.string.key_letters else R.string.key_symbols,
+            ),
             style = KeyStyle.SPECIAL,
             height = vm.keySize.rowHeight,
         )
@@ -113,6 +119,7 @@ private fun BottomRow(vm: KeyboardViewModel) {
             onClick = vm::onModeSwitch,
             modifier = Modifier.weight(1f),
             icon = Icons.Filled.Language,
+            contentDescription = stringResource(R.string.key_switch_language),
             style = KeyStyle.SPECIAL,
             height = vm.keySize.rowHeight,
         )
@@ -120,6 +127,7 @@ private fun BottomRow(vm: KeyboardViewModel) {
             onClick = vm::toggleEmoji,
             modifier = Modifier.weight(1f),
             label = "😊",
+            contentDescription = stringResource(R.string.key_emoji),
             style = KeyStyle.SPECIAL,
             height = vm.keySize.rowHeight,
         )
@@ -132,6 +140,13 @@ private fun BottomRow(vm: KeyboardViewModel) {
                 KeyboardMode.BANGLA_PHONETIC -> "বাংলা"
                 KeyboardMode.BANGLA_FIXED -> "আমাদের"
             },
+            // The label names the current mode, which is useful context, but the
+            // key's actual function is Space — announce both.
+            contentDescription = stringResource(R.string.key_space) + ", " + when (vm.mode) {
+                KeyboardMode.ENGLISH -> "English"
+                KeyboardMode.BANGLA_PHONETIC -> "বাংলা"
+                KeyboardMode.BANGLA_FIXED -> "আমাদের"
+            },
             height = vm.keySize.rowHeight,
         )
         CharKey('.', vm)
@@ -139,6 +154,7 @@ private fun BottomRow(vm: KeyboardViewModel) {
             onClick = vm::onEnter,
             modifier = Modifier.weight(1.5f),
             icon = enterIcon(vm.imeAction),
+            contentDescription = stringResource(enterDescription(vm.imeAction)),
             style = KeyStyle.ACCENT,
             height = vm.keySize.rowHeight,
         )
@@ -156,12 +172,24 @@ private fun enterIcon(action: Int): ImageVector = when (action) {
     else -> Icons.AutoMirrored.Filled.KeyboardReturn
 }
 
+/** TalkBack description matching [enterIcon], so the key is not announced silently. */
+private fun enterDescription(action: Int): Int = when (action) {
+    EditorInfo.IME_ACTION_SEARCH -> R.string.key_search
+    EditorInfo.IME_ACTION_SEND -> R.string.key_send
+    EditorInfo.IME_ACTION_DONE -> R.string.key_done
+    EditorInfo.IME_ACTION_GO -> R.string.key_go
+    EditorInfo.IME_ACTION_NEXT -> R.string.key_next
+    EditorInfo.IME_ACTION_PREVIOUS -> R.string.key_previous
+    else -> R.string.key_enter
+}
+
 @Composable
 private fun RowScope.BackspaceKey(vm: KeyboardViewModel, weight: Float) {
     KeyButton(
         onClick = vm::onBackspace,
         modifier = Modifier.weight(weight),
         icon = Icons.AutoMirrored.Filled.Backspace,
+        contentDescription = stringResource(R.string.key_backspace),
         style = KeyStyle.SPECIAL,
         repeatOnHold = true,
         height = vm.keySize.rowHeight,
@@ -174,6 +202,7 @@ private fun RowScope.PageSwitchKey(vm: KeyboardViewModel, label: String) {
         onClick = vm::switchSymbolsPage,
         modifier = Modifier.weight(1.5f),
         label = label,
+        contentDescription = stringResource(R.string.key_more_symbols),
         style = KeyStyle.SPECIAL,
         height = vm.keySize.rowHeight,
     )

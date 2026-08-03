@@ -5,6 +5,41 @@ EN text into `en-US` and the BN text into `bn-BD`.
 
 ---
 
+## 1.0.7 (versionCode 8)
+
+Accessibility release. No changes to the typing engine.
+
+**Changes**
+- Screen-reader labels on every icon key. Shift, Backspace, the globe key, Enter
+  and the emoji panel's space bar previously announced nothing at all under
+  TalkBack, making the keyboard largely unusable with a screen reader. The Enter
+  key announces its actual action (Search / Send / Done / Go / Next / Previous).
+- The small corner hint on a key (the long-press digit) is now marked decorative,
+  so TalkBack reads "q" instead of "q 1".
+- The microphone button description and the "speech recognition unavailable"
+  message are now translated; both were hardcoded English.
+- Replaced a deprecated `Locale` constructor call.
+
+### What's new — EN (`en-US`)
+```
+This update makes the keyboard usable with a screen reader:
+
+• Shift, Backspace, Enter and the language key now announce themselves in TalkBack. Before, they were silent.
+• The Enter key says what it will do — Search, Send, Done or Next.
+• Bangla translations for the voice typing button and messages.
+```
+
+### What's new — BN (`bn-BD`)
+```
+এই আপডেটে স্ক্রিন রিডার দিয়ে কিবোর্ড ব্যবহার করা যাবে:
+
+• শিফট, ব্যাকস্পেস, এন্টার ও ভাষা কী এখন TalkBack-এ নিজের নাম বলে। আগে এগুলো নীরব ছিল।
+• এন্টার কী কী করবে তা বলে — খুঁজুন, পাঠান, সম্পন্ন বা পরবর্তী।
+• ভয়েস টাইপিং বোতাম ও বার্তার বাংলা অনুবাদ।
+```
+
+---
+
 ## 1.0.6 (versionCode 7)
 
 Onboarding, help and feedback release. No changes to the typing engine.

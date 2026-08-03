@@ -9,6 +9,8 @@ import androidx.compose.material.icons.automirrored.filled.Backspace
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import com.amerganim.banglakeyboard.R
 import com.amerganim.banglakeyboard.ime.KeyboardViewModel
 
 /**
@@ -79,6 +81,7 @@ fun FixedRows(vm: KeyboardViewModel) {
             onClick = vm::onShift,
             modifier = Modifier.weight(1.5f),
             icon = Icons.Filled.KeyboardArrowUp,
+            contentDescription = stringResource(R.string.key_shift),
             style = KeyStyle.SPECIAL,
             active = vm.shifted,
             height = vm.keySize.rowHeight,
@@ -88,6 +91,7 @@ fun FixedRows(vm: KeyboardViewModel) {
             onClick = vm::onBackspace,
             modifier = Modifier.weight(1.5f),
             icon = Icons.AutoMirrored.Filled.Backspace,
+            contentDescription = stringResource(R.string.key_backspace),
             style = KeyStyle.SPECIAL,
             repeatOnHold = true,
             height = vm.keySize.rowHeight,

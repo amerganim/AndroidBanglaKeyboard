@@ -40,7 +40,8 @@ Estimated effort: ~2–4 focused days (excluding Play review time).
       URL/email fields, multiline, RTL apps, very long text, rotation.
 - [ ] **Don't learn from sensitive fields** — check `EditorInfo.inputType` and skip
       saving words / predictions for password & no-personalized-learning flags.
-- [ ] Accessibility: TalkBack labels on keys, larger-text support, sufficient contrast.
+- [x] Accessibility: TalkBack labels on keys (done in 1.0.7). Larger-text support and
+      contrast audit still outstanding.
 - [ ] Performance: first-keystroke latency while the 65k word list loads (already
       async; verify no jank), memory.
 - [ ] Crash-free: add lightweight, **privacy-safe** crash logging *only if* it can be

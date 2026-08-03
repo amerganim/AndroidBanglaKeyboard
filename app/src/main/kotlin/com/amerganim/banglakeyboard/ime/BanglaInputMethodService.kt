@@ -120,7 +120,7 @@ class BanglaInputMethodService :
             return
         }
         if (!SpeechRecognizer.isRecognitionAvailable(this)) {
-            Toast.makeText(this, "Speech recognition not available", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, R.string.speech_unavailable, Toast.LENGTH_SHORT).show()
             return
         }
         startVoiceInput()

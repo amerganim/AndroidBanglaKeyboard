@@ -37,6 +37,25 @@
     <string name="feedback_subject">আমাদের বাংলা কিবোর্ড — মতামত</string>
     <string name="feedback_body_header">আপনার মতামত বা সমস্যা এখানে লিখুন:</string>
 
+    <!-- Keyboard key descriptions (TalkBack) -->
+    <string name="key_shift">শিফট</string>
+    <string name="key_backspace">ব্যাকস্পেস</string>
+    <string name="key_switch_language">ভাষা বদলান</string>
+    <string name="key_emoji">ইমোজি</string>
+    <string name="key_symbols">সিম্বল</string>
+    <string name="key_letters">অক্ষর</string>
+    <string name="key_more_symbols">আরও সিম্বল</string>
+    <string name="key_space">স্পেস</string>
+    <string name="key_enter">এন্টার</string>
+    <string name="key_search">খুঁজুন</string>
+    <string name="key_send">পাঠান</string>
+    <string name="key_done">সম্পন্ন</string>
+    <string name="key_go">যান</string>
+    <string name="key_next">পরবর্তী</string>
+    <string name="key_previous">পূর্ববর্তী</string>
+    <string name="key_mic">কথা বলতে চেপে ধরুন</string>
+    <string name="speech_unavailable">এই ডিভাইসে ভয়েস টাইপিং সুবিধা নেই।</string>
+
     <!-- Screen titles -->
     <string name="back">ফিরে যান</string>
     <string name="guide_title">বাংলা টাইপিং গাইড</string>

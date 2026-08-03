@@ -20,11 +20,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import com.amerganim.banglakeyboard.R
 import com.amerganim.banglakeyboard.ime.KeyboardViewModel
 
 /** Emoji picker shown in place of the keys. Tap an emoji to insert it. */
@@ -75,6 +77,7 @@ fun EmojiPanel(vm: KeyboardViewModel, modifier: Modifier = Modifier) {
                 onClick = vm::toggleEmoji,
                 modifier = Modifier.weight(2f),
                 label = "ABC",
+                contentDescription = stringResource(R.string.key_letters),
                 style = KeyStyle.SPECIAL,
                 height = rowHeight,
             )
@@ -82,12 +85,14 @@ fun EmojiPanel(vm: KeyboardViewModel, modifier: Modifier = Modifier) {
                 onClick = vm::onSpace,
                 modifier = Modifier.weight(5f),
                 label = "",
+                contentDescription = stringResource(R.string.key_space),
                 height = rowHeight,
             )
             KeyButton(
                 onClick = vm::onBackspace,
                 modifier = Modifier.weight(2f),
                 icon = Icons.AutoMirrored.Filled.Backspace,
+                contentDescription = stringResource(R.string.key_backspace),
                 style = KeyStyle.SPECIAL,
                 repeatOnHold = true,
                 height = rowHeight,

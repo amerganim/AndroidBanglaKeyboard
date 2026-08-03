@@ -72,7 +72,7 @@ class SetupActivity : ComponentActivity() {
     override fun attachBaseContext(newBase: Context) {
         val lang = KeyboardPrefs(newBase).appLang.ifEmpty { "bn" } // Bangla default
         val config = Configuration(newBase.resources.configuration)
-        config.setLocale(Locale(lang))
+        config.setLocale(Locale.forLanguageTag(lang))
         super.attachBaseContext(newBase.createConfigurationContext(config))
     }
 

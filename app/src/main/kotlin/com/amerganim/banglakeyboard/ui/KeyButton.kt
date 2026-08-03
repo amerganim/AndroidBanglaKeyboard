@@ -31,6 +31,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
@@ -57,6 +62,11 @@ fun KeyButton(
     modifier: Modifier = Modifier,
     label: String? = null,
     icon: ImageVector? = null,
+    /**
+     * What TalkBack announces for this key. Required for icon-only keys, which
+     * would otherwise be silent; text keys fall back to reading their [label].
+     */
+    contentDescription: String? = null,
     style: KeyStyle = KeyStyle.NORMAL,
     active: Boolean = false,
     repeatOnHold: Boolean = false,
@@ -111,22 +121,37 @@ fun KeyButton(
             .shadow(if (pressed) 0.dp else 1.dp, RoundedCornerShape(9.dp), clip = false)
             .clip(RoundedCornerShape(9.dp))
             .background(background)
-            .then(clickModifier),
+            .then(clickModifier)
+            .then(
+                if (contentDescription != null) {
+                    Modifier.semantics(mergeDescendants = true) {
+                        this.contentDescription = contentDescription
+                        this.role = Role.Button
+                    }
+                } else {
+                    Modifier
+                },
+            ),
         contentAlignment = Alignment.Center,
     ) {
-        // Small corner hint advertising the long-press alternate character.
+        // Small corner hint advertising the long-press alternate character. It is
+        // decorative — TalkBack would otherwise read "q 1" for every top-row key.
         if (hint != null) {
             Text(
                 text = hint,
                 fontSize = 10.sp,
                 color = contentColor.copy(alpha = 0.5f),
-                modifier = Modifier.align(Alignment.TopEnd).padding(horizontal = 5.dp, vertical = 1.dp),
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(horizontal = 5.dp, vertical = 1.dp)
+                    .clearAndSetSemantics {},
             )
         }
         when {
+            // The description lives on the parent Box, so the icon itself is decorative.
             icon != null -> Icon(
                 imageVector = icon,
-                contentDescription = label,
+                contentDescription = null,
                 tint = contentColor,
             )
             label != null -> Text(
