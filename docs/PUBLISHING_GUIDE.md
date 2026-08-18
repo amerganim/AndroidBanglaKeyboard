@@ -136,20 +136,67 @@ Use the copy in [`STORE_LISTING.md`](STORE_LISTING.md). The graphics are ready i
 
 ## 7. Promote to Production
 
-1. **Production → Create new release** → upload the same (or a newer) `.aab`.
-2. Fill release notes. Choose a **staged rollout** (e.g. 20% → 100%).
-3. **Send for review.** First review can take a few days; keyboards get extra
-   scrutiny (sensitive input) — the privacy policy + data-safety answers matter.
+Production access is granted once closed testing has met Google's requirement
+(12 testers opted in for 14 continuous days, for personal developer accounts).
+
+### Before you promote
+
+- **Fix the short description.** The live one is 82 characters against Play's
+  80-character cap and is being truncated. Store presence → Main store listing.
+  This is a Console edit and needs no release. Replacement copy is in
+  [STORE_LISTING.md](STORE_LISTING.md).
+- Confirm every **App content** declaration is still green (they carry over from
+  testing, but Play adds new questionnaires over time).
+- Check **Countries / regions** on the Production track — it is configured
+  separately from your test tracks.
+
+### Promoting a build that is already in closed testing
+
+Do **not** re-upload the `.aab`. Play rejects a second upload of the same
+`versionCode`, and re-building would produce a different artifact from the one
+your testers actually used.
+
+1. **Test and release → Production → Create new release**.
+2. Click **Add from library** and pick the bundle already uploaded to closed
+   testing (match on `versionCode`).
+3. Paste the **release notes** for that version — `en-US` and `bn-BD` text lives
+   in [RELEASE_NOTES.md](RELEASE_NOTES.md).
+4. Under **Rollout percentage**, choose a **staged rollout** — start at 10%.
+5. **Save → Review release → Start rollout to Production**.
+
+Alternatively, from the closed testing release itself: **Promote release →
+Production**, which carries the bundle across without a re-upload.
+
+### After you submit
+
+- **Review takes longer than it did for testing.** The first production review of
+  a keyboard gets extra scrutiny, because an IME can read everything the user
+  types. Your no-INTERNET-permission posture and the data-safety answers are what
+  carry that review — do not change them casually.
+- Rollout only begins once review passes. Watch **Android vitals** (crash rate,
+  ANR rate) at each step before increasing the percentage.
+- **Halt rollout** is available at any percentage if something looks wrong. A
+  staged rollout means a bad surprise reaches a fraction of installs, not all.
+- Increase in steps — 10% → 25% → 50% → 100% — pausing a day or two at each.
+- Your closed testing track can keep running alongside production; it is a useful
+  place to stage the next version.
 
 ---
 
 ## 8. Future updates
 
-For every update:
-1. Bump **`versionCode`** (must increase) and **`versionName`** in
-   [`app/build.gradle.kts`](../app/build.gradle.kts).
-2. `./gradlew :app:bundleRelease`.
-3. Upload the new `.aab` to a track and roll out.
+Releases are built by CI from a version tag — see
+[CI_RELEASE.md](CI_RELEASE.md). For every update:
+
+1. Land the change on `main`.
+2. Bump **`versionCode`** (must increase) and **`versionName`** in
+   [`app/build.gradle.kts`](../app/build.gradle.kts) as its own commit.
+3. Push `main`, then tag and push: `git tag -a vX.Y.Z && git push origin vX.Y.Z`.
+4. `release.yml` builds the signed `.aab` + `.apk` and publishes a GitHub Release.
+5. **Upload the `.aab` from that GitHub Release**, not a local build — it is the
+   artifact CI tested against the tagged commit, so it is the one that is
+   traceable if something goes wrong later.
+6. Add release notes from [RELEASE_NOTES.md](RELEASE_NOTES.md) and roll out.
 
 ---
 
@@ -164,3 +211,5 @@ For every update:
 - [ ] Icon + feature graphic + screenshots uploaded
 - [ ] Internal test passed on a real device
 - [ ] Submitted for production review
+- [ ] Short description under 80 characters
+- [ ] Staged rollout started at 10%, Android vitals watched at each step
