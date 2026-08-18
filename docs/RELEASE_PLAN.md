@@ -1,74 +1,89 @@
 # Production / Play Store Release Plan
 
-Goal: take the keyboard from a working build to a polished, policy-compliant app
-on Google Play. The app is **functionally complete** for v1; the work below is
-packaging, polish, legal, and QA — not core features.
+**Status: production access granted (August 2026).** Closed testing is complete and
+the app is cleared to publish to the production track. The current production
+candidate is **1.0.8 (versionCode 9)**.
 
-Estimated effort: ~2–4 focused days (excluding Play review time).
+This file tracked the road from a working build to a publishable app. Phases 0–2
+are done; what remains is the launch itself (Phase 5) and the quality work in
+Phase 3 that was always "polish that can ship in a 1.0.x update".
 
 ---
 
-## Phase 0 — Identity & branding
-- [ ] Finalize **applicationId** (e.g. `com.amerganim.banglakeyboard`) — cannot change after publish.
-- [ ] **Adaptive launcher icon** (foreground + background, monochrome for themed icons).
-- [ ] App accent color / brand finalized (currently indigo `#5B5BD6`).
-- [ ] App display name confirmed ("Amader Bangla Keyboard").
+## Phase 0 — Identity & branding ✅
+- [x] **applicationId** `com.amerganim.banglakeyboard` — locked in by publishing.
+- [x] **Adaptive launcher icon** with foreground, background and a `<monochrome>`
+      layer for themed icons.
+- [x] App accent color finalized (indigo `#5B5BD6`).
+- [x] App display name confirmed ("Amader Bangla Keyboard").
 
-## Phase 1 — Build hardening
-- [ ] **Upload keystore** created; store securely (NOT in git). Add to CI secrets if used.
-- [ ] `release` **signing config** wired in `app/build.gradle.kts` (read from `keystore.properties`, gitignored).
-- [ ] Enable **R8/shrinking + resource shrinking** for release; verify keep rules
-      (Compose, IME service referenced from manifest). Smoke-test the shrunk build.
-- [ ] Set `versionCode`/`versionName` policy (e.g. start `1.0.0` / `versionCode 1`).
-- [ ] Verify the assets (1.6 MB `words.tsv`, 75 KB English) compress in the bundle;
-      consider per-language download later if size matters.
-- [ ] `./gradlew :app:bundleRelease` produces a signed `.aab`.
+## Phase 1 — Build hardening ✅
+- [x] **Upload keystore** created and kept out of git (`release.jks`,
+      `keystore.properties`, both gitignored). Mirrored into CI secrets.
+- [x] `release` **signing config** reads from `keystore.properties` locally and
+      from environment variables in CI.
+- [x] **R8 + resource shrinking** enabled; `lintVitalRelease` passes each release.
+- [x] `versionCode`/`versionName` policy in use — one bump commit per release.
+- [x] `./gradlew :app:bundleRelease` produces a signed `.aab` (~3.2 MB).
+- [x] Tagged releases build the signed `.aab` + `.apk` via `release.yml`.
 
-## Phase 2 — Legal & policy (required for keyboards)
-- [ ] **Privacy policy** page (host a URL). Key message: *all input, suggestions and
-      learning stay on the device; nothing is transmitted; no analytics.* Link it in
-      the app (Setup screen) and the Play listing.
-- [ ] **Data safety form**: "No data collected / No data shared." Note on-device storage.
-- [ ] Confirm only `BIND_INPUT_METHOD` permission is requested (no INTERNET). If
-      Speech-to-Text is added later, disclose `RECORD_AUDIO` + its data handling.
-- [ ] Review Google Play **IME / sensitive-input** policy; keyboards get extra scrutiny.
-- [ ] Add an in-app note that the keyboard can read what you type (standard IME disclosure).
+## Phase 2 — Legal & policy ✅
+- [x] **Privacy policy** hosted and linked from the Setup screen.
+- [x] **Data safety form**: no data collected, no data shared, on-device only.
+- [x] Only `RECORD_AUDIO` (optional, for voice typing) — **no INTERNET permission**.
+- [x] Google Play IME policy review passed.
+- [x] In-app disclosure that keyboards can read what you type (`security_note`),
+      plus a Help & FAQ entry explaining Android's standard warning.
 
 ## Phase 3 — Quality & polish
-- [ ] **Device/OS matrix**: at least Android 8, 11, 14, 16; small + large screens; gesture + 3-button nav.
-- [ ] Edge cases: password fields (no learning/suggestions in `textPassword`/`textNoSuggestions`),
-      URL/email fields, multiline, RTL apps, very long text, rotation.
-- [ ] **Don't learn from sensitive fields** — check `EditorInfo.inputType` and skip
-      saving words / predictions for password & no-personalized-learning flags.
-- [x] Accessibility: TalkBack labels on keys (done in 1.0.7). Larger-text support and
-      contrast audit still outstanding.
-- [ ] Performance: first-keystroke latency while the 65k word list loads (already
-      async; verify no jank), memory.
-- [ ] Crash-free: add lightweight, **privacy-safe** crash logging *only if* it can be
-      done without a network dependency, or skip it.
-- [ ] Add a few **instrumented/UI tests** for the IME (compose-in-IME smoke test).
+- [x] **Don't learn from sensitive fields** — password variations hide suggestions
+      entirely; `NO_SUGGESTIONS` / `IME_FLAG_NO_PERSONALIZED_LEARNING` fields still
+      suggest but are never learned from.
+- [x] Accessibility: TalkBack labels on every key (1.0.7).
+- [ ] Accessibility: larger-text support and a contrast audit — still outstanding.
+- [ ] **Device/OS matrix**: at least Android 8, 11, 14, 16; small + large screens;
+      gesture + 3-button nav. Only tested on a Galaxy A15 (Android 16) so far.
+- [ ] Edge cases: URL/email fields, multiline, RTL apps, very long text, rotation.
+- [ ] Performance: first-keystroke latency while the 65k word list loads.
+- [ ] **Instrumented/UI tests** for the IME (compose-in-IME smoke test). None exist;
+      `app/src/androidTest` is empty. The unit suite covers the engine only.
+- [x] Crash logging: **deliberately skipped** — it cannot be done without a network
+      dependency, which would break the app's core "no internet permission" promise.
 
 ## Phase 4 — Store listing assets
-- [ ] App icon (512×512), **feature graphic** (1024×500).
-- [ ] **Screenshots** (phone + tablet): Bangla typing, suggestions, emoji, dark mode, guide.
-- [ ] Short + full description (highlight: phonetic, offline/private, predictions, free).
-- [ ] Category: Tools; content rating questionnaire; contact email.
+- [x] App icon 512×512 and feature graphic 1024×500 in [`store-assets/`](store-assets).
+- [x] Five phone screenshots captured (phonetic, Amader, emoji, setup, guide).
+- [ ] **Upgrade the screenshots** — these are raw device captures. Play shows the
+      first three in search results, so they carry the conversion. Annotated spec
+      with bilingual captions is in [STORE_LISTING.md](STORE_LISTING.md).
+- [ ] **Fix the short description** — the live one is 82 characters against Play's
+      80-character cap and is being truncated. Replacement in STORE_LISTING.md.
+- [ ] **Add the bn-BD localized listing** — the audience searches in Bangla script;
+      an English-only listing never matches those queries.
+- [x] Category (Tools), content rating questionnaire, contact email.
 
 ## Phase 5 — Rollout
-- [ ] Internal testing track → fix issues.
-- [ ] Closed/beta testing with a few Bangla typists (real-world phonetic coverage).
-- [ ] Staged production rollout (e.g. 10% → 100%).
+- [x] Internal testing track.
+- [x] Closed testing with real Bangla typists — **completed; production access granted.**
+- [ ] **Fix the short description before promoting** (see Phase 4 — it is a Console
+      edit, needs no release, and matters far more in production than it did in
+      testing).
+- [ ] Promote 1.0.8 to production as a **staged rollout**: 10% → 25% → 50% → 100%,
+      pausing a day or two at each step and watching Android vitals.
 - [ ] Post-launch: monitor reviews for missing phonetic mappings; extend the
       [round-trip corpus](../app/src/test/kotlin/com/amerganim/banglakeyboard/engine/RoundTripTest.kt)
       with reported failures.
+- [ ] Post-launch: bump the deprecated GitHub Actions (`setup-java@v4` → `v5` and
+      the Node 20 set). Deliberately deferred until after launch — nothing is
+      failing, and the release pipeline should not change right before it is needed.
 
 ---
 
-## Top blockers before first submission
-1. Launcher icon (adaptive).
-2. Release signing config + signed `.aab`.
-3. Privacy policy URL + Data safety form.
-4. "Don't learn from password/sensitive fields" guard.
-5. Store screenshots + descriptions.
+## Before promoting to production
 
-Everything else is polish that can ship in `1.0.x` updates.
+1. Fix the short description (82 → under 80 chars).
+2. Verify on a device: clear learned words, then retype a previously-learned word
+   and confirm it stays gone. This is the one 1.0.8 path never exercised on hardware.
+3. Promote the **1.0.8** bundle (versionCode 9) at 10%.
+4. Add the bn-BD listing and upgraded screenshots — these can land after launch,
+   but they are what drives discovery once you are public.
