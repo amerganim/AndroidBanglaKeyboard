@@ -5,6 +5,42 @@ EN text into `en-US` and the BN text into `bn-BD`.
 
 ---
 
+## 1.0.9 (versionCode 10)
+
+Typing fixes and much smarter Bangla suggestions.
+
+**Changes**
+- Amader layout: Shift on the য় key now gives ঠ (next to ট). য is on long-press
+  of that key and still on the z key.
+- Phonetic: Avro-style `c` = চ and `ch` = ছ (`chh` still works). **Behavior
+  change:** anyone who typed `ch` for চ now types `c`. Old `ch` spellings of
+  dictionary words still appear as suggestions.
+- Suggestions forgive common spelling slips (ি/ী, ু/ূ, শ/ষ/স, ট/ত, ড/দ, ণ/ন,
+  জ/য, ড়/র, ক্ষ, য-ফলা, doubled letters, missing ঁ): `jibon` → জীবন,
+  `taka` → টাকা, `sikkha` → শিক্ষা.
+- About 700 curated everyday words with real weights, chat shorthand (`tk`,
+  `kmn`, `vlo`, `tmi`…), and starter next-word predictions (কেমন → আছো).
+- A word committed once by mistake no longer outranks the correct spelling
+  forever.
+
+### What's new — EN (`en-US`)
+```
+• Smarter Bangla suggestions: small spelling slips are forgiven (jibon → জীবন, taka → টাকা), common words come first, and chat shorthand like tk, kmn, vlo works.
+• Next-word suggestions from day one (কেমন → আছো).
+• Phonetic: c = চ, ch = ছ (like Avro).
+• Amader layout: Shift on the য় key now gives ঠ.
+```
+
+### What's new — BN (`bn-BD`)
+```
+• আরও স্মার্ট বাংলা সাজেশন: ছোটখাটো বানান ভুল ধরে ঠিক শব্দ দেখায় (jibon → জীবন, taka → টাকা), প্রচলিত শব্দ আগে আসে, আর tk, kmn, vlo-র মতো শর্টকাটও কাজ করে।
+• প্রথম দিন থেকেই পরের শব্দের সাজেশন (কেমন → আছো)।
+• ফোনেটিক: c = চ, ch = ছ (অভ্রের মতো)।
+• আমাদের লেআউট: য়-এর কী-তে Shift চাপলে এখন ঠ আসে।
+```
+
+---
+
 ## 1.0.8 (versionCode 9)
 
 Two user-control features. No changes to the typing engine's output.
