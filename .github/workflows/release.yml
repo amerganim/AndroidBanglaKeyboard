@@ -38,6 +38,10 @@ jobs:
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          # Default also installs the legacy `tools` package, which newer runner
+          # images no longer provide (sdkmanager then exits 1).
+          packages: 'platform-tools'
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
