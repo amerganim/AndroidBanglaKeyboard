@@ -39,7 +39,7 @@ private val ROW1 = listOf(
     Fk("এ", "e", "ঐ", "OI", "ঋ", "rri"),
     Fk("র", "r", "ড়", "R", "ঢ়", "Rh"),
     Fk("ত", "t", "ট", "T", "থ", "th"),
-    Fk("য়", "y", "য", "z", "ঠ", "Th"),
+    Fk("য়", "y", "ঠ", "Th", "য", "z"), // Shift → ঠ (pairs with ট on t); য is also on z
     Fk("উ", "u", "ঊ", "U"),
     Fk("ই", "i", "ঈ", "I"),
     Fk("অ", "o", "আ", "a", "ং", "ng"),
@@ -61,7 +61,7 @@ private val ROW2 = listOf(
 private val ROW3 = listOf(
     Fk("য", "z"),
     Fk("ক্ষ", "kSh"),
-    Fk("চ", "ch", "ছ", "chh"),
+    Fk("চ", "c", "ছ", "chh"),
     Fk("ভ", "v"), // clean ভ key (ব is on the adjacent b key)
     Fk("ব", "b", "ভ", "bh"),
     Fk("ন", "n", "ণ", "N"),

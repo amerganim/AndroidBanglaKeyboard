@@ -49,8 +49,9 @@ internal object RuleTable {
         put("gh", Unit(Kind.CONSONANT, "ঘ"))
         put("Ng", Unit(Kind.CONSONANT, "ঙ")) // velar-nasal letter ঙ
         put("NG", Unit(Kind.CONSONANT, "ঞ")) // letter ঞ (ny)
-        put("ch", Unit(Kind.CONSONANT, "চ"))
-        put("chh", Unit(Kind.CONSONANT, "ছ"))
+        put("c", Unit(Kind.CONSONANT, "চ")) // c -> চ (Avro-style)
+        put("ch", Unit(Kind.CONSONANT, "ছ")) // ch -> ছ
+        put("chh", Unit(Kind.CONSONANT, "ছ")) // alias of `ch`
         put("j", Unit(Kind.CONSONANT, "জ"))
         put("jh", Unit(Kind.CONSONANT, "ঝ"))
         put("T", Unit(Kind.CONSONANT, "ট"))
@@ -82,9 +83,7 @@ internal object RuleTable {
         put("R", Unit(Kind.CONSONANT, "ড়"))
         put("Rh", Unit(Kind.CONSONANT, "ঢ়"))
         // Remaining Latin letters get a Bangla form so nothing leaks as English.
-        // `ch`/`chh` are longer keys and still win over a lone `c`.
         put("q", Unit(Kind.CONSONANT, "ক")) // q -> ক
-        put("c", Unit(Kind.CONSONANT, "চ")) // c (alone) -> চ
         put("x", Unit(Kind.CONSONANT, "ক্স")) // x -> ক্স (e.g. box -> বক্স)
         put("y", Unit(Kind.CONSONANT, "য়")) // ya with nukta (য়)
         put("Y", Unit(Kind.CONSONANT, "য়")) // alias of `y` -> য়

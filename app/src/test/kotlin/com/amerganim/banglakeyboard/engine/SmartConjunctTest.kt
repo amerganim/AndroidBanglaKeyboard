@@ -83,8 +83,8 @@ class SmartConjunctTest {
         // gg -> জ্ঞ, and n before চ/জ -> ঞ (smart mode).
         assertEquals("জ্ঞান", smart("ggan"))
         assertEquals("বিজ্ঞান", smart("biggan"))
-        assertEquals("অঞ্চল", smart("onchol"))
-        assertEquals("সঞ্চয়", smart("sonchoy"))
+        assertEquals("অঞ্চল", smart("oncol"))
+        assertEquals("সঞ্চয়", smart("soncoy"))
         assertEquals("পাঞ্জাবি", smart("panjabi"))
         // Plain mode keeps the literal spelling.
         assertEquals("বিগ্গান", plain("biggan"))

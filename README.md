@@ -57,7 +57,7 @@ InputMethodService (BanglaInputMethodService)
 
 ### How phonetic typing works
 1. **Tokenizer** — a greedy longest-match over [RuleTable](app/src/main/kotlin/com/amerganim/banglakeyboard/engine/RuleTable.kt)
-   (keys up to 3 chars, so `chh`/`Dh`/`OI` win over their prefixes).
+   (keys up to 3 chars, so `ch`/`Dh`/`OI` win over their prefixes).
 2. **Assembler** — tracks whether the previous unit was a consonant:
    vowel-after-consonant → kar sign; consonant-after-consonant → hasanta (conjunct);
    the inherent vowel `o` emits no sign. Capitals with no scheme meaning fall back
@@ -130,7 +130,7 @@ keyboard* → select it. Tap 🌐 to switch English ⇄ Bangla.
 | Type | Result | | Type | Result |
 |---|---|---|---|---|
 | `a i u e o` | আ ই উ এ অ | | `k kh g gh` | ক খ গ ঘ |
-| `T D N S` | ট ড ণ ষ | | `ch chh j` | চ ছ জ |
+| `T D N S` | ট ড ণ ষ | | `c ch j` | চ ছ জ |
 | `sh / S` | শ / ষ | | `bh / v` | ভ |
 | `ng` | ং (anusvara) | | `^` | ঁ (chandrabindu) |
 | `:` | ঃ (visarga) | | `` ` `` | ্ (hasanta) |

@@ -36,21 +36,28 @@ temon	তেমন	45
 kori	করি	60
 korbo	করব	60
 korchhi	করছি	55
+korchi	করছি	55
 korechhi	করেছি	55
+korechi	করেছি	55
 korte	করতে	60
 korle	করলে	45
 hoy	হয়	75
 hoye	হয়ে	60
 hoyechhe	হয়েছে	60
+hoyeche	হয়েছে	60
 holo	হলো	60
 hochhe	হচ্ছে	55
+hoche	হচ্ছে	55
 jachhi	যাচ্ছি	50
+jachi	যাচ্ছি	50
 jabo	যাব	55
 jay	যায়	55
 gechhe	গেছে	45
+geche	গেছে	45
 ase	আসে	50
 asbe	আসবে	45
 aschhi	আসছি	45
+aschi	আসছি	45
 dei	দেই	40
 debo	দেব	45
 dekhi	দেখি	50
@@ -61,7 +68,9 @@ bolbo	বলব	45
 khai	খাই	45
 khabo	খাব	45
 chai	চাই	60
+cai	চাই	60
 chao	চাও	45
+cao	চাও	45
 jani	জানি	60
 jane	জানে	50
 jante	জানতে	45
@@ -74,6 +83,7 @@ diye	দিয়ে	60
 thake	থাকে	55
 thaki	থাকি	45
 chhilo	ছিল	55
+chilo	ছিল	55
 thakbe	থাকবে	40
 
 # --- greetings / time ---
@@ -90,6 +100,7 @@ agamikal	আগামীকাল	35
 soptaho	সপ্তাহ	35
 mash	মাস	45
 bochhor	বছর	50
+bochor	বছর	50
 ekhono	এখনো	45
 abar	আবার	60
 age	আগে	55
@@ -99,21 +110,26 @@ maje	মাঝে	40
 # --- people / family ---
 bon	বোন	55
 chhele	ছেলে	55
+chele	ছেলে	55
 meye	মেয়ে	55
 chhelemeye	ছেলেমেয়ে	30
+chelemeye	ছেলেমেয়ে	30
 sntan	সন্তান	30
 sami	স্বামী	40
 stri	স্ত্রী	40
 dada	দাদা	45
 didi	দিদি	40
 chacha	চাচা	40
+caca	চাচা	40
 mama	মামা	40
 nani	নানি	35
 dadu	দাদু	35
 poribar	পরিবার	55
 shikkhok	শিক্ষক	45
 chhatro	ছাত্র	45
+chatro	ছাত্র	45
 chhatri	ছাত্রী	40
+chatri	ছাত্রী	40
 daktar	ডাক্তার	45
 
 # --- places / things ---
@@ -139,6 +155,7 @@ nodi	নদী	45
 shomudro	সমুদ্র	40
 pahar	পাহাড়	35
 gachh	গাছ	45
+gach	গাছ	45
 phul	ফুল	50
 pakhi	পাখি	40
 
@@ -149,6 +166,7 @@ mangsho	মাংস	40
 dim	ডিম	40
 dudh	দুধ	45
 cha	চা	50
+ca	চা	50
 pani	পানি	55
 jol	জল	50
 khabar	খাবার	55
@@ -157,9 +175,11 @@ shobji	সবজি	35
 mishti	মিষ্টি	45
 nun	নুন	30
 chini	চিনি	35
+cini	চিনি	35
 
 # --- body / abstract ---
 chokh	চোখ	50
+cokh	চোখ	50
 mukh	মুখ	45
 hat	হাত	50
 pa	পা	40
@@ -206,8 +226,11 @@ ek	এক	60
 dui	দুই	60
 tin	তিন	55
 char	চার	55
+car	চার	55
 panch	পাঁচ	50
+panc	পাঁচ	50
 chhoy	ছয়	45
+choy	ছয়	45
 sat	সাত	45
 at	আট	45
 noy	নয়	45
@@ -216,7 +239,9 @@ egaro	এগারো	30
 baro	বারো	30
 bish	বিশ	35
 pochish	পঁচিশ	30
+pocish	পঁচিশ	30
 ponchash	পঞ্চাশ	30
+poncash	পঞ্চাশ	30
 sho	শো	35
 hajar	হাজার	40
 lokkho	লক্ষ	35
@@ -227,6 +252,7 @@ ha	হ্যাঁ	55
 na	না	75
 thik	ঠিক	60
 achchha	আচ্ছা	50
+accha	আচ্ছা	50
 mane	মানে	50
 dhorun	ধরুন	25
 oboshyoi	অবশ্যই	35
@@ -248,8 +274,104 @@ gaan	গান	45
 boi	বই	60
 kobita	কবিতা	45
 chhobi	ছবি	45
+chobi	ছবি	45
 khela	খেলা	50
 khela	খেলা	40
 itihash	ইতিহাস	40
 bhasha	ভাষা	50
 shobdo	শব্দ	40
+
+# --- chat shorthand & everyday spelling variants (how people actually type) ---
+tk	টাকা	70
+tmi	তুমি	80
+tumi	তুমি	80
+ami	আমি	90
+amr	আমার	75
+tmr	তোমার	75
+tmk	তোমাকে	60
+apni	আপনি	80
+apnr	আপনার	60
+kmn	কেমন	80
+kemon	কেমন	80
+vlo	ভালো	80
+valo	ভালো	85
+vala	ভালো	50
+bhalo	ভালো	85
+vai	ভাই	70
+bhaiya	ভাইয়া	50
+vaiya	ভাইয়া	50
+kno	কেন	65
+keno	কেন	70
+ki	কি	85
+kii	কী	60
+kisu	কিছু	60
+kichu	কিছু	70
+kicu	কিছু	55
+kotay	কোথায়	55
+kothay	কোথায়	70
+kokhon	কখন	65
+akhon	এখন	60
+ekhon	এখন	70
+ajke	আজকে	55
+acho	আছো	70
+aco	আছো	50
+achen	আছেন	65
+acen	আছেন	45
+achi	আছি	70
+aci	আছি	50
+thik	ঠিক	70
+thk	ঠিক	50
+thikache	ঠিক আছে	40
+hmm	হুম	50
+hum	হুম	45
+na	না	80
+ha	হ্যাঁ	60
+hae	হ্যাঁ	45
+haa	হ্যাঁ	45
+dhonnobad	ধন্যবাদ	85
+donnobad	ধন্যবাদ	60
+dhonyobad	ধন্যবাদ	60
+assalamualaikum	আসসালামু আলাইকুম	60
+salam	সালাম	55
+inshallah	ইনশাআল্লাহ	60
+insha	ইনশাআল্লাহ	50
+alhamdulillah	আলহামদুলিল্লাহ	60
+mashallah	মাশাআল্লাহ	55
+allah	আল্লাহ	60
+bebsa	ব্যবসা	45
+bebosa	ব্যবসা	45
+byabsa	ব্যবসা	40
+bebostha	ব্যবস্থা	40
+bebohar	ব্যবহার	45
+byabohar	ব্যবহার	40
+bekti	ব্যক্তি	40
+bektigoto	ব্যক্তিগত	30
+bastob	বাস্তব	35
+shasto	স্বাস্থ্য	30
+sastho	স্বাস্থ্য	35
+shastho	স্বাস্থ্য	35
+shadhin	স্বাধীন	35
+shadhinota	স্বাধীনতা	35
+sopno	স্বপ্ন	45
+shopno	স্বপ্ন	45
+shikkha	শিক্ষা	45
+porikkha	পরীক্ষা	45
+porikha	পরীক্ষা	35
+khoma	ক্ষমা	40
+khomota	ক্ষমতা	40
+khoti	ক্ষতি	40
+khetre	ক্ষেত্রে	40
+lokkho	লক্ষ	30
+gyan	জ্ঞান	40
+biggan	বিজ্ঞান	40
+bigyan	বিজ্ঞান	40
+somossa	সমস্যা	50
+shomossa	সমস্যা	50
+problem	সমস্যা	30
+mobile	মোবাইল	40
+phone	ফোন	45
+fon	ফোন	40
+facebook	ফেসবুক	40
+fb	ফেসবুক	30
+video	ভিডিও	35
+bhidio	ভিডিও	30

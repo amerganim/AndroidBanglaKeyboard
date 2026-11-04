@@ -131,13 +131,13 @@ private fun guideSections(): List<Section> = listOf(
         tr("ব্যঞ্জনবর্ণ", "Consonants"),
         listOf(
             Entry("k kh g gh Ng", "ক খ গ ঘ ঙ"),
-            Entry("ch chh j jh NG", "চ ছ জ ঝ ঞ"),
+            Entry("c ch j jh NG", "চ ছ জ ঝ ঞ"),
             Entry("T Th D Dh N", "ট ঠ ড ঢ ণ"),
             Entry("t th d dh n", "ত থ দ ধ ন"),
             Entry("p ph/f b bh/v m", "প ফ ব ভ ম"),
             Entry("z r l", "য র ল  (z = য, j = জ)"),
             Entry("sh S/Sh s h", "শ ষ স হ"),
-            Entry("q c x", "ক চ ক্স"),
+            Entry("q x", "ক ক্স"),
         ),
     ),
     Section(
@@ -154,7 +154,7 @@ private fun guideSections(): List<Section> = listOf(
         tr("চিহ্ন", "Signs"),
         listOf(
             Entry("ng", tr("ং অনুস্বার  (bangla → বাংলা)", "ং anusvara  (bangla → বাংলা)")),
-            Entry("^", tr("ঁ চন্দ্রবিন্দু  (cha^d → চাঁদ)", "ঁ chandrabindu  (cha^d → চাঁদ)")),
+            Entry("^", tr("ঁ চন্দ্রবিন্দু  (ca^d → চাঁদ)", "ঁ chandrabindu  (ca^d → চাঁদ)")),
             Entry(":", tr("ঃ বিসর্গ  (du:kh → দুঃখ)", "ঃ visarga  (du:kh → দুঃখ)")),
             Entry(".", tr("। দাঁড়ি (পূর্ণচ্ছেদ)", "। dari (full stop)")),
             Entry("`", tr("্ হসন্ত (জোর করে অর্ধরূপ)", "্ hasanta (force half-form)")),
@@ -170,7 +170,7 @@ private fun guideSections(): List<Section> = listOf(
             Entry("kk kt", "ক্ক ক্ত"),
             Entry("kSh", "ক্ষ  (kShoma → ক্ষমা)"),
             Entry("gg", tr("জ্ঞ — উচ্চারণে (biggan → বিজ্ঞান)", "জ্ঞ — by sound (biggan → বিজ্ঞান)")),
-            Entry("nch nj", tr("ঞ্চ ঞ্জ — উচ্চারণে (onchol → অঞ্চল)", "ঞ্চ ঞ্জ — by sound (onchol → অঞ্চল)")),
+            Entry("nc nj", tr("ঞ্চ ঞ্জ — উচ্চারণে (oncol → অঞ্চল)", "ঞ্চ ঞ্জ — by sound (oncol → অঞ্চল)")),
             Entry("tt tth", "ত্ত ত্থ"),
             Entry("nt nd ndh", "ন্ত ন্দ ন্ধ"),
             Entry("st sth sp", "স্ত স্থ স্প  (bistarito → বিস্তারিত)"),
