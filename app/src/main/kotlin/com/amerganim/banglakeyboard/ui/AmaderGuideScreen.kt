@@ -167,7 +167,7 @@ private fun androidx.compose.foundation.layout.RowScope.Cell(
 
 private val KEY_ROWS = listOf(
     KeyRow("q w e r t", "ক ও এ র ত", "খ ঔ ঐ ড় ট", "— — ঋ ঢ় থ"),
-    KeyRow("y u i o p", "য় উ ই অ প", "য ঊ ঈ আ ফ", "ঠ — — ং —"),
+    KeyRow("y u i o p", "য় উ ই অ প", "ঠ ঊ ঈ আ ফ", "য — — ং —"),
     KeyRow("a s d f g", "আ স দ ফ গ", "অ ষ ড ঢ ঘ", "ঃ শ ধ ভ ঙ"),
     KeyRow("h j k l", "হ জ ক ল", "— ঝ খ —", "ৎ ঞ — ্"),
     KeyRow("z x c v", "য ক্ষ চ ভ", "— — ছ —", "— — — —"),

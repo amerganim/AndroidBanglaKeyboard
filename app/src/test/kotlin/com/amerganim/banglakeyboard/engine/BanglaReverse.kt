@@ -22,7 +22,7 @@ object BanglaReverse {
 
     private val consonant: Map<Char, String> = mapOf(
         'ক' to "k", 'খ' to "kh", 'গ' to "g", 'ঘ' to "gh", 'ঙ' to "Ng",
-        'চ' to "ch", 'ছ' to "chh", 'জ' to "j", 'ঝ' to "jh", 'ঞ' to "NG",
+        'চ' to "c", 'ছ' to "ch", 'জ' to "j", 'ঝ' to "jh", 'ঞ' to "NG",
         'ট' to "T", 'ঠ' to "Th", 'ড' to "D", 'ঢ' to "Dh", 'ণ' to "N",
         'ত' to "t", 'থ' to "th", 'দ' to "d", 'ধ' to "dh", 'ন' to "n",
         'প' to "p", 'ফ' to "ph", 'ব' to "b", 'ভ' to "bh", 'ম' to "m",

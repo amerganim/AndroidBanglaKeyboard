@@ -23,7 +23,7 @@ class TransliteratorTest {
     }
 
     @Test fun combiningMarksAndVocalicVowel() {
-        check("cha^d", "চাঁদ") // chandrabindu
+        check("ca^d", "চাঁদ") // chandrabindu
         check("rriSi", "ঋষি")
         check("a^", "আঁ")
         check("a:", "আঃ") // visarga
@@ -96,9 +96,13 @@ class TransliteratorTest {
         check("c", "চ")
         check("x", "ক্স")
         check("box", "বক্স")
-        // ch / chh are longer keys and still win over a lone c.
-        check("chand", "চান্দ")
+        // Avro-style: c = চ, ch = ছ (chh kept as an alias of ছ).
+        check("cand", "চান্দ")
+        check("chobi", "ছবি")
         check("chhobi", "ছবি")
+        check("chele", "ছেলে")
+        check("cal", "চাল")
+        check("ami cai", "আমি চাই")
     }
 
     @Test fun commonWordsTransliterateCorrectly() {

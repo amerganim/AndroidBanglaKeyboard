@@ -38,10 +38,20 @@ class DictionaryRepository(private val appContext: Context) {
 
     private fun file(name: String) = File(appContext.filesDir, name)
 
+    private fun asset(name: String): String? =
+        runCatching { appContext.assets.open(name).bufferedReader().use { it.readText() } }.getOrNull()
+
     suspend fun load() = withContext(Dispatchers.IO) {
         if (loaded) return@withContext
         runCatching { appContext.assets.open(BN_DICT).bufferedReader().use { bangla.loadDictionaryData(it.readText()) } }
-        runCatching { appContext.assets.open(BN_WORDS).bufferedReader().use { bangla.loadWordList(it.readText()) } }
+        // Big lexicon + the hand-curated high-frequency list, loaded in one pass so the
+        // indexes are sorted once (a word in both keeps the higher weight).
+        runCatching {
+            val lexicon = asset(BN_WORDS).orEmpty()
+            val common = asset(BN_COMMON).orEmpty()
+            bangla.loadWordList(lexicon + "\n" + common)
+        }
+        runCatching { asset(BN_NEXT)?.let { banglaBigrams.loadSeed(it) } }
         runCatching { appContext.assets.open(EN_WORDS).bufferedReader().use { english.loadWordList(it.readText()) } }
         runCatching {
             appContext.assets.open(JUKTAKKHOR).bufferedReader().use { Conjuncts.setFromList(it.readText()) }
@@ -150,6 +160,8 @@ class DictionaryRepository(private val appContext: Context) {
     companion object {
         private const val BN_DICT = "dictionary.tsv"
         private const val BN_WORDS = "words.tsv"
+        private const val BN_COMMON = "common_words.tsv"
+        private const val BN_NEXT = "next_words.tsv"
         private const val EN_WORDS = "english_words.txt"
         private const val JUKTAKKHOR = "juktakkhor.txt"
         private const val BN_LEARNED = "bn_learned.tsv"
