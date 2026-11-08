@@ -2,7 +2,7 @@
 
 **Status: production access granted (August 2026).** Closed testing is complete and
 the app is cleared to publish to the production track. The current production
-candidate is **1.0.9 (versionCode 10)**.
+candidate is **1.0.10 (versionCode 11)**.
 
 This file tracked the road from a working build to a publishable app. Phases 0–2
 are done; what remains is the launch itself (Phase 5) and the quality work in

@@ -22,7 +22,11 @@ the phonetic engine and word-suggestion logic were ported from C++ to Kotlin.
   (bigrams), per language, stored on-device.
 - **Personal dictionary** — words you type are saved and suggested later;
   **long-press a suggestion to forget it**.
-- **Two symbol pages** + **emoji panel** (categorised).
+- **Two symbol pages** + **emoji panel** (categorised, with a recently-used tab).
+- **Clipboard history** — the 📋 button lists text you copied (on-device only,
+  unpinned clips expire after 1 hour, passwords and sensitive clips skipped).
+- **Editing shortcuts** — long-press A / C / V / X / Z for select all, copy, paste,
+  cut and undo; slide along the spacebar to move the cursor.
 - **Bangla signs** — chandrabindu `ঁ`, hasanta `্`, visarga `ঃ`, dari `।`, with
   long-press for the literal `^` / `` ` `` characters.
 - **Material 3** UI, **light/dark** theme following the system, **adjustable key

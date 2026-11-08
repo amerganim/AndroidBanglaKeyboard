@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.amerganim.banglakeyboard.R
+import com.amerganim.banglakeyboard.ime.EditAction
 import com.amerganim.banglakeyboard.ime.KeyboardViewModel
 
 /**
@@ -29,6 +30,8 @@ private class Fk(
     val shiftToken: String? = null,
     val longLabel: String? = null,
     val longToken: String? = null,
+    /** Long-press editing shortcut, for keys at the QWERTY z/x/c/v positions. */
+    val edit: EditAction? = null,
 )
 
 // Full coverage of every Bangla letter & sign across tap / Shift / long-press.
@@ -59,10 +62,10 @@ private val ROW2 = listOf(
 )
 
 private val ROW3 = listOf(
-    Fk("য", "z"),
-    Fk("ক্ষ", "kSh"),
-    Fk("চ", "c", "ছ", "chh"),
-    Fk("ভ", "v"), // clean ভ key (ব is on the adjacent b key)
+    Fk("য", "z", edit = EditAction.UNDO),
+    Fk("ক্ষ", "kSh", edit = EditAction.CUT),
+    Fk("চ", "c", "ছ", "chh", edit = EditAction.COPY),
+    Fk("ভ", "v", edit = EditAction.PASTE), // clean ভ key (ব is on the adjacent b key)
     Fk("ব", "b", "ভ", "bh"),
     Fk("ন", "n", "ণ", "N"),
     Fk("ম", "m", "ং", "ng", "ঁ", "^"),
@@ -108,8 +111,10 @@ private fun RowScope.FixedKey(k: Fk, vm: KeyboardViewModel) {
         onClick = { vm.onToken(token) },
         modifier = Modifier.weight(1f),
         label = label,
-        onLongPress = k.longToken?.let { lt -> { vm.onToken(lt) } },
+        onLongPress = k.longToken?.let { lt -> { vm.onToken(lt) } }
+            ?: k.edit?.let { e -> { vm.onEditAction(e) } },
         hint = if (!useShift) k.longLabel else null,
+        hintIcon = if (k.longToken == null) k.edit?.let(::editIcon) else null,
         height = vm.keySize.rowHeight,
     )
 }

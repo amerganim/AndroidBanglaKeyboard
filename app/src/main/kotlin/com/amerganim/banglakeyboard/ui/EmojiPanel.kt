@@ -29,22 +29,30 @@ import androidx.compose.material3.Text
 import com.amerganim.banglakeyboard.R
 import com.amerganim.banglakeyboard.ime.KeyboardViewModel
 
-/** Emoji picker shown in place of the keys. Tap an emoji to insert it. */
+/**
+ * Emoji picker shown in place of the keys. Tap an emoji to insert it. The first tab
+ * holds recently used emojis and is where the panel opens once there are any.
+ */
 @Composable
 fun EmojiPanel(vm: KeyboardViewModel, modifier: Modifier = Modifier) {
-    var category by remember { mutableIntStateOf(0) }
+    // Snapshot the recents when the panel opens, so the grid doesn't reshuffle under
+    // the user's finger as they tap emojis; it refreshes the next time it opens.
+    val tabs = remember {
+        listOf(EmojiCategory(RECENT_ICON, vm.recentEmojis)) + EmojiCategories
+    }
+    var category by remember { mutableIntStateOf(if (vm.recentEmojis.isNotEmpty()) 0 else 1) }
     val colors = MaterialTheme.colorScheme
     val rowHeight = vm.keySize.rowHeight
 
     Column(modifier.fillMaxWidth()) {
         // Category tabs.
         Row(Modifier.fillMaxWidth()) {
-            EmojiCategories.forEachIndexed { index, cat ->
+            tabs.forEachIndexed { index, cat ->
                 val selected = index == category
                 Box(
                     Modifier
                         .weight(1f)
-                        .height(38.dp)
+                        .height(PANEL_HEADER_HEIGHT)
                         .background(if (selected) colors.secondaryContainer else colors.background)
                         .clickable { category = index },
                     contentAlignment = Alignment.Center,
@@ -55,11 +63,23 @@ fun EmojiPanel(vm: KeyboardViewModel, modifier: Modifier = Modifier) {
         }
 
         // Emoji grid for the selected category.
-        LazyVerticalGrid(
+        val emojis = tabs[category].emojis
+        if (emojis.isEmpty()) {
+            Box(
+                Modifier.fillMaxWidth().height(panelBodyHeight(rowHeight)).padding(24.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    stringResource(R.string.emoji_recent_empty),
+                    color = colors.onSurfaceVariant,
+                    textAlign = TextAlign.Center,
+                )
+            }
+        } else LazyVerticalGrid(
             columns = GridCells.Fixed(8),
-            modifier = Modifier.fillMaxWidth().height(rowHeight * 3.2f),
+            modifier = Modifier.fillMaxWidth().height(panelBodyHeight(rowHeight)),
         ) {
-            items(EmojiCategories[category].emojis) { e ->
+            items(emojis) { e ->
                 Box(
                     Modifier
                         .height(rowHeight)
@@ -102,6 +122,9 @@ fun EmojiPanel(vm: KeyboardViewModel, modifier: Modifier = Modifier) {
 }
 
 private class EmojiCategory(val icon: String, val emojis: List<String>)
+
+/** Tab icon for recently used emojis. */
+private const val RECENT_ICON = "🕘"
 
 private fun row(s: String) = s.split(" ").filter { it.isNotBlank() }
 

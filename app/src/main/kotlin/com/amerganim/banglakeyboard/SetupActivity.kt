@@ -61,6 +61,7 @@ import com.amerganim.banglakeyboard.ui.PolicyScreen
 import com.amerganim.banglakeyboard.ui.openPlayStoreListing
 import com.amerganim.banglakeyboard.ui.sendFeedbackEmail
 import com.amerganim.banglakeyboard.ui.theme.BanglaKeyboardTheme
+import java.io.File
 import java.util.Locale
 
 private enum class Screen { SETUP, ONBOARDING, GUIDE, AMADER_GUIDE, HELP, POLICY }
@@ -286,6 +287,20 @@ private fun SetupScreen(
             subtitle = stringResource(R.string.smart_conjunct_desc),
             checked = smart,
             onCheckedChange = { smart = it; prefs.smartConjunct = it },
+        )
+
+        var clipboardHistory by remember { mutableStateOf(prefs.clipboardHistory) }
+        SettingSwitch(
+            title = stringResource(R.string.clipboard_setting),
+            subtitle = stringResource(R.string.clipboard_setting_desc),
+            checked = clipboardHistory,
+            onCheckedChange = {
+                clipboardHistory = it
+                prefs.clipboardHistory = it
+                // Erase right away, even if the keyboard isn't running; a running
+                // keyboard also drops its in-memory copy when it next opens.
+                if (!it) File(context.noBackupFilesDir, "clipboard_history.tsv").delete()
+            },
         )
 
         ClearLearnedSetting(prefs)

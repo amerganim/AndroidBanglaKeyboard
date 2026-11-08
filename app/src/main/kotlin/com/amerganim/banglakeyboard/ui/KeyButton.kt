@@ -30,6 +30,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -72,9 +73,18 @@ fun KeyButton(
     repeatOnHold: Boolean = false,
     onLongPress: (() -> Unit)? = null,
     hint: String? = null,
+    /** Small corner icon advertising a long-press shortcut (e.g. copy on C). */
+    hintIcon: ImageVector? = null,
     height: Dp = 54.dp,
     popupChars: List<Char>? = null,
     onPopupChar: ((Char) -> Unit)? = null,
+    /**
+     * Spacebar cursor control: when set, sliding sideways on the key calls
+     * [onDragStart] once and then [onDragStep] with whole character steps
+     * (negative = left); a plain tap still fires [onClick].
+     */
+    onDragStart: (() -> Unit)? = null,
+    onDragStep: ((Int) -> Unit)? = null,
 ) {
     val colors = MaterialTheme.colorScheme
     val interaction = remember { MutableInteractionSource() }
@@ -93,6 +103,12 @@ fun KeyButton(
 
     val hasPopup = !popupChars.isNullOrEmpty() && onPopupChar != null
     val clickModifier = when {
+        onDragStep != null -> Modifier.tapOrSlide(
+            onClick = onClick,
+            onSlideStart = onDragStart ?: {},
+            onSlideStep = onDragStep,
+            onPressedChange = { pressedByHold = it },
+        )
         repeatOnHold -> Modifier.repeatingClickable(
             onClick = onClick,
             onPressedChange = { pressedByHold = it },
@@ -145,6 +161,16 @@ fun KeyButton(
                     .align(Alignment.TopEnd)
                     .padding(horizontal = 5.dp, vertical = 1.dp)
                     .clearAndSetSemantics {},
+            )
+        } else if (hintIcon != null) {
+            Icon(
+                imageVector = hintIcon,
+                contentDescription = null,
+                tint = contentColor.copy(alpha = 0.45f),
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(horizontal = 4.dp, vertical = 3.dp)
+                    .size(10.dp),
             )
         }
         when {
@@ -221,6 +247,61 @@ private fun Modifier.tapOrLongPress(
             onTap = { currentClick() },
             onLongPress = { currentLong() },
         )
+    }
+}
+
+/**
+ * Tap fires [onClick]. Sliding sideways past a small threshold instead enters cursor
+ * mode: [onSlideStart] once, then [onSlideStep] for every [stepDp] of travel. The
+ * finger keeps moving the cursor until it is lifted; no click fires after a slide.
+ */
+@Composable
+private fun Modifier.tapOrSlide(
+    onClick: () -> Unit,
+    onSlideStart: () -> Unit,
+    onSlideStep: (Int) -> Unit,
+    onPressedChange: (Boolean) -> Unit,
+    stepDp: Dp = 12.dp,
+): Modifier {
+    val currentClick by rememberUpdatedState(onClick)
+    val currentStart by rememberUpdatedState(onSlideStart)
+    val currentStep by rememberUpdatedState(onSlideStep)
+    val currentPressed by rememberUpdatedState(onPressedChange)
+    return this.pointerInput(Unit) {
+        val stepPx = stepDp.toPx()
+        val slop = viewConfiguration.touchSlop
+        awaitEachGesture {
+            val down = awaitFirstDown(requireUnconsumed = false)
+            currentPressed(true)
+            var totalX = 0f
+            var usedX = 0f
+            var sliding = false
+            var lifted = false
+            while (true) {
+                val event = awaitPointerEvent()
+                val change = event.changes.firstOrNull { it.id == down.id } ?: break
+                if (!change.pressed) {
+                    lifted = true
+                    break
+                }
+                totalX += change.positionChange().x
+                if (!sliding && kotlin.math.abs(totalX) > slop) {
+                    sliding = true
+                    usedX = if (totalX > 0) slop else -slop
+                    currentStart()
+                }
+                if (sliding) {
+                    change.consume()
+                    val steps = ((totalX - usedX) / stepPx).toInt()
+                    if (steps != 0) {
+                        currentStep(steps)
+                        usedX += steps * stepPx
+                    }
+                }
+            }
+            currentPressed(false)
+            if (lifted && !sliding) currentClick()
+        }
     }
 }
 

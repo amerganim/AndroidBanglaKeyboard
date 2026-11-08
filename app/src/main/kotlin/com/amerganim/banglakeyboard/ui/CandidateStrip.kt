@@ -2,6 +2,7 @@ package com.amerganim.banglakeyboard.ui
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ContentPaste
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -29,8 +31,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 /**
- * The bar above the keys: scrollable suggestion / next-word chips on the left and a
- * voice-input (mic) button on the right. Tap a chip to commit; long-press to forget.
+ * The bar above the keys: scrollable suggestion / next-word chips on the left, then
+ * the clipboard-history and voice-input (mic) buttons. Tap a chip to commit;
+ * long-press to forget.
  */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -42,6 +45,8 @@ fun CandidateStrip(
     onMicStop: () -> Unit,
     listening: Boolean,
     modifier: Modifier = Modifier,
+    onClipboard: (() -> Unit)? = null,
+    clipboardOpen: Boolean = false,
 ) {
     val colors = MaterialTheme.colorScheme
     Row(
@@ -86,6 +91,21 @@ fun CandidateStrip(
                         )
                     }
                 }
+            }
+        }
+        if (onClipboard != null) {
+            Box(
+                Modifier
+                    .fillMaxHeight()
+                    .width(44.dp)
+                    .clickable(onClick = onClipboard),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.ContentPaste,
+                    contentDescription = stringResource(R.string.key_clipboard),
+                    tint = if (clipboardOpen) colors.primary else colors.onSurfaceVariant,
+                )
             }
         }
         // Push-to-talk: hold to listen, release to insert.

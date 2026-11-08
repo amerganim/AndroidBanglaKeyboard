@@ -71,4 +71,20 @@
     <string name="amader_guide_title">আমাদের লেআউট — গাইড</string>
     <string name="help_title">সাহায্য ও প্রশ্নোত্তর</string>
     <string name="policy_title">গোপনীয়তা নীতি</string>
+
+    <!-- Clipboard history, editing shortcuts, recent emojis -->
+    <string name="key_clipboard">ক্লিপবোর্ড ইতিহাস</string>
+    <string name="clipboard_title">ক্লিপবোর্ড</string>
+    <string name="clipboard_empty">আপনি যা কপি করবেন তা এখানে ১ ঘণ্টা থাকবে। রেখে দিতে চাইলে পিন করুন।</string>
+    <string name="clipboard_off">ক্লিপবোর্ড ইতিহাস বন্ধ আছে। অ্যাপের সেটিংস থেকে চালু করতে পারেন।</string>
+    <string name="clipboard_clear">মুছুন</string>
+    <string name="clipboard_pin">পিন করুন</string>
+    <string name="clipboard_unpin">পিন সরান</string>
+    <string name="clipboard_delete">মুছে ফেলুন</string>
+    <string name="clipboard_setting">ক্লিপবোর্ড ইতিহাস</string>
+    <string name="clipboard_setting_desc">আপনি যা কপি করেন তা মনে রাখে, যাতে 📋 বোতাম থেকে আবার পেস্ট করতে পারেন। শুধু এই ফোনেই থাকে; পিন না করা লেখা ১ ঘণ্টা পর মুছে যায়, আর পাসওয়ার্ড কখনো সংরক্ষণ হয় না। বন্ধ করলে ইতিহাস মুছে যাবে।</string>
+    <string name="emoji_recent_empty">আপনার ব্যবহার করা ইমোজি এখানে দেখাবে।</string>
+    <string name="select_text_first">আগে কিছু লেখা সিলেক্ট করুন</string>
+    <string name="copied">কপি হয়েছে</string>
+    <string name="clipboard_is_empty">পেস্ট করার মতো কিছু নেই</string>
 </resources>
