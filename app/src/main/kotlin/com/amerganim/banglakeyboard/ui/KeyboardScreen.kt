@@ -33,6 +33,8 @@ fun KeyboardScreen(vm: KeyboardViewModel) {
                         onMicStart = vm::micPressStart,
                         onMicStop = vm::micPressEnd,
                         listening = vm.listening,
+                        onClipboard = vm::toggleClipboard,
+                        clipboardOpen = vm.clipboardPanel,
                     )
                     QwertyLayout(vm)
                 }

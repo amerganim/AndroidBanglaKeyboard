@@ -208,6 +208,38 @@ private fun faqs(): List<Faq> = listOf(
         ),
     ),
     Faq(
+        tr("কপি, পেস্ট, কাট কীভাবে করব?", "How do I copy, paste or cut?"),
+        tr(
+            "অক্ষরের কী-তে দীর্ঘক্ষণ চাপুন: A = সব সিলেক্ট, C = কপি, V = পেস্ট, X = কাট, " +
+                "Z = আনডু। এই কী-গুলোর কোণে ছোট আইকন দেখা যায়। আমাদের লেআউটে একই জায়গার " +
+                "কী-তে (য, ক্ষ, চ, ভ) একই কাজ হয়।",
+            "Long-press a letter key: A = select all, C = copy, V = paste, X = cut, Z = undo. " +
+                "Those keys show a small icon in the corner. In the Amader layout the keys in " +
+                "the same spots (য, ক্ষ, চ, ভ) do the same.",
+        ),
+    ),
+    Faq(
+        tr("ক্লিপবোর্ড ইতিহাস কী?", "What is clipboard history?"),
+        tr(
+            "সাজেশন বারের 📋 বোতাম চাপলে সম্প্রতি কপি করা লেখাগুলো দেখা যায় — একটিতে চাপলেই " +
+                "পেস্ট হয়। পিন না করা লেখা ১ ঘণ্টা পর মুছে যায়; পিন করলে থেকে যায়। পাসওয়ার্ড " +
+                "কখনো সংরক্ষণ হয় না, আর সব কিছু শুধু আপনার ফোনেই থাকে। সেটআপ পর্দা থেকে এটি বন্ধ " +
+                "করা যায়।",
+            "Tap the 📋 button in the suggestion bar to see text you copied recently — tap one to " +
+                "paste it. Unpinned clips are deleted after 1 hour; pin one to keep it. Passwords " +
+                "are never saved, and everything stays on your phone. You can turn it off on the " +
+                "setup screen.",
+        ),
+    ),
+    Faq(
+        tr("কার্সর কীভাবে সরাব?", "How do I move the cursor?"),
+        tr(
+            "স্পেসবারে আঙুল রেখে বাঁয়ে বা ডানে টানুন — কার্সর অক্ষর ধরে ধরে সরবে।",
+            "Slide your finger left or right along the spacebar — the cursor moves one " +
+                "character at a time.",
+        ),
+    ),
+    Faq(
         tr("ভয়েস টাইপিং কাজ করছে না।", "Voice typing isn't working."),
         tr(
             "মাইক্রোফোন কী-তে প্রথমবার চাপলে মাইক্রোফোনের অনুমতি চাওয়া হয় — সেটি অনুমোদন করুন। " +

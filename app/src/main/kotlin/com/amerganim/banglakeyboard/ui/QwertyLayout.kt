@@ -14,7 +14,12 @@ import androidx.compose.material.icons.automirrored.filled.Backspace
 import androidx.compose.material.icons.automirrored.filled.KeyboardReturn
 import androidx.compose.material.icons.automirrored.filled.KeyboardTab
 import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.filled.ContentCut
+import androidx.compose.material.icons.filled.ContentPaste
 import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.SelectAll
+import androidx.compose.material.icons.automirrored.filled.Undo
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Search
@@ -24,6 +29,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.amerganim.banglakeyboard.R
+import com.amerganim.banglakeyboard.ime.EditAction
 import com.amerganim.banglakeyboard.ime.KeyboardMode
 import com.amerganim.banglakeyboard.ime.KeyboardViewModel
 
@@ -39,6 +45,8 @@ fun QwertyLayout(vm: KeyboardViewModel, modifier: Modifier = Modifier) {
     Column(modifier = modifier.fillMaxWidth().padding(horizontal = 2.dp, vertical = 4.dp)) {
         if (vm.emojiPanel) {
             EmojiPanel(vm) // brings its own bottom bar (ABC / space / backspace)
+        } else if (vm.clipboardPanel) {
+            ClipboardPanel(vm) // likewise
         } else {
             when {
                 vm.symbolsPage && vm.symbolsPageIndex == 0 -> SymbolPage1(vm)
@@ -148,6 +156,9 @@ private fun BottomRow(vm: KeyboardViewModel) {
                 KeyboardMode.BANGLA_FIXED -> "আমাদের"
             },
             height = vm.keySize.rowHeight,
+            // Slide along the spacebar to move the cursor.
+            onDragStart = vm::onCursorDragStart,
+            onDragStep = vm::onCursorMove,
         )
         CharKey('.', vm)
         KeyButton(
@@ -225,9 +236,12 @@ private fun RowScope.CharKey(c: Char, vm: KeyboardViewModel) {
     val banglaDigits = vm.mode != KeyboardMode.ENGLISH && !vm.numericField
     // Top-row letters long-press to their digit (Bangla digit in Bangla modes).
     val digit = TOP_ROW_DIGITS[c]
+    // Letter keys A/X/C/V/Z long-press to select-all / cut / copy / paste / undo.
+    val edit = EDIT_KEYS[c]
     val longPress: (() -> Unit)? = when {
         hasLiteralAlternate -> { { vm.onLiteral(c) } }
         digit != null -> { { vm.onChar(digit) } }
+        edit != null -> { { vm.onEditAction(edit) } }
         else -> null
     }
     // The "।"/"." key long-presses to a punctuation popup — this is the only way to
@@ -246,10 +260,29 @@ private fun RowScope.CharKey(c: Char, vm: KeyboardViewModel) {
         label = displayLabel(shown, vm.mode, banglaDigits),
         onLongPress = longPress,
         hint = hint,
+        hintIcon = edit?.let(::editIcon),
         height = vm.keySize.rowHeight,
         popupChars = if (isPeriodKey) PUNCTUATION_POPUP else null,
         onPopupChar = if (isPeriodKey) { ch -> vm.onLiteral(ch) } else null,
     )
+}
+
+/** Letter keys whose long-press is an editing shortcut (same keys as Ctrl+A/X/C/V/Z). */
+private val EDIT_KEYS = mapOf(
+    'a' to EditAction.SELECT_ALL,
+    'x' to EditAction.CUT,
+    'c' to EditAction.COPY,
+    'v' to EditAction.PASTE,
+    'z' to EditAction.UNDO,
+)
+
+/** The small corner icon shown on a key that has an editing shortcut. */
+internal fun editIcon(action: EditAction): ImageVector = when (action) {
+    EditAction.SELECT_ALL -> Icons.Filled.SelectAll
+    EditAction.CUT -> Icons.Filled.ContentCut
+    EditAction.COPY -> Icons.Filled.ContentCopy
+    EditAction.PASTE -> Icons.Filled.ContentPaste
+    EditAction.UNDO -> Icons.AutoMirrored.Filled.Undo
 }
 
 /** Common punctuation reachable by long-pressing the "।"/"." key. */

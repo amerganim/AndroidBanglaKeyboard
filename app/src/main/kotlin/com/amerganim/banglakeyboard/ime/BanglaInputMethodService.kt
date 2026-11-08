@@ -1,6 +1,8 @@
 package com.amerganim.banglakeyboard.ime
 
 import android.Manifest
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.inputmethodservice.InputMethodService
@@ -30,6 +32,7 @@ import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import com.amerganim.banglakeyboard.R
+import com.amerganim.banglakeyboard.data.ClipboardHistory
 import com.amerganim.banglakeyboard.data.DictionaryRepository
 import com.amerganim.banglakeyboard.data.KeyboardPrefs
 import com.amerganim.banglakeyboard.ui.KeyboardScreen
@@ -38,6 +41,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.File
 
 /**
  * The Android input method. Hosts the Compose keyboard inside the IME window.
@@ -51,7 +56,8 @@ class BanglaInputMethodService :
     InputMethodService(),
     LifecycleOwner,
     ViewModelStoreOwner,
-    SavedStateRegistryOwner {
+    SavedStateRegistryOwner,
+    KeyboardHost {
 
     private val lifecycleRegistry = LifecycleRegistry(this)
     private val store = ViewModelStore()
@@ -83,9 +89,128 @@ class BanglaInputMethodService :
             onMicStop = ::stopVoiceInput,
             onKeyFeedback = ::playKeyClick,
             onKeyHaptic = ::performKeyHaptic,
+            host = this,
         )
+        viewModel.updateRecentEmojis(prefs.recentEmojis)
         clickSoundId = soundPool.load(this, R.raw.key_click, 1)
         scope.launch { repository.load() }
+        scope.launch { loadClipHistory() }
+    }
+
+    // ---- Clipboard history ------------------------------------------------
+
+    private val clipboardManager: ClipboardManager? by lazy { getSystemService(ClipboardManager::class.java) }
+    private val clipHistory = ClipboardHistory()
+    private var clipListening = false
+    private var fieldIsPassword = false
+
+    // Nothing is captured until the saved history has loaded, or the load would
+    // overwrite a clip captured in the meantime.
+    private var clipsLoaded = false
+
+    /**
+     * Kept out of Auto Backup on purpose (noBackupFilesDir): copied text can be
+     * personal, so it never leaves the device, not even in a cloud backup.
+     */
+    private val clipFile: File get() = File(noBackupFilesDir, "clipboard_history.tsv")
+
+    private val clipListener = ClipboardManager.OnPrimaryClipChangedListener { captureClip() }
+
+    private suspend fun loadClipHistory() {
+        val data = withContext(Dispatchers.IO) {
+            runCatching { clipFile.takeIf { it.exists() }?.readText() }.getOrNull()
+        }
+        if (data != null) clipHistory.deserialize(data, System.currentTimeMillis())
+        clipsLoaded = true
+        applyClipboardSetting()
+        captureClip()
+    }
+
+    /** Start/stop listening to match the setting; turning it off erases the history. */
+    private fun applyClipboardSetting() {
+        val enabled = prefs.clipboardHistory
+        viewModel.updateClipboardEnabled(enabled)
+        val cm = clipboardManager ?: return
+        if (enabled && !clipListening) {
+            cm.addPrimaryClipChangedListener(clipListener)
+            clipListening = true
+        } else if (!enabled) {
+            if (clipListening) cm.removePrimaryClipChangedListener(clipListener)
+            clipListening = false
+            clipHistory.clearAll()
+            scope.launch(Dispatchers.IO) { runCatching { clipFile.delete() } }
+        }
+        publishClips()
+    }
+
+    /**
+     * Add the current system clip to the history if it is new text. Skips clips the
+     * source app marked sensitive (passwords, OTPs, card numbers — Android 13+ sets
+     * this flag) and anything copied while a password field is focused.
+     */
+    private fun captureClip() {
+        if (!clipsLoaded || !prefs.clipboardHistory || fieldIsPassword) return
+        val clip = runCatching { clipboardManager?.primaryClip }.getOrNull() ?: return
+        val desc = clip.description
+        val stamp = desc.timestamp
+        if (stamp != 0L && stamp <= prefs.lastClipStamp) return
+        prefs.lastClipStamp = stamp
+        if (desc.extras?.getBoolean(EXTRA_IS_SENSITIVE, false) == true) return
+        if (clip.itemCount == 0) return
+        val text = clip.getItemAt(0).text?.toString() ?: return
+        if (clipHistory.add(text, System.currentTimeMillis())) {
+            saveClips()
+            publishClips()
+        }
+    }
+
+    private fun publishClips() {
+        viewModel.updateClips(clipHistory.clips(System.currentTimeMillis()))
+    }
+
+    private fun saveClips() {
+        val data = clipHistory.serialize()
+        scope.launch(Dispatchers.IO) { runCatching { clipFile.writeText(data) } }
+    }
+
+    override fun readClipboard(): String? = runCatching {
+        clipboardManager?.primaryClip?.takeIf { it.itemCount > 0 }
+            ?.getItemAt(0)?.coerceToText(this)?.toString()
+    }.getOrNull()
+
+    override fun writeClipboard(text: String) {
+        runCatching { clipboardManager?.setPrimaryClip(ClipData.newPlainText("text", text)) }
+    }
+
+    override fun refreshClips() {
+        captureClip()
+        publishClips()
+    }
+
+    override fun pinClip(text: String, pinned: Boolean) {
+        clipHistory.setPinned(text, pinned, System.currentTimeMillis())
+        saveClips()
+        publishClips()
+    }
+
+    override fun removeClip(text: String) {
+        clipHistory.remove(text)
+        saveClips()
+        publishClips()
+    }
+
+    override fun clearClips() {
+        clipHistory.clearUnpinned()
+        saveClips()
+        publishClips()
+    }
+
+    override fun saveRecentEmojis(emojis: List<String>) {
+        prefs.recentEmojis = emojis
+    }
+
+    override fun notice(resId: Int) {
+        Toast.makeText(this, resId, Toast.LENGTH_SHORT).show()
     }
 
     // A bundled click played via SoundPool so it works regardless of the system's
@@ -207,6 +332,7 @@ class BanglaInputMethodService :
     override fun onStartInput(info: EditorInfo?, restarting: Boolean) {
         super.onStartInput(info, restarting)
         val password = isPasswordField(info)
+        fieldIsPassword = password
         val noLearning = password || optsOutOfLearning(info)
         // Only fully hide suggestions for password fields. Other fields (e.g. a
         // search box that sets NO_SUGGESTIONS) still get suggestions; we just
@@ -287,6 +413,8 @@ class BanglaInputMethodService :
         viewModel.updateKeyHaptic(prefs.keyHaptic)
         viewModel.updateSmartConjunct(prefs.smartConjunct)
         applyPendingLearnedClear()
+        applyClipboardSetting()
+        captureClip() // something may have been copied while the keyboard was idle
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
     }
 
@@ -310,6 +438,11 @@ class BanglaInputMethodService :
      */
     private var appliedClearGeneration: Int = 0
 
+    private companion object {
+        /** ClipDescription.EXTRA_IS_SENSITIVE (API 33), spelled out for older SDKs. */
+        const val EXTRA_IS_SENSITIVE = "android.content.extra.IS_SENSITIVE"
+    }
+
     override fun onFinishInputView(finishingInput: Boolean) {
         finishVoiceInput()
         super.onFinishInputView(finishingInput)
@@ -317,6 +450,7 @@ class BanglaInputMethodService :
     }
 
     override fun onDestroy() {
+        if (clipListening) clipboardManager?.removePrimaryClipChangedListener(clipListener)
         finishVoiceInput()
         soundPool.release()
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)

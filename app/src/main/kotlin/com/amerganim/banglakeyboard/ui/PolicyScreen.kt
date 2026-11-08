@@ -74,6 +74,25 @@ fun PolicyScreen(onBack: () -> Unit) {
                     ),
                 )
             }
+            Section(tr("ক্লিপবোর্ড ইতিহাস", "Clipboard history")) {
+                Text(
+                    tr(
+                        "আবার পেস্ট করার সুবিধার জন্য কিবোর্ডটি আপনার কপি করা লেখা মনে রাখে। এটি " +
+                            "শুধু আপনার ডিভাইসে থাকে, ক্লাউড ব্যাকআপেও যায় না, এবং কোথাও পাঠানো হয় " +
+                            "না। পিন না করা লেখা ১ ঘণ্টা পর মুছে যায় (সর্বোচ্চ ২০টি থাকে); পিন করা " +
+                            "লেখা আপনি না মোছা পর্যন্ত থাকে। পাসওয়ার্ড ক্ষেত্র থেকে কপি করা বা " +
+                            "সংবেদনশীল হিসেবে চিহ্নিত লেখা (যেমন পাসওয়ার্ড, ওটিপি) কখনো সংরক্ষণ হয় " +
+                            "না। 📋 প্যানেল থেকে মুছতে পারেন, আর সেটিংসে বন্ধ করলে সঙ্গে সঙ্গে মুছে যায়।",
+                        "So you can paste it again, the keyboard remembers text you copy. It stays " +
+                            "only on your device, is excluded from cloud backups, and is never sent " +
+                            "anywhere. Unpinned clips are deleted after 1 hour (at most 20 are kept); " +
+                            "pinned clips stay until you remove them. Text copied from a password " +
+                            "field or marked as sensitive (such as passwords or one-time codes) is " +
+                            "never saved. Clear it from the 📋 panel, or turn it off in settings, " +
+                            "which erases it immediately.",
+                    ),
+                )
+            }
             Section(tr("সংবেদনশীল ক্ষেত্র", "Sensitive fields")) {
                 Text(
                     tr(

@@ -5,6 +5,41 @@ EN text into `en-US` and the BN text into `bn-BD`.
 
 ---
 
+## 1.0.10 (versionCode 11)
+
+Editing features asked for in a Play review.
+
+**Changes**
+- Clipboard history: the 📋 button in the suggestion bar lists recently copied
+  text; tap to paste, pin to keep. On-device only and excluded from cloud backups;
+  unpinned clips expire after 1 hour (max 20); clips copied in password fields or
+  flagged sensitive by the source app are skipped. On by default, with a setting
+  that erases it when turned off. Privacy policy updated to match.
+- Long-press shortcuts: A select all, C copy, V paste, X cut, Z undo (small corner
+  icons on those keys; the Amader keys in the same spots do the same).
+- Spacebar cursor control: slide along the spacebar to move the cursor.
+- Recently used emojis tab (opens first once you have used some).
+- Emoji and clipboard panels now match the keys' height, so the keyboard no
+  longer grows when they open.
+
+### What's new — EN (`en-US`)
+```
+• Clipboard history: tap 📋 to paste anything you copied in the last hour. Pin clips to keep them. Stays on your phone; passwords are never saved.
+• Long-press C to copy, V to paste, X to cut, A to select all, Z to undo.
+• Slide on the spacebar to move the cursor.
+• Recently used emojis tab.
+```
+
+### What's new — BN (`bn-BD`)
+```
+• ক্লিপবোর্ড ইতিহাস: 📋 চাপুন, গত এক ঘণ্টায় কপি করা যেকোনো লেখা পেস্ট করুন। দরকারি লেখা পিন করে রাখুন। সব ফোনেই থাকে; পাসওয়ার্ড কখনো সংরক্ষণ হয় না।
+• দীর্ঘক্ষণ চাপুন: C = কপি, V = পেস্ট, X = কাট, A = সব সিলেক্ট, Z = আনডু।
+• স্পেসবারে আঙুল টেনে কার্সর সরান।
+• সাম্প্রতিক ইমোজির ট্যাব।
+```
+
+---
+
 ## 1.0.9 (versionCode 10)
 
 Typing fixes and much smarter Bangla suggestions.

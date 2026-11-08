@@ -46,6 +46,24 @@ class KeyboardPrefs(context: Context) {
         get() = prefs.getBoolean(SMART_CONJUNCT, true)
         set(value) = prefs.edit().putBoolean(SMART_CONJUNCT, value).apply()
 
+    /**
+     * Clipboard history: remember copied text (on this device only) so it can be
+     * pasted again from the keyboard. On by default; turning it off erases it.
+     */
+    var clipboardHistory: Boolean
+        get() = prefs.getBoolean(CLIPBOARD_HISTORY, true)
+        set(value) = prefs.edit().putBoolean(CLIPBOARD_HISTORY, value).apply()
+
+    /** Timestamp of the last system clip already captured (so it isn't re-added). */
+    var lastClipStamp: Long
+        get() = prefs.getLong(LAST_CLIP_STAMP, 0L)
+        set(value) = prefs.edit().putLong(LAST_CLIP_STAMP, value).apply()
+
+    /** Recently used emojis, newest first. */
+    var recentEmojis: List<String>
+        get() = prefs.getString(RECENT_EMOJIS, "").orEmpty().split(SEP).filter { it.isNotEmpty() }
+        set(value) = prefs.edit().putString(RECENT_EMOJIS, value.joinToString(SEP)).apply()
+
     /** App UI language: "en" or "bn". Empty = follow the system locale. */
     var appLang: String
         get() = prefs.getString(APP_LANG, "") ?: ""
@@ -67,5 +85,9 @@ class KeyboardPrefs(context: Context) {
         const val SMART_CONJUNCT = "smart_conjunct"
         const val APP_LANG = "app_lang"
         const val ONBOARDING_SEEN = "onboarding_seen"
+        const val CLIPBOARD_HISTORY = "clipboard_history"
+        const val LAST_CLIP_STAMP = "last_clip_stamp"
+        const val RECENT_EMOJIS = "recent_emojis"
+        const val SEP = "\u001F" // unit separator: never part of an emoji
     }
 }

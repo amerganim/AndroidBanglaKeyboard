@@ -1,5 +1,6 @@
 package com.amerganim.banglakeyboard.ime
 
+import android.os.Build
 import android.text.InputType
 import android.text.TextUtils
 import android.view.KeyEvent
@@ -8,6 +9,8 @@ import android.view.inputmethod.InputConnection
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.amerganim.banglakeyboard.R
+import com.amerganim.banglakeyboard.data.Clip
 import com.amerganim.banglakeyboard.data.DictionaryRepository
 import com.amerganim.banglakeyboard.data.KeySize
 import com.amerganim.banglakeyboard.data.Lang
@@ -31,6 +34,7 @@ class KeyboardViewModel(
     private val onMicStop: () -> Unit = {},
     private val onKeyFeedback: () -> Unit = {},
     private val onKeyHaptic: () -> Unit = {},
+    private val host: KeyboardHost = KeyboardHost.None,
 ) {
     var mode by mutableStateOf(KeyboardMode.BANGLA_PHONETIC)
         private set
@@ -54,6 +58,22 @@ class KeyboardViewModel(
 
     /** Whether the emoji panel is showing instead of the keys. */
     var emojiPanel by mutableStateOf(false)
+        private set
+
+    /** Whether the clipboard-history panel is showing instead of the keys. */
+    var clipboardPanel by mutableStateOf(false)
+        private set
+
+    /** Clipboard history, newest first (kept current by the host). */
+    var clips by mutableStateOf<List<Clip>>(emptyList())
+        private set
+
+    /** False when the user turned clipboard history off in settings. */
+    var clipboardEnabled by mutableStateOf(true)
+        private set
+
+    /** Most recently used emojis, newest first. */
+    var recentEmojis by mutableStateOf<List<String>>(emptyList())
         private set
 
     var keySize by mutableStateOf(KeySize.MEDIUM)
@@ -326,10 +346,11 @@ class KeyboardViewModel(
     fun toggleEmoji() {
         feedback()
         emojiPanel = !emojiPanel
+        clipboardPanel = false
         candidates = emptyList()
     }
 
-    /** Commit an emoji. */
+    /** Commit an emoji and remember it as recently used. */
     fun onEmoji(emoji: String) {
         feedback()
         val ic = connection() ?: return
@@ -337,6 +358,116 @@ class KeyboardViewModel(
         ic.commitText(emoji, 1)
         prevWord = ""
         candidates = emptyList()
+        recentEmojis = (listOf(emoji) + recentEmojis.filter { it != emoji }).take(MAX_RECENT_EMOJIS)
+        host.saveRecentEmojis(recentEmojis)
+    }
+
+    fun updateRecentEmojis(list: List<String>) { recentEmojis = list }
+
+    // ---- Clipboard history ------------------------------------------------
+
+    fun updateClips(list: List<Clip>) { clips = list }
+
+    fun updateClipboardEnabled(enabled: Boolean) {
+        clipboardEnabled = enabled
+        if (!enabled) clips = emptyList()
+    }
+
+    /** Show/hide the clipboard-history panel. */
+    fun toggleClipboard() {
+        feedback()
+        clipboardPanel = !clipboardPanel
+        emojiPanel = false
+        if (clipboardPanel) {
+            connection()?.let { finalizeWord(it) }
+            candidates = emptyList()
+            host.refreshClips()
+        }
+    }
+
+    /** Paste a clip from the history, then return to the keys. */
+    fun onClipPaste(text: String) {
+        feedback()
+        val ic = connection() ?: return
+        finalizeWord(ic)
+        ic.commitText(text, 1)
+        prevWord = ""
+        candidates = emptyList()
+        clipboardPanel = false
+    }
+
+    fun onClipPin(text: String, pinned: Boolean) = host.pinClip(text, pinned)
+    fun onClipDelete(text: String) = host.removeClip(text)
+    fun onClipsClear() = host.clearClips()
+
+    // ---- Editing shortcuts ------------------------------------------------
+
+    /**
+     * Long-press shortcuts (A = select all, X = cut, C = copy, V = paste, Z = undo).
+     * Copy/cut/paste go through the clipboard directly rather than the editor's
+     * context menu, so they also work in editors that don't implement that menu
+     * (e.g. many Compose text fields).
+     */
+    fun onEditAction(action: EditAction) {
+        feedback()
+        val ic = connection() ?: return
+        finalizeWord(ic)
+        prevWord = ""
+        candidates = emptyList()
+        when (action) {
+            EditAction.COPY, EditAction.CUT -> {
+                val selected = ic.getSelectedText(0)?.toString()
+                if (selected.isNullOrEmpty()) {
+                    host.notice(R.string.select_text_first)
+                    return
+                }
+                host.writeClipboard(selected)
+                if (action == EditAction.CUT) ic.commitText("", 1)
+                // Android 13+ shows its own "Copied" confirmation.
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) host.notice(R.string.copied)
+            }
+            EditAction.PASTE -> {
+                val text = host.readClipboard()
+                if (text.isNullOrEmpty()) {
+                    host.notice(R.string.clipboard_is_empty)
+                } else {
+                    ic.commitText(text, 1)
+                }
+            }
+            EditAction.SELECT_ALL -> {
+                if (!ic.performContextMenuAction(android.R.id.selectAll)) {
+                    val before = ic.getTextBeforeCursor(MAX_SELECT_ALL, 0)?.length ?: 0
+                    val selected = ic.getSelectedText(0)?.length ?: 0
+                    val after = ic.getTextAfterCursor(MAX_SELECT_ALL, 0)?.length ?: 0
+                    ic.setSelection(0, before + selected + after)
+                }
+            }
+            EditAction.UNDO -> {
+                val meta = KeyEvent.META_CTRL_ON or KeyEvent.META_CTRL_LEFT_ON
+                ic.sendKeyEvent(KeyEvent(0, 0, KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_Z, 0, meta))
+                ic.sendKeyEvent(KeyEvent(0, 0, KeyEvent.ACTION_UP, KeyEvent.KEYCODE_Z, 0, meta))
+            }
+        }
+    }
+
+    // ---- Spacebar cursor control -----------------------------------------
+
+    /** Sliding along the spacebar started: commit the word being composed. */
+    fun onCursorDragStart() {
+        feedback()
+        connection()?.let { finalizeWord(it) }
+        prevWord = ""
+        candidates = emptyList()
+    }
+
+    /** Move the cursor [steps] characters (negative = left) while sliding on space. */
+    fun onCursorMove(steps: Int) {
+        val ic = connection() ?: return
+        val code = if (steps < 0) KeyEvent.KEYCODE_DPAD_LEFT else KeyEvent.KEYCODE_DPAD_RIGHT
+        repeat(kotlin.math.abs(steps)) {
+            ic.sendKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, code))
+            ic.sendKeyEvent(KeyEvent(KeyEvent.ACTION_UP, code))
+        }
     }
 
     fun updateKeySize(size: KeySize) {
@@ -349,6 +480,7 @@ class KeyboardViewModel(
         symbolsPage = false
         symbolsPageIndex = 0
         emojiPanel = false
+        clipboardPanel = false
         shifted = false
         prevWord = ""
         candidates = emptyList()
@@ -385,6 +517,7 @@ class KeyboardViewModel(
         symbolsPage = numericField
         symbolsPageIndex = 0
         emojiPanel = false
+        clipboardPanel = false
         shifted = false
         noLearn = noLearning
         noSuggest = noSuggestions
@@ -414,6 +547,11 @@ class KeyboardViewModel(
     private companion object {
         // Enough to cover the longest emoji ZWJ sequences (e.g. family emoji).
         const val MAX_GRAPHEME_LOOKBACK = 16
+
+        const val MAX_RECENT_EMOJIS = 32
+
+        // Select-all fallback for editors without the context-menu action.
+        const val MAX_SELECT_ALL = 100_000
 
         // The field's auto-capitalization request bits.
         const val CAP_FLAGS = InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS or

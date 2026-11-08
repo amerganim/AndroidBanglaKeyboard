@@ -1,6 +1,6 @@
 # Privacy Policy — Amader Bangla Keyboard
 
-_Last updated: 2026-06-06_
+_Last updated: 2026-11-08_
 
 Amader Bangla Keyboard ("the app") is an on-screen keyboard (input method) for
 Android. This policy explains what the app does and does not do with your data.
@@ -28,10 +28,26 @@ your device:
 - words you have typed (your personal dictionary);
 - counts of how often you pick suggestions (learning data);
 - next-word ("bigram") statistics learned from your typing;
-- your key-size preference.
+- your recently used emojis;
+- your key-size preference;
+- your **clipboard history** (see below).
 
 You can remove a learned word at any time by **long-pressing it** in the
 suggestion bar. Uninstalling the app deletes all of this data.
+
+## Clipboard history
+
+So you can paste something again later, the keyboard remembers text you copy while
+it is your active keyboard. This history:
+
+- is stored **only on your device**, in storage that is **excluded from cloud
+  backups**, and is never sent anywhere;
+- keeps unpinned clips for **1 hour** (at most 20), then deletes them; clips you
+  **pin** stay until you remove them;
+- **skips** anything copied while a password field is open, and anything the app
+  you copied from marks as sensitive (such as passwords or one-time codes);
+- can be cleared from the 📋 panel at any time, and turned off in the app's
+  settings, which erases it immediately.
 
 ## Sensitive fields
 
