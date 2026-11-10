@@ -21,7 +21,7 @@
     <string name="size_small">ছোট</string>
     <string name="size_medium">মাঝারি</string>
     <string name="size_large">বড়</string>
-    <string name="theme_note">কিবোর্ডটি আপনার সিস্টেমের লাইট/ডার্ক থিম অনুসরণ করে।</string>
+    <string name="theme_note">\"সিস্টেম\" ফোনের লাইট/ডার্ক মোড অনুসরণ করে। থিম শুধু কিবোর্ডের রং বদলায়।</string>
     <string name="key_sound">কী চাপার শব্দ</string>
     <string name="key_haptic">কী চাপলে কম্পন</string>
     <string name="key_haptic_desc">প্রতিবার টাইপ করার সময় হালকা কম্পন। এর জন্য সিস্টেম সেটিংসে কম্পন চালু থাকতে হবে।</string>
@@ -87,4 +87,19 @@
     <string name="select_text_first">আগে কিছু লেখা সিলেক্ট করুন</string>
     <string name="copied">কপি হয়েছে</string>
     <string name="clipboard_is_empty">পেস্ট করার মতো কিছু নেই</string>
+
+    <!-- Keyboard themes, key borders, emoji skin tones -->
+    <string name="keyboard_theme">কিবোর্ডের থিম</string>
+    <string name="key_borders">কী-এর বর্ডার</string>
+    <string name="key_borders_desc">প্রতিটি কী-এর পেছনে ব্যাকগ্রাউন্ড দেখায়। পরিষ্কার, বর্ডারহীন চেহারার জন্য বন্ধ করুন।</string>
+    <string name="theme_system">সিস্টেম</string>
+    <string name="theme_light">লাইট</string>
+    <string name="theme_dark">ডার্ক</string>
+    <string name="theme_black">কালো</string>
+    <string name="theme_bangla_green">বাংলা সবুজ</string>
+    <string name="theme_ocean">সমুদ্র</string>
+    <string name="theme_midnight">মধ্যরাত</string>
+    <string name="theme_rose">গোলাপি</string>
+    <string name="theme_sunset">সূর্যাস্ত</string>
+    <string name="theme_lavender">ল্যাভেন্ডার</string>
 </resources>

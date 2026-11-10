@@ -60,7 +60,9 @@ import com.amerganim.banglakeyboard.ui.OnboardingScreen
 import com.amerganim.banglakeyboard.ui.PolicyScreen
 import com.amerganim.banglakeyboard.ui.openPlayStoreListing
 import com.amerganim.banglakeyboard.ui.sendFeedbackEmail
+import com.amerganim.banglakeyboard.ui.ThemePicker
 import com.amerganim.banglakeyboard.ui.theme.BanglaKeyboardTheme
+import com.amerganim.banglakeyboard.ui.theme.KeyboardTheme
 import java.io.File
 import java.util.Locale
 
@@ -260,10 +262,24 @@ private fun SetupScreen(
                 ) { Text(stringResource(keySizeLabel(size))) }
             }
         }
+
+        Text(stringResource(R.string.keyboard_theme), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+        var theme by remember { mutableStateOf(KeyboardTheme.fromName(prefs.keyboardTheme)) }
+        var keyBorders by remember { mutableStateOf(prefs.keyBorders) }
+        ThemePicker(selected = theme, borders = keyBorders) {
+            theme = it
+            prefs.keyboardTheme = it.name
+        }
         Text(
             stringResource(R.string.theme_note),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        SettingSwitch(
+            title = stringResource(R.string.key_borders),
+            subtitle = stringResource(R.string.key_borders_desc),
+            checked = keyBorders,
+            onCheckedChange = { keyBorders = it; prefs.keyBorders = it },
         )
 
         var keySound by remember { mutableStateOf(prefs.keySound) }

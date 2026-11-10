@@ -36,6 +36,8 @@ import com.amerganim.banglakeyboard.data.ClipboardHistory
 import com.amerganim.banglakeyboard.data.DictionaryRepository
 import com.amerganim.banglakeyboard.data.KeyboardPrefs
 import com.amerganim.banglakeyboard.ui.KeyboardScreen
+import com.amerganim.banglakeyboard.ui.SkinTones
+import com.amerganim.banglakeyboard.ui.theme.KeyboardTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -92,6 +94,8 @@ class BanglaInputMethodService :
             host = this,
         )
         viewModel.updateRecentEmojis(prefs.recentEmojis)
+        viewModel.updateEmojiTones(SkinTones.decode(prefs.emojiSkinTones))
+        applyLookSettings()
         clickSoundId = soundPool.load(this, R.raw.key_click, 1)
         scope.launch { repository.load() }
         scope.launch { loadClipHistory() }
@@ -207,6 +211,16 @@ class BanglaInputMethodService :
 
     override fun saveRecentEmojis(emojis: List<String>) {
         prefs.recentEmojis = emojis
+    }
+
+    override fun saveEmojiTones(tones: Map<String, String>) {
+        prefs.emojiSkinTones = SkinTones.encode(tones)
+    }
+
+    /** Theme and key borders, as chosen on the setup screen. */
+    private fun applyLookSettings() {
+        viewModel.updateTheme(KeyboardTheme.fromName(prefs.keyboardTheme))
+        viewModel.updateKeyBorders(prefs.keyBorders)
     }
 
     override fun notice(resId: Int) {
@@ -412,6 +426,7 @@ class BanglaInputMethodService :
         viewModel.updateKeySound(prefs.keySound)
         viewModel.updateKeyHaptic(prefs.keyHaptic)
         viewModel.updateSmartConjunct(prefs.smartConjunct)
+        applyLookSettings()
         applyPendingLearnedClear()
         applyClipboardSetting()
         captureClip() // something may have been copied while the keyboard was idle

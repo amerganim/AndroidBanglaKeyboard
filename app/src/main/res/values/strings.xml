@@ -22,7 +22,7 @@
     <string name="size_small">Small</string>
     <string name="size_medium">Medium</string>
     <string name="size_large">Large</string>
-    <string name="theme_note">The keyboard follows your system light/dark theme.</string>
+    <string name="theme_note">\"System\" follows your phone\'s light/dark mode. The theme only changes the keyboard.</string>
     <string name="key_sound">Key press sound</string>
     <string name="key_haptic">Vibrate on key press</string>
     <string name="key_haptic_desc">A short vibration each time you type. Requires vibration to be on in your system settings.</string>
@@ -88,4 +88,19 @@
     <string name="select_text_first">Select some text first</string>
     <string name="copied">Copied</string>
     <string name="clipboard_is_empty">Nothing to paste</string>
+
+    <!-- Keyboard themes, key borders, emoji skin tones -->
+    <string name="keyboard_theme">Keyboard theme</string>
+    <string name="key_borders">Key borders</string>
+    <string name="key_borders_desc">Show a background behind each key. Turn off for a clean, borderless look.</string>
+    <string name="theme_system">System</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
+    <string name="theme_black">Black</string>
+    <string name="theme_bangla_green">Bangla Green</string>
+    <string name="theme_ocean">Ocean</string>
+    <string name="theme_midnight">Midnight</string>
+    <string name="theme_rose">Rose</string>
+    <string name="theme_sunset">Sunset</string>
+    <string name="theme_lavender">Lavender</string>
 </resources>

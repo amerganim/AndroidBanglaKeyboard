@@ -59,6 +59,21 @@ class KeyboardPrefs(context: Context) {
         get() = prefs.getLong(LAST_CLIP_STAMP, 0L)
         set(value) = prefs.edit().putLong(LAST_CLIP_STAMP, value).apply()
 
+    /** Keyboard color theme name (see KeyboardTheme); empty = follow the system. */
+    var keyboardTheme: String
+        get() = prefs.getString(KEYBOARD_THEME, "").orEmpty()
+        set(value) = prefs.edit().putString(KEYBOARD_THEME, value).apply()
+
+    /** Key borders: when off, keys are drawn without a key-cap background. */
+    var keyBorders: Boolean
+        get() = prefs.getBoolean(KEY_BORDERS, true)
+        set(value) = prefs.edit().putBoolean(KEY_BORDERS, value).apply()
+
+    /** Per-emoji skin-tone choices, encoded by SkinTones.encode. */
+    var emojiSkinTones: String
+        get() = prefs.getString(EMOJI_SKIN_TONES, "").orEmpty()
+        set(value) = prefs.edit().putString(EMOJI_SKIN_TONES, value).apply()
+
     /** Recently used emojis, newest first. */
     var recentEmojis: List<String>
         get() = prefs.getString(RECENT_EMOJIS, "").orEmpty().split(SEP).filter { it.isNotEmpty() }
@@ -88,6 +103,9 @@ class KeyboardPrefs(context: Context) {
         const val CLIPBOARD_HISTORY = "clipboard_history"
         const val LAST_CLIP_STAMP = "last_clip_stamp"
         const val RECENT_EMOJIS = "recent_emojis"
+        const val KEYBOARD_THEME = "keyboard_theme"
+        const val KEY_BORDERS = "key_borders"
+        const val EMOJI_SKIN_TONES = "emoji_skin_tones"
         const val SEP = "\u001F" // unit separator: never part of an emoji
     }
 }
