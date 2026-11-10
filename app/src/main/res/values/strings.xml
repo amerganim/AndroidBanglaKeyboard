@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Amader Bangla Keyboard</string>
+    <string name="app_name" translatable="false">Amader Bangla Keyboard</string>
     <string name="ime_label">Amader Bangla Keyboard</string>
 
     <!-- Setup screen -->
@@ -103,4 +103,6 @@
     <string name="theme_rose">Rose</string>
     <string name="theme_sunset">Sunset</string>
     <string name="theme_lavender">Lavender</string>
+    <string name="mic_enabled">Microphone enabled — tap 🎤 again</string>
+    <string name="mic_denied">Microphone permission denied</string>
 </resources>

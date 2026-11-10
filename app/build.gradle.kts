@@ -72,6 +72,16 @@ android {
     buildFeatures {
         compose = true
     }
+
+    // The app has its own English/বাংলা switch, so every install must carry both
+    // languages. By default Play splits a bundle by language and a phone set to
+    // English would download only the English strings — choosing বাংলা in the
+    // app then silently fell back to English.
+    bundle {
+        language {
+            enableSplit = false
+        }
+    }
 }
 
 dependencies {

@@ -89,6 +89,12 @@ class KeyboardViewModel(
     var keyBorders by mutableStateOf(true)
         private set
 
+    /** The app's UI language ("en"/"bn"), used for the keyboard's own labels. */
+    var uiLanguage by mutableStateOf("bn")
+        private set
+
+    fun updateUiLanguage(value: String) { uiLanguage = value }
+
     fun updateTheme(value: KeyboardTheme) { theme = value }
     fun updateKeyBorders(value: Boolean) { keyBorders = value }
 

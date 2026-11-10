@@ -37,6 +37,8 @@ import com.amerganim.banglakeyboard.data.DictionaryRepository
 import com.amerganim.banglakeyboard.data.KeyboardPrefs
 import com.amerganim.banglakeyboard.ui.KeyboardScreen
 import com.amerganim.banglakeyboard.ui.SkinTones
+import com.amerganim.banglakeyboard.ui.appLanguage
+import com.amerganim.banglakeyboard.ui.localizedContext
 import com.amerganim.banglakeyboard.ui.theme.KeyboardTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -217,14 +219,21 @@ class BanglaInputMethodService :
         prefs.emojiSkinTones = SkinTones.encode(tones)
     }
 
-    /** Theme and key borders, as chosen on the setup screen. */
+    /** A short message in the app's language (not the phone's system language). */
+    private fun toast(resId: Int) {
+        val text = localizedContext(this, appLanguage(this)).getString(resId)
+        Toast.makeText(this, text, Toast.LENGTH_SHORT).show()
+    }
+
+    /** Language, theme and key borders, as chosen on the setup screen. */
     private fun applyLookSettings() {
+        viewModel.updateUiLanguage(appLanguage(this))
         viewModel.updateTheme(KeyboardTheme.fromName(prefs.keyboardTheme))
         viewModel.updateKeyBorders(prefs.keyBorders)
     }
 
     override fun notice(resId: Int) {
-        Toast.makeText(this, resId, Toast.LENGTH_SHORT).show()
+        toast(resId)
     }
 
     // A bundled click played via SoundPool so it works regardless of the system's
@@ -273,7 +282,7 @@ class BanglaInputMethodService :
             return
         }
         if (!SpeechRecognizer.isRecognitionAvailable(this)) {
-            Toast.makeText(this, R.string.speech_unavailable, Toast.LENGTH_SHORT).show()
+            toast(R.string.speech_unavailable)
             return
         }
         startVoiceInput()
