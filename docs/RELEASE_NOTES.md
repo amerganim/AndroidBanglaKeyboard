@@ -18,12 +18,17 @@ Look-and-feel features asked for in a Play review.
 - Emoji skin tones: people and hand emojis show a small dot; long-press offers the
   default plus five tones, and the pick becomes that emoji's default. A few more
   people emojis (🤳 🙋 🤷 🤦 🙇 🚶 🏃 💃 🕺 🧘…) were added to the panel.
+- Fix: choosing বাংলা in the app now works on phones set to English. Play had
+  split the bundle by language, so those installs never got the Bangla strings;
+  language splits are now disabled. The keyboard's own labels, toasts and the
+  microphone-permission messages also follow the app language now.
 
 ### What's new — EN (`en-US`)
 ```
 • Keyboard themes: Bangla Green, Ocean, Black, Midnight, Rose, Sunset, Lavender and more. Pick one on the setup screen.
 • Borderless keys: turn off "Key borders" for a clean look.
 • Emoji skin tones: long-press 👍, 👋, 🙏 and other people emojis to choose a tone. Your choice is remembered.
+• Fixed: the app and keyboard now fully switch to বাংলা when you choose it.
 ```
 
 ### What's new — BN (`bn-BD`)
@@ -31,6 +36,7 @@ Look-and-feel features asked for in a Play review.
 • কিবোর্ডের থিম: বাংলা সবুজ, সমুদ্র, কালো, মধ্যরাত, গোলাপি, সূর্যাস্ত, ল্যাভেন্ডার ও আরও। সেটআপ পর্দা থেকে বেছে নিন।
 • বর্ডারহীন কী: পরিষ্কার চেহারার জন্য "কী-এর বর্ডার" বন্ধ করুন।
 • ইমোজির গায়ের রং: 👍, 👋, 🙏 ইত্যাদিতে দীর্ঘক্ষণ চেপে রং বেছে নিন। আপনার পছন্দ মনে থাকবে।
+• ঠিক করা হয়েছে: বাংলা বেছে নিলে অ্যাপ ও কিবোর্ড এখন পুরোপুরি বাংলায় দেখায়।
 ```
 
 ---
