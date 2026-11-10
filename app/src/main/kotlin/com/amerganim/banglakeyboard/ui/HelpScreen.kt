@@ -240,6 +240,24 @@ private fun faqs(): List<Faq> = listOf(
         ),
     ),
     Faq(
+        tr("কিবোর্ডের রং বা থিম কীভাবে বদলাব?", "How do I change the keyboard's colors?"),
+        tr(
+            "সেটআপ পর্দার “কিবোর্ডের থিম” থেকে একটি থিম বেছে নিন — যেমন বাংলা সবুজ, সমুদ্র, " +
+                "কালো বা গোলাপি। বর্ডারহীন চেহারা চাইলে “কী-এর বর্ডার” বন্ধ করুন।",
+            "Pick a theme under “Keyboard theme” on the setup screen — such as Bangla Green, " +
+                "Ocean, Black or Rose. For a borderless look, turn off “Key borders”.",
+        ),
+    ),
+    Faq(
+        tr("ইমোজির গায়ের রং কীভাবে বদলাব?", "How do I choose an emoji's skin tone?"),
+        tr(
+            "কোণে ছোট বিন্দু-চিহ্নিত ইমোজিতে (যেমন 👍, 👋, 🙏) দীর্ঘক্ষণ চাপুন, তারপর একটি রং " +
+                "বেছে নিন। পরের বার থেকে সেই ইমোজি ওই রঙেই দেখাবে।",
+            "Long-press an emoji that has a small dot in its corner (such as 👍, 👋, 🙏) and " +
+                "pick a tone. That emoji keeps your chosen tone from then on.",
+        ),
+    ),
+    Faq(
         tr("ভয়েস টাইপিং কাজ করছে না।", "Voice typing isn't working."),
         tr(
             "মাইক্রোফোন কী-তে প্রথমবার চাপলে মাইক্রোফোনের অনুমতি চাওয়া হয় — সেটি অনুমোদন করুন। " +

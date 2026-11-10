@@ -18,6 +18,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -50,6 +51,13 @@ import kotlinx.coroutines.launch
 
 /** Visual role of a key. */
 enum class KeyStyle { NORMAL, SPECIAL, ACCENT }
+
+/**
+ * Whether keys are drawn with key-cap backgrounds. When false ("borderless"), only
+ * the Enter key and active keys keep a filled cap; other keys show just their
+ * label, and light up while pressed.
+ */
+val LocalKeyBorders = staticCompositionLocalOf { true }
 
 /**
  * A single keyboard key. Width is set by the caller via [modifier] (weight).
@@ -92,13 +100,19 @@ fun KeyButton(
     var pressedByHold by remember { mutableStateOf(false) }
     var popupOpen by remember { mutableStateOf(false) }
     val pressed = pressedByClick || pressedByHold
+    val filled = active || style == KeyStyle.ACCENT
+    val borderless = !LocalKeyBorders.current && !filled
 
     val baseColor = when {
-        active || style == KeyStyle.ACCENT -> colors.primary
+        filled -> colors.primary
         style == KeyStyle.SPECIAL -> colors.secondaryContainer
         else -> colors.surfaceContainerLowest
     }
-    val background = if (pressed) baseColor.blendTowards(colors.primary, 0.35f) else baseColor
+    val background = when {
+        borderless && !pressed -> Color.Transparent
+        pressed -> baseColor.blendTowards(colors.primary, 0.35f)
+        else -> baseColor
+    }
     val contentColor = if (active || style == KeyStyle.ACCENT) colors.onPrimary else colors.onSurface
 
     val hasPopup = !popupChars.isNullOrEmpty() && onPopupChar != null
@@ -134,7 +148,7 @@ fun KeyButton(
         modifier = modifier
             .padding(horizontal = 3.dp, vertical = 4.dp)
             .height(height)
-            .shadow(if (pressed) 0.dp else 1.dp, RoundedCornerShape(9.dp), clip = false)
+            .shadow(if (pressed || borderless) 0.dp else 1.dp, RoundedCornerShape(9.dp), clip = false)
             .clip(RoundedCornerShape(9.dp))
             .background(background)
             .then(clickModifier)

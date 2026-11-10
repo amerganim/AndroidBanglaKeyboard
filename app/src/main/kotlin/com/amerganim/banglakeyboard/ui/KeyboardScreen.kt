@@ -8,16 +8,33 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.amerganim.banglakeyboard.ime.KeyboardViewModel
-import com.amerganim.banglakeyboard.ui.theme.BanglaKeyboardTheme
+import com.amerganim.banglakeyboard.ui.theme.KeyboardColorTheme
 
 /** Root of the keyboard: candidate strip above the QWERTY/Amader/symbol layout. */
 @Composable
 fun KeyboardScreen(vm: KeyboardViewModel) {
-    BanglaKeyboardTheme {
+    // The keyboard's labels follow the language chosen in the app, not the phone's
+    // system language. Rebuilt when either changes (the system config carries the
+    // dark-mode flag that the System theme follows).
+    val baseContext = LocalContext.current
+    val systemConfig = LocalConfiguration.current
+    val localized = remember(vm.uiLanguage, systemConfig) {
+        localizedContext(baseContext, vm.uiLanguage, systemConfig)
+    }
+    CompositionLocalProvider(
+        LocalContext provides localized,
+        LocalConfiguration provides localized.resources.configuration,
+    ) {
+    KeyboardColorTheme(vm.theme) {
+        CompositionLocalProvider(LocalKeyBorders provides vm.keyBorders) {
         Surface(color = MaterialTheme.colorScheme.background) {
             // On wide screens (tablets / landscape) cap the keys' width and centre
             // them so they don't stretch into oversized keys.
@@ -40,5 +57,7 @@ fun KeyboardScreen(vm: KeyboardViewModel) {
                 }
             }
         }
+        }
+    }
     }
 }

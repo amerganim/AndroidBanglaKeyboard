@@ -15,6 +15,7 @@ import com.amerganim.banglakeyboard.data.DictionaryRepository
 import com.amerganim.banglakeyboard.data.KeySize
 import com.amerganim.banglakeyboard.data.Lang
 import com.amerganim.banglakeyboard.engine.Transliterator
+import com.amerganim.banglakeyboard.ui.theme.KeyboardTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.text.BreakIterator
@@ -75,6 +76,27 @@ class KeyboardViewModel(
     /** Most recently used emojis, newest first. */
     var recentEmojis by mutableStateOf<List<String>>(emptyList())
         private set
+
+    /** Skin tone chosen per emoji (base emoji -> variant). */
+    var emojiTones by mutableStateOf<Map<String, String>>(emptyMap())
+        private set
+
+    /** The keyboard's color theme. */
+    var theme by mutableStateOf(KeyboardTheme.SYSTEM)
+        private set
+
+    /** False = borderless keys (no key-cap background). */
+    var keyBorders by mutableStateOf(true)
+        private set
+
+    /** The app's UI language ("en"/"bn"), used for the keyboard's own labels. */
+    var uiLanguage by mutableStateOf("bn")
+        private set
+
+    fun updateUiLanguage(value: String) { uiLanguage = value }
+
+    fun updateTheme(value: KeyboardTheme) { theme = value }
+    fun updateKeyBorders(value: Boolean) { keyBorders = value }
 
     var keySize by mutableStateOf(KeySize.MEDIUM)
         private set
@@ -363,6 +385,18 @@ class KeyboardViewModel(
     }
 
     fun updateRecentEmojis(list: List<String>) { recentEmojis = list }
+
+    fun updateEmojiTones(map: Map<String, String>) { emojiTones = map }
+
+    /**
+     * The user picked a skin-tone [variant] of [base] from the long-press popup:
+     * insert it and make it that emoji's default from now on.
+     */
+    fun onEmojiVariant(base: String, variant: String) {
+        emojiTones = emojiTones + (base to variant)
+        host.saveEmojiTones(emojiTones)
+        onEmoji(variant)
+    }
 
     // ---- Clipboard history ------------------------------------------------
 

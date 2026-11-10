@@ -23,6 +23,9 @@ interface KeyboardHost {
 
     fun saveRecentEmojis(emojis: List<String>)
 
+    /** Persist the per-emoji skin-tone choices (base emoji -> chosen variant). */
+    fun saveEmojiTones(tones: Map<String, String>)
+
     /** Show a short message (a string resource id). */
     fun notice(resId: Int)
 
@@ -34,6 +37,7 @@ interface KeyboardHost {
         override fun removeClip(text: String) {}
         override fun clearClips() {}
         override fun saveRecentEmojis(emojis: List<String>) {}
+        override fun saveEmojiTones(tones: Map<String, String>) {}
         override fun notice(resId: Int) {}
     }
 }
